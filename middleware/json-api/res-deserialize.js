@@ -26,9 +26,9 @@ module.exports = {
 
     if(needsDeserialization(req.method)) {
       if(isCollection(res.data)) {
-        deserializedResponse = deserialize.collection.call(jsonApi, res.data, included)
+        deserializedResponse = deserialize.collection.call(jsonApi, res.data, included, req.model)
       }else{
-        deserializedResponse = deserialize.resource.call(jsonApi, res.data, included)
+        deserializedResponse = deserialize.resource.call(jsonApi, res.data, included, req.model)
       }
     }
 
