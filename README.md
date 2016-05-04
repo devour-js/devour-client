@@ -1,6 +1,7 @@
 # Devour JSON-API Client
 
 – _"Don't just consume your [JSON-API](http://jsonapi.org/), Devour it"_
+
 -------------------------------------------------
 
 [![Build Status](https://travis-ci.org/twg/devour-jsonapi-client.svg?branch=master)](https://travis-ci.org/twg/devour-jsonapi-client)
