@@ -1,5 +1,5 @@
-import _ from 'lodash'
-import pluralize from 'pluralize'
+const _ = require('lodash')
+const pluralize = require('pluralize')
 
 function collection(modelName, items) {
   return items.map(item => { return resource.call(this, modelName, item) })
@@ -70,7 +70,7 @@ function serializeHasOne(relationship, type) {
   }
 }
 
-export default {
+module.exports = {
   resource: resource,
   collection: collection
 }

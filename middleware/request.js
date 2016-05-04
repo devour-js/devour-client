@@ -1,6 +1,6 @@
-import {Promise} from 'es6-promise'
+const Promise = require('es6-promise').Promise
 
-export default {
+module.exports = {
   name: 'axios-request',
   req: function(payload) {
     let jsonApi = payload.jsonApi
