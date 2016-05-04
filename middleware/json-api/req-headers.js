@@ -1,5 +1,6 @@
-import {isEmpty} from 'lodash'
-export default {
+const isEmpty = require('lodash').isEmpty
+
+module.exports = {
   name: 'HEADER',
   req: (payload)=> {
     if (!isEmpty(payload.jsonApi.headers)) {

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   name: 'DELETE',
   req: (payload)=> {
     if(payload.req.method === 'DELETE') {

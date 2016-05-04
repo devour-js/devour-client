@@ -1,5 +1,5 @@
-import deserialize from './_deserialize'
-import _ from 'lodash'
+const deserialize = require('./_deserialize')
+const _ = require('lodash')
 
 function needsDeserialization(method) {
   return ['GET', 'PATCH', 'POST'].indexOf(method) !== -1
@@ -9,7 +9,7 @@ function isCollection(responseData) {
   return _.isArray(responseData)
 }
 
-export default {
+module.exports = {
   name: 'response',
   res: function(payload) {
     /*

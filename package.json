@@ -17,10 +17,7 @@
     "API",
     "Client"
   ],
-  "author": [
-    "Emerson Lackey",
-    "Josh Zucker"
-  ],
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/twg/devour-jsonapi-client/issues"
@@ -41,5 +38,31 @@
     "es6-promise": "^3.1.2",
     "lodash": "^4.11.2",
     "pluralize": "^1.2.1"
-  }
+  },
+  "gitHead": "90361305416393cc969a45f04d618b41eadf0d53",
+  "_id": "devour-jsonapi-client@1.0.1",
+  "_shasum": "99117da688b875831bc6fafe80d6fa8c1304bde5",
+  "_from": "devour-jsonapi-client@latest",
+  "_npmVersion": "3.3.12",
+  "_nodeVersion": "5.3.0",
+  "_npmUser": {
+    "name": "emerson",
+    "email": "emerson.lackey@gmail.com"
+  },
+  "dist": {
+    "shasum": "99117da688b875831bc6fafe80d6fa8c1304bde5",
+    "tarball": "https://registry.npmjs.org/devour-jsonapi-client/-/devour-jsonapi-client-1.0.1.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "emerson",
+      "email": "emerson.lackey@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/devour-jsonapi-client-1.0.1.tgz_1462307440900_0.4206870866473764"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/devour-jsonapi-client/-/devour-jsonapi-client-1.0.1.tgz"
 }

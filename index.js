@@ -1,8 +1,8 @@
-import axios       from 'axios'
-import pluralize   from 'pluralize'
-import {Promise}   from 'es6-promise'
-import deserialize from './middleware/json-api/_deserialize'
-import serialize   from './middleware/json-api/_serialize'
+const axios = require('axios')
+const pluralize = require('pluralize')
+const Promise = require('es6-promise').Promise
+const deserialize = require('./middleware/json-api/_deserialize')
+const serialize = require('./middleware/json-api/_serialize')
 
 /*
 *   == JsonApiMiddleware
@@ -13,14 +13,14 @@ import serialize   from './middleware/json-api/_serialize'
 *   standards.
 *
 */
-import jsonApiPostMiddleware         from './middleware/json-api/req-post'
-import jsonApiPatchMiddleware        from './middleware/json-api/req-patch'
-import jsonApiDeleteMiddleware       from './middleware/json-api/req-delete'
-import jsonApiHeadersMiddleware      from './middleware/json-api/req-headers'
-import railsParamsSerializer         from './middleware/json-api/rails-params-serializer'
-import sendRequestMiddleware         from './middleware/request'
-import deserializeResponseMiddleware from './middleware/json-api/res-deserialize'
-import processErrors                 from './middleware/json-api/res-errors'
+const jsonApiPostMiddleware = require('./middleware/json-api/req-post')
+const jsonApiPatchMiddleware = require('./middleware/json-api/req-patch')
+const jsonApiDeleteMiddleware = require('./middleware/json-api/req-delete')
+const jsonApiHeadersMiddleware = require('./middleware/json-api/req-headers')
+const railsParamsSerializer = require('./middleware/json-api/rails-params-serializer')
+const sendRequestMiddleware = require('./middleware/request')
+const deserializeResponseMiddleware = require('./middleware/json-api/res-deserialize')
+const processErrors = require('./middleware/json-api/res-errors')
 
 let jsonApiMiddleware = [
   jsonApiPostMiddleware,
@@ -210,4 +210,4 @@ class JsonApi {
 
 }
 
-export default JsonApi
+module.exports = JsonApi

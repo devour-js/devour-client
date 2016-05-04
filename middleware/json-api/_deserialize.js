@@ -1,5 +1,5 @@
-import _ from 'lodash'
-import pluralize from 'pluralize'
+const _ = require('lodash')
+const pluralize = require('pluralize')
 
 function collection(items, included) {
   return items.map(item => { return resource.call(this, item, included) })
@@ -98,7 +98,7 @@ function isRelatedItemFor(attribute, relatedItem, relationMapItem) {
   )
 }
 
-export default {
+module.exports = {
   resource: resource,
   collection: collection
 }

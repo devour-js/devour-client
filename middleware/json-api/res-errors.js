@@ -15,7 +15,7 @@ function errorKey(source) {
   return source.pointer.split('/').pop()
 }
 
-export default {
+module.exports = {
   name: 'errors',
   error: function(payload) {
     return buildErrors(payload.data)
