@@ -34,24 +34,11 @@ let jsonApiMiddleware = [
 ]
 
 
-/*
-*   We are creating a singleton, so we cache the reference to the instance
-*   outside our class closure and check it during instantiation.
-*/
-let instance = null
-
 class JsonApi {
 
-  static getInstance() {
-    if(!instance) {
-      instance = new JsonApi()
-    }
-    return instance
-  }
-
-  setup(apiUrl, middleware = jsonApiMiddleware) {
+  constructor(apiUrl, middleware = jsonApiMiddleware) {
     this._originalMiddleware = middleware.slice(0)
-    this.middleware = middleware
+    this.middleware = middleware.slice(0)
     this.headers = {}
     this.axios = axios
     this.apiUrl = apiUrl

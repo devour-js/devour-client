@@ -5,15 +5,12 @@ import expect from 'expect.js'
 
 describe('deserialize', ()=> {
 
-  afterEach(()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
-    jsonApi.resetMiddleware()
+  var jsonApi = null
+  before(()=> {
+    jsonApi = new JsonApi('http://myapi.com')
   })
 
   it('should deserialize single resource items', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -35,8 +32,6 @@ describe('deserialize', ()=> {
   })
 
   it('should deserialize hasMany relations', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       tags: {
@@ -85,8 +80,6 @@ describe('deserialize', ()=> {
   })
 
   it('should deserialize collections of resource items', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: ''

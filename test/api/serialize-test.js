@@ -5,15 +5,12 @@ import expect from 'expect.js'
 
 describe('serialize', ()=> {
 
-  afterEach(()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
-    jsonApi.resetMiddleware()
+  var jsonApi = null
+  beforeEach(()=> {
+    jsonApi = new JsonApi('http://myapi.com')
   })
 
   it('should serialize resource items', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -25,8 +22,6 @@ describe('serialize', ()=> {
   })
 
   it('should serialize hasMany relationships', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: '',
@@ -57,8 +52,6 @@ describe('serialize', ()=> {
   })
 
   it('should serialize hasOne relationships', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: '',
@@ -81,8 +74,6 @@ describe('serialize', ()=> {
   })
 
   it('should not serialize read only attributes', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: '',
@@ -102,8 +93,6 @@ describe('serialize', ()=> {
   })
 
   it('should serialize collections of items', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -120,8 +109,6 @@ describe('serialize', ()=> {
   })
 
   it('should serialize the id of items if present', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {title: ''})
     let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello'})
     expect(serializedItem.type).to.eql('products')
@@ -129,8 +116,6 @@ describe('serialize', ()=> {
   })
 
   it('should allow for custom serialization if present on the model', ()=> {
-    let jsonApi = JsonApi.getInstance()
-    jsonApi.setup('http://myapi.com')
     jsonApi.define('product', {title: ''}, {serializer: ()=> {
       return {
         custom: true

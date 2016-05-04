@@ -21,8 +21,7 @@ While there are quite a few [JavaScript client implementations](http://jsonapi.o
 import JsonApi from 'devour-api-client'
 
 // Bootstrap
-let jsonApi = JsonApi.getInstance()
-jsonApi.setup('http://your-api-here.com')
+const jsonApi = new JsonApi('http://your-api-here.com')
 
 // Define Model
 jsonApi.define('post', {
