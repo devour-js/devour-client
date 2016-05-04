@@ -36,9 +36,9 @@ let jsonApiMiddleware = [
 
 class JsonApi {
 
-  constructor(apiUrl, middleware = jsonApiMiddleware.slice(0)) {
+  constructor(apiUrl, middleware = jsonApiMiddleware) {
     this._originalMiddleware = middleware.slice(0)
-    this.middleware = middleware
+    this.middleware = middleware.slice(0)
     this.headers = {}
     this.axios = axios
     this.apiUrl = apiUrl
