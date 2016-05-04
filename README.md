@@ -4,6 +4,9 @@
 
 -------------------------------------------------
 
+[![Build Status](https://travis-ci.org/twg/devour-jsonapi-client.svg?branch=master)](https://travis-ci.org/twg/devour-jsonapi-client)
+
+
 The [JSON API specification](http://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
 
 While JSON API is amazing, it can be painful to work with if you don't have a good consumer library. It turns out that serializing and deserializing JSON API resources manually is quite painful. Enter Devour...
