@@ -4,7 +4,7 @@
   "description": "Don't just consume your JSON API, Devour it...",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register test/**"
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
