@@ -119,10 +119,10 @@ class JsonApi {
       })
   }
 
-  find(modelName, id, params={}) {
+  find(modelName, id, params={}, nesting) {
     let req = {
       method: 'GET',
-      url: this.resourceUrlFor(modelName, id),
+      url: this.resourceUrlFor(modelName, id, nesting),
       model: modelName,
       data: {},
       params: params
@@ -130,10 +130,10 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  findAll(modelName, params={}) {
+  findAll(modelName, params={}, nesting) {
     let req = {
       method: 'GET',
-      url: this.collectionUrlFor(modelName),
+      url: this.collectionUrlFor(modelName, nesting),
       model: modelName,
       params: params,
       data: {}
@@ -141,30 +141,30 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  create(modelName, payload) {
+  create(modelName, payload, nesting) {
     let req = {
       method: 'POST',
-      url: this.collectionUrlFor(modelName),
+      url: this.collectionUrlFor(modelName, nesting),
       model: modelName,
       data: payload
     }
     return this.runMiddleware(req)
   }
 
-  update(modelName, payload) {
+  update(modelName, payload, nesting) {
     let req = {
       method: 'PATCH',
-      url: this.resourceUrlFor(modelName, payload.id),
+      url: this.resourceUrlFor(modelName, payload.id, nesting),
       model: modelName,
       data: payload
     }
     return this.runMiddleware(req)
   }
 
-  destroy(modelName, id) {
+  destroy(modelName, id, nesting) {
     let req = {
       method: 'DELETE',
-      url: this.resourceUrlFor(modelName, id),
+      url: this.resourceUrlFor(modelName, id, nesting),
       model: modelName,
       data: {}
     }
@@ -185,14 +185,16 @@ class JsonApi {
     return `${collectionPath}/${id}`
   }
 
-  collectionUrlFor(modelName) {
+  collectionUrlFor(modelName, nesting = '') {
     let collectionPath = this.collectionPathFor(modelName)
-    return `${this.apiUrl}/${collectionPath}`
+    if (nesting) nesting = `${nesting}/`
+    return `${this.apiUrl}/${nesting}${collectionPath}`
   }
 
-  resourceUrlFor(modelName, id) {
+  resourceUrlFor(modelName, id, nesting = '') {
     let resourcePath = this.resourcePathFor(modelName, id)
-    return `${this.apiUrl}/${resourcePath}`
+    if (nesting) nesting = `${nesting}/`
+    return `${this.apiUrl}/${nesting}${resourcePath}`
   }
 
 }
