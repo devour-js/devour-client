@@ -18,10 +18,10 @@ While there are quite a few [JavaScript client implementations](http://jsonapi.o
 ### Quick Start
 
 ```js
-// npm install devour-api-client --save
+// npm install devour-client --save
 
 // Import
-import JsonApi from 'devour-api-client'
+import JsonApi from 'devour-client'
 
 // Bootstrap
 const jsonApi = new JsonApi('http://your-api-here.com')
