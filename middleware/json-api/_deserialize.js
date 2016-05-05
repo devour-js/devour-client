@@ -1,12 +1,14 @@
 const _ = require('lodash')
 const pluralize = require('pluralize')
 
-function collection(items, included) {
-  return items.map(item => { return resource.call(this, item, included) })
+function collection(items, included, responseModel) {
+  return items.map(item => { return resource.call(this, item, included, responseModel) })
 }
 
-function resource(item, included) {
+function resource(item, included, responseModel) {
   let model = this.modelFor(pluralize.singular(item.type))
+  if (!model) throw 'The JSON API response had a type of "' + item.type + '" but Devour expected the type to be "'+ responseModel +'".'
+
   let deserializedModel = {}
 
   if(item.id) {
