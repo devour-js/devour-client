@@ -1,16 +1,16 @@
+/* global describe, it, before */
+
 import JsonApi from '../../index'
 import deserialize from '../../middleware/json-api/_deserialize'
-import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 
-describe('deserialize', ()=> {
-
+describe('deserialize', () => {
   var jsonApi = null
-  before(()=> {
+  before(() => {
     jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
   })
 
-  it('should deserialize single resource items', ()=> {
+  it('should deserialize single resource items', () => {
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -31,7 +31,7 @@ describe('deserialize', ()=> {
     expect(product.about).to.eql('Some about')
   })
 
-  it('should deserialize hasMany relations', ()=> {
+  it('should deserialize hasMany relations', () => {
     jsonApi.define('product', {
       title: '',
       tags: {
@@ -63,12 +63,6 @@ describe('deserialize', ()=> {
         {id: '6', type: 'tags', attributes: {name: 'two'}}
       ]
     }
-    let payload = {
-      res: {
-        data: mockResponse
-      },
-      jsonApi: jsonApi,
-    }
     let product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
     expect(product.id).to.eql('1')
     expect(product.title).to.eql('hello')
@@ -79,7 +73,7 @@ describe('deserialize', ()=> {
     expect(product.tags[1].name).to.eql('two')
   })
 
-  it('should deserialize collections of resource items', ()=> {
+  it('should deserialize collections of resource items', () => {
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -112,5 +106,4 @@ describe('deserialize', ()=> {
     expect(products[1].title).to.eql('Another Title')
     expect(products[1].about).to.eql('Another about')
   })
-
 })

@@ -1,20 +1,21 @@
+/* global describe, it, beforeEach, afterEach */
+
 import JsonApi from '../../index'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 
-describe('JsonApi', ()=> {
-
+describe('JsonApi', () => {
   var jsonApi = null
-  beforeEach(()=> {
+  beforeEach(() => {
     jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
   })
 
-  afterEach(()=> {
+  afterEach(() => {
     jsonApi.resetBuilder()
   })
 
-  describe('Constructors', ()=> {
-    it('should allow both object and deprecated constructors to be used', ()=> {
+  describe('Constructors', () => {
+    it('should allow both object and deprecated constructors to be used', () => {
       let jsonApi
       jsonApi = new JsonApi('http://myapi.com')
       expect(jsonApi).to.be.a(JsonApi)
@@ -24,12 +25,12 @@ describe('JsonApi', ()=> {
       expect(jsonApi).to.be.a(JsonApi)
     })
 
-    it('should allow apiUrl to be set via the initializer object', ()=> {
+    it('should allow apiUrl to be set via the initializer object', () => {
       let jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
       expect(jsonApi.apiUrl).to.eql('http://myapi.com')
     })
 
-    it('should allow middleware to be set via the initializer object', ()=> {
+    it('should allow middleware to be set via the initializer object', () => {
       let middleware = [
         {
           name: 'm1',
@@ -56,64 +57,60 @@ describe('JsonApi', ()=> {
       expect(jsonApi.apiUrl).to.eql('http://myapi.com')
     })
 
-    it('should set the apiUrl during setup', ()=> {
+    it('should set the apiUrl during setup', () => {
       expect(jsonApi.apiUrl).to.eql('http://myapi.com')
     })
 
-    it('should have a empty models and middleware properties after instantiation', ()=> {
+    it('should have a empty models and middleware properties after instantiation', () => {
       expect(jsonApi.models).to.be.an('object')
       expect(jsonApi.middleware).to.be.an('array')
     })
 
-    it('should initialize with an empty headers object', ()=> {
+    it('should initialize with an empty headers object', () => {
       expect(jsonApi.headers).to.be.an('object')
       expect(jsonApi.headers).to.eql({})
     })
 
-    it('should allow users to add headers', ()=> {
+    it('should allow users to add headers', () => {
       jsonApi.headers['A-Header-Name'] = 'a value'
       expect(jsonApi.headers).to.eql({
         'A-Header-Name': 'a value'
       })
     })
 
-    it.skip('should throw Exception if the constructor does not receive proper arguments', ()=> {
+    it.skip('should throw Exception if the constructor does not receive proper arguments', () => {
       expect(function () {
         throw new Error('boom!')
       }).toThrow(/boom/)
-
-      expect(function () {
-        new JsonApi()
-      }).to.throw(Error)
     })
   })
 
-  describe('urlFor, pathFor and path builders', ()=> {
-    it('should construct collection paths for models', ()=> {
+  describe('urlFor, pathFor and path builders', () => {
+    it('should construct collection paths for models', () => {
       jsonApi.define('product', {})
       expect(jsonApi.collectionPathFor('product')).to.eql('products')
     })
 
-    it('should allow overrides for collection paths', ()=> {
+    it('should allow overrides for collection paths', () => {
       jsonApi.define('product', {}, {collectionPath: 'my-products'})
       expect(jsonApi.collectionPathFor('product')).to.eql('my-products')
     })
 
-    it('should allow arbitrary collections without a model', ()=> {
+    it('should allow arbitrary collections without a model', () => {
       expect(jsonApi.collectionPathFor('foo')).to.eql('foos')
     })
 
-    it('should construct single resource paths for models', ()=> {
+    it('should construct single resource paths for models', () => {
       jsonApi.define('product', {})
       expect(jsonApi.resourcePathFor('product', 1)).to.eql('products/1')
     })
 
-    it('should construct collection urls for models', ()=> {
+    it('should construct collection urls for models', () => {
       jsonApi.define('product', {})
       expect(jsonApi.collectionUrlFor('product')).to.eql('http://myapi.com/products')
     })
 
-    it('should construct single resource urls for models', ()=> {
+    it('should construct single resource urls for models', () => {
       jsonApi.define('product', {})
       expect(jsonApi.resourceUrlFor('product', 1)).to.eql('http://myapi.com/products/1')
     })
@@ -136,7 +133,7 @@ describe('JsonApi', ()=> {
   })
 
   describe('Middleware', () => {
-    it('should allow users to register middleware', ()=> {
+    it('should allow users to register middleware', () => {
       let catMiddleWare = {
         name: 'cat-middleware',
         req: function (req) {
@@ -150,7 +147,7 @@ describe('JsonApi', ()=> {
       expect(jsonApi.middleware[0].name).to.eql('cat-middleware')
     })
 
-    it('should allow users to register middleware before or after existing middleware', ()=> {
+    it('should allow users to register middleware before or after existing middleware', () => {
       let responseMiddleware = jsonApi.middleware.filter(middleware => middleware.name === 'response')[0]
       let beforeMiddleware = {
         name: 'before'
@@ -164,18 +161,17 @@ describe('JsonApi', ()=> {
       expect(jsonApi.middleware.indexOf(beforeMiddleware)).to.eql(index)
       expect(jsonApi.middleware.indexOf(afterMiddleware)).to.eql(index + 2)
     })
-
   })
 
   describe('Models and serializers', () => {
-    it('should expose the serialize and deserialize objects', ()=> {
+    it('should expose the serialize and deserialize objects', () => {
       expect(jsonApi.serialize.collection).to.be.a('function')
       expect(jsonApi.serialize.resource).to.be.a('function')
       expect(jsonApi.deserialize.collection).to.be.a('function')
       expect(jsonApi.deserialize.resource).to.be.a('function')
     })
 
-    it('should allow users to define models', ()=> {
+    it('should allow users to define models', () => {
       jsonApi.define('product', {
         id: '',
         title: ''
@@ -187,7 +183,7 @@ describe('JsonApi', ()=> {
   })
 
   describe('Basic API calls', () => {
-    it('should make basic find calls', (done)=> {
+    it('should make basic find calls', (done) => {
       mockResponse(jsonApi, {
         data: {
           data: {
@@ -202,14 +198,14 @@ describe('JsonApi', ()=> {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.find('product', 1).then((product)=> {
+      jsonApi.find('product', 1).then((product) => {
         expect(product.id).to.eql('1')
         expect(product.title).to.eql('Some Title')
         done()
       }).catch(err => console.log(err))
     })
 
-    it('should make basic findAll calls', (done)=> {
+    it('should make basic findAll calls', (done) => {
       mockResponse(jsonApi, {
         data: {
           data: [
@@ -233,7 +229,7 @@ describe('JsonApi', ()=> {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then((products)=> {
+      jsonApi.findAll('product').then((products) => {
         expect(products[0].id).to.eql('1')
         expect(products[0].title).to.eql('Some Title')
         expect(products[1].id).to.eql('2')
@@ -242,10 +238,10 @@ describe('JsonApi', ()=> {
       }).catch(err => console.log(err))
     })
 
-    it('should make basic create call', ()=> {
+    it('should make basic create call', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
           expect(payload.req.data).to.be.eql({title: 'foo'})
@@ -259,10 +255,10 @@ describe('JsonApi', ()=> {
         title: ''
       })
 
-      jsonApi.create('foo', {title: 'foo'}).then(()=>done()).catch(()=>done())
+      jsonApi.create('foo', {title: 'foo'}).then(() => done()).catch(() => done())
     })
 
-    it('should include meta information on response objects', (done)=> {
+    it('should include meta information on response objects', (done) => {
       mockResponse(jsonApi, {
         data: {
           meta: {
@@ -280,7 +276,7 @@ describe('JsonApi', ()=> {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then((products)=> {
+      jsonApi.findAll('product').then((products) => {
         expect(products.meta.totalObjects).to.eql(1)
         expect(products[0].id).to.eql('1')
         expect(products[0].title).to.eql('Some Title')
@@ -289,27 +285,28 @@ describe('JsonApi', ()=> {
     })
   })
 
-  describe('Builder pattern for route construction', ()=> {
-    beforeEach(()=> {
+  describe('Builder pattern for route construction', () => {
+    beforeEach(() => {
       jsonApi.define('foo', {title: ''})
       jsonApi.define('bar', {title: ''})
       jsonApi.define('baz', {title: ''})
     })
 
-    it('should respect resetBuilderOnCall', (done)=> {
+    it('should respect resetBuilderOnCall', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/')
           return {}
         }
       }
       jsonApi.middleware = [inspectorMiddleware]
-      jsonApi.get().then(()=> {
+      jsonApi.get()
+        .then(() => {
           let inspectorMiddleware = {
             name: 'inspector-middleware',
-            req: (payload)=> {
+            req: (payload) => {
               expect(payload.req.method).to.be.eql('GET')
               expect(payload.req.url).to.be.eql('http://myapi.com/foos')
               return {}
@@ -318,17 +315,17 @@ describe('JsonApi', ()=> {
           jsonApi.middleware = [inspectorMiddleware]
           return jsonApi.all('foo').get()
         })
-        .then(()=>done())
-        .catch(()=>done())
+        .then(() => done())
+        .catch(() => done())
 
       expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
     })
 
-    it('should respect resetBuilderOnCall when it is disabled', (done)=> {
+    it('should respect resetBuilderOnCall when it is disabled', (done) => {
       jsonApi = new JsonApi({apiUrl: 'http://myapi.com', resetBuilderOnCall: false})
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           return {}
@@ -337,11 +334,10 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).get().then(()=>{
-
+      jsonApi.one('foo', 1).get().then(() => {
         let inspectorMiddleware = {
           name: 'inspector-middleware',
-          req: (payload)=> {
+          req: (payload) => {
             expect(payload.req.method).to.be.eql('GET')
             expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
             return {}
@@ -350,15 +346,15 @@ describe('JsonApi', ()=> {
 
         jsonApi.middleware = [inspectorMiddleware]
 
-        return jsonApi.all('bar').get().then(()=>done())
-      }).catch(()=>done())
+        return jsonApi.all('bar').get().then(() => done())
+      }).catch(() => done())
     })
 
-    it('should allow builders to be used', ()=> {
+    it('should allow builders to be used', () => {
       expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
     })
 
-    it('should allow builders on all', ()=> {
+    it('should allow builders on all', () => {
       expect(jsonApi.all('foo').all('bar').all('baz').pathFor()).to.eql('foos/bars/bazs')
 
       jsonApi.resetBuilder()
@@ -366,7 +362,7 @@ describe('JsonApi', ()=> {
       expect(jsonApi.all('foos').all('bars').all('bazs').pathFor()).to.eql('foos/bars/bazs')
     })
 
-    it('should allow builders on one', ()=> {
+    it('should allow builders on one', () => {
       expect(jsonApi.one('foo', 1).one('bar', 2).one('baz', 3).pathFor()).to.eql('foos/1/bars/2/bazs/3')
 
       jsonApi.resetBuilder()
@@ -374,7 +370,7 @@ describe('JsonApi', ()=> {
       expect(jsonApi.one('foos', 1).one('bars', 2).one('bazs', 3).pathFor()).to.eql('foos/1/bars/2/bazs/3')
     })
 
-    it('should allow builders on all and one', ()=> {
+    it('should allow builders on all and one', () => {
       expect(jsonApi.one('foo', 1).one('bar', 2).all('baz').pathFor()).to.eql('foos/1/bars/2/bazs')
 
       jsonApi.resetBuilder()
@@ -382,7 +378,7 @@ describe('JsonApi', ()=> {
       expect(jsonApi.one('foos', 1).one('bars', 2).all('bazs').pathFor()).to.eql('foos/1/bars/2/bazs')
     })
 
-    it('should allow builders to be called to the base url', (done)=> {
+    it('should allow builders to be called to the base url', (done) => {
       mockResponse(jsonApi, {
         data: {
           data: [
@@ -397,17 +393,17 @@ describe('JsonApi', ()=> {
         }
       })
 
-      jsonApi.get().then((foos)=> {
+      jsonApi.get().then((foos) => {
         expect(foos[0].id).to.eql('1')
         expect(foos[0].title).to.eql('foo 1')
         done()
       }).catch(err => console.log(err))
     })
 
-    it('should allow builders to be called with get', (done)=> {
+    it('should allow builders to be called with get', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/')
           return {}
@@ -416,13 +412,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get().then(()=>done()).catch(()=>done())
+      jsonApi.get().then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with get with query params', (done)=> {
+    it('should allow builders to be called with get with query params', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/')
           expect(payload.req.params).to.be.eql({page: {number: 2}})
@@ -432,13 +428,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get({page: {number: 2}}).then(()=>done()).catch(()=>done())
+      jsonApi.get({page: {number: 2}}).then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with get on all', (done)=> {
+    it('should allow builders to be called with get on all', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
           return {}
@@ -447,13 +443,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').get().then(()=>done()).catch(()=>done())
+      jsonApi.all('foo').get().then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with get on one', (done)=> {
+    it('should allow builders to be called with get on one', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           return {}
@@ -462,13 +458,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).get().then(()=>done()).catch(()=>done())
+      jsonApi.one('foo', 1).get().then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with post', (done)=> {
+    it('should allow builders to be called with post', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
           expect(payload.req.data).to.be.eql({title: 'foo'})
@@ -478,13 +474,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').post({title: 'foo'}).then(()=>done()).catch(()=>done())
+      jsonApi.all('foo').post({title: 'foo'}).then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with post with nested one', (done)=> {
+    it('should allow builders to be called with post with nested one', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
           expect(payload.req.data).to.be.eql({title: 'foo'})
@@ -494,13 +490,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(()=>done()).catch(()=>done())
+      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with patch', (done)=> {
+    it('should allow builders to be called with patch', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           expect(payload.req.data).to.be.eql({title: 'bar'})
@@ -510,13 +506,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).patch({title: 'bar'}).then(()=>done()).catch(()=>done())
+      jsonApi.one('foo', 1).patch({title: 'bar'}).then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with patch with nested one', (done)=> {
+    it('should allow builders to be called with patch with nested one', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
           expect(payload.req.data).to.be.eql({title: 'bar'})
@@ -526,13 +522,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(()=>done()).catch(()=>done())
+      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(() => done()).catch(() => done())
     })
 
-    it('should allow builders to be called with destroy', (done)=> {
+    it('should allow builders to be called with destroy', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           return {}
@@ -541,12 +537,12 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).destroy().then(()=>done()).catch(()=>done())
+      jsonApi.one('foo', 1).destroy().then(() => done()).catch(() => done())
     })
-    it('should allow builders to be called with destroy with nested one', (done)=> {
+    it('should allow builders to be called with destroy with nested one', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
-        req: (payload)=> {
+        req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars/2')
           return {}
@@ -555,15 +551,13 @@ describe('JsonApi', ()=> {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).one('bar', 2).destroy().then(()=>done()).catch(()=>done())
+      jsonApi.one('foo', 1).one('bar', 2).destroy().then(() => done()).catch(() => done())
     })
 
-    it('should Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman!', ()=> {
+    it('should Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman!', () => {
       jsonApi.one('foo', 1).one('bar', 2).all('foo').one('bar', 3).all('baz').one('baz', 1).one('baz', 2).one('baz', 3)
       expect(jsonApi.pathFor()).to.be.eql('foos/1/bars/2/foos/bars/3/bazs/bazs/1/bazs/2/bazs/3')
       expect(jsonApi.urlFor()).to.be.eql('http://myapi.com/foos/1/bars/2/foos/bars/3/bazs/bazs/1/bazs/2/bazs/3')
     })
-
   })
-
 })
