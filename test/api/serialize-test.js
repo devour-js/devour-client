@@ -1,16 +1,16 @@
+/* global describe, it, beforeEach */
+
 import JsonApi from '../../index'
 import serialize from '../../middleware/json-api/_serialize'
-import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 
-describe('serialize', ()=> {
-
+describe('serialize', () => {
   var jsonApi = null
-  beforeEach(()=> {
+  beforeEach(() => {
     jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
   })
 
-  it('should serialize resource items', ()=> {
+  it('should serialize resource items', () => {
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -21,7 +21,7 @@ describe('serialize', ()=> {
     expect(serializedItem.attributes.about).to.eql('World')
   })
 
-  it('should serialize hasMany relationships', ()=> {
+  it('should serialize hasMany relationships', () => {
     jsonApi.define('product', {
       title: '',
       about: '',
@@ -51,7 +51,7 @@ describe('serialize', ()=> {
     expect(serializedItem.relationships.tags.data[2].type).to.eql('tags')
   })
 
-  it('should serialize hasOne relationships', ()=> {
+  it('should serialize hasOne relationships', () => {
     jsonApi.define('product', {
       title: '',
       about: '',
@@ -73,11 +73,11 @@ describe('serialize', ()=> {
     expect(serializedItem.relationships.tags.data.type).to.eql('tags')
   })
 
-  it('should not serialize read only attributes', ()=> {
+  it('should not serialize read only attributes', () => {
     jsonApi.define('product', {
       title: '',
       about: '',
-      url:   '',
+      url: '',
       anotherReadOnly: {
         test: 'hello'
       }
@@ -92,7 +92,7 @@ describe('serialize', ()=> {
     expect(serializedItem.attributes.anotherReadOnly).to.be(undefined)
   })
 
-  it('should serialize collections of items', ()=> {
+  it('should serialize collections of items', () => {
     jsonApi.define('product', {
       title: '',
       about: ''
@@ -108,21 +108,22 @@ describe('serialize', ()=> {
     expect(serializedItems[1].attributes.about).to.eql('two')
   })
 
-  it('should serialize the id of items if present', ()=> {
+  it('should serialize the id of items if present', () => {
     jsonApi.define('product', {title: ''})
     let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello'})
     expect(serializedItem.type).to.eql('products')
     expect(serializedItem.id).to.eql('5')
   })
 
-  it('should allow for custom serialization if present on the model', ()=> {
-    jsonApi.define('product', {title: ''}, {serializer: ()=> {
-      return {
-        custom: true
+  it('should allow for custom serialization if present on the model', () => {
+    jsonApi.define('product', {title: ''}, {
+      serializer: () => {
+        return {
+          custom: true
+        }
       }
-    }})
+    })
     let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello'})
     expect(serializedItem.custom).to.eql(true)
   })
-
 })

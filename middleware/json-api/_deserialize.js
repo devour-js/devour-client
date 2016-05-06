@@ -1,101 +1,104 @@
 const _ = require('lodash')
 const pluralize = require('pluralize')
 
-function collection(items, included, responseModel) {
-  return items.map(item => { return resource.call(this, item, included, responseModel) })
+function collection (items, included, responseModel) {
+  return items.map(item => {
+    return resource.call(this, item, included, responseModel)
+  })
 }
 
-function resource(item, included, responseModel) {
+function resource (item, included, responseModel) {
   let model = this.modelFor(pluralize.singular(item.type))
-  if (!model) throw 'The JSON API response had a type of "' + item.type + '" but Devour expected the type to be "'+ responseModel +'".'
+  if (!model) {
+    throw new Error('The JSON API response had a type of "' + item.type + '" but Devour expected the type to be "' + responseModel + '".')
+  }
 
   let deserializedModel = {}
 
-  if(item.id) {
+  if (item.id) {
     deserializedModel.id = item.id
   }
 
-  _.forOwn(model.attributes, (value, key)=> {
-    if(isRelationship(value)) {
+  _.forOwn(model.attributes, (value, key) => {
+    if (isRelationship(value)) {
       deserializedModel[key] = attachRelationsFor.call(this, model, value, item, included)
-    }else{
+    } else {
       deserializedModel[key] = item.attributes[key]
     }
   })
   return deserializedModel
 }
 
-function attachRelationsFor(model, attribute, item, included) {
+function attachRelationsFor (model, attribute, item, included) {
   let relation = null
-  if(attribute.jsonApi === 'hasOne') {
+  if (attribute.jsonApi === 'hasOne') {
     relation = attachHasOneFor.call(this, model, attribute, item, included)
   }
-  if(attribute.jsonApi === 'hasMany') {
+  if (attribute.jsonApi === 'hasMany') {
     relation = attachHasManyFor.call(this, model, attribute, item, included)
   }
   return relation
 }
 
-function attachHasOneFor(model, attribute, item, included) {
-  if(!item.relationships) {
+function attachHasOneFor (model, attribute, item, included) {
+  if (!item.relationships) {
     return null
   }
   let relatedItems = relatedItemsFor(model, attribute, item, included)
-  if(relatedItems && relatedItems[0]) {
+  if (relatedItems && relatedItems[0]) {
     return resource.call(this, relatedItems[0], included)
-  }else{
+  } else {
     return null
   }
 }
 
-function attachHasManyFor(model, attribute, item, included) {
-  if(!item.relationships) {
+function attachHasManyFor (model, attribute, item, included) {
+  if (!item.relationships) {
     return null
   }
   let relatedItems = relatedItemsFor(model, attribute, item, included)
-  if(relatedItems && relatedItems.length > 0) {
+  if (relatedItems && relatedItems.length > 0) {
     return collection.call(this, relatedItems, included)
   }
   return []
 }
 
-function isRelationship(attribute) {
+function isRelationship (attribute) {
   return (_.isPlainObject(attribute) && _.includes(['hasOne', 'hasMany'], attribute.jsonApi))
 }
 
-
 /*
-*   == relatedItemsFor
-*   Returns unserialized related items.
-*/
-function relatedItemsFor(model, attribute, item, included) {
+ *   == relatedItemsFor
+ *   Returns unserialized related items.
+ */
+function relatedItemsFor (model, attribute, item, included) {
   let relationName = _.findKey(model.attributes, attribute)
   let relationMap = _.get(item.relationships, [relationName, 'data'], false)
-  if(!relationMap) {
+  if (!relationMap) {
     return []
   }
 
-  if(_.isArray(relationMap)) {
-    return _.flatten(_.map(relationMap, function(relationMapItem) {
+  if (_.isArray(relationMap)) {
+    return _.flatten(_.map(relationMap, function (relationMapItem) {
       return _.filter(included, (includedItem) => {
         return isRelatedItemFor(attribute, includedItem, relationMapItem)
       })
     }))
-  }else{
+  } else {
     return _.filter(included, (includedItem) => {
       return isRelatedItemFor(attribute, includedItem, relationMap)
     })
   }
 }
 
-function isRelatedItemFor(attribute, relatedItem, relationMapItem) {
+function isRelatedItemFor (attribute, relatedItem, relationMapItem) {
   let passesFilter = true
-  if(attribute.filter) {
+  if (attribute.filter) {
     passesFilter = _.matches(relatedItem.attributes, attribute.filter)
   }
-  return(
-    relatedItem.id    === relationMapItem.id &&
-    relatedItem.type  === relationMapItem.type &&
+  return (
+    relatedItem.id === relationMapItem.id &&
+    relatedItem.type === relationMapItem.type &&
     passesFilter
   )
 }

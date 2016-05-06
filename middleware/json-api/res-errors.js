@@ -1,23 +1,23 @@
-function buildErrors(serverErrors) {
-  if(!serverErrors) {
+function buildErrors (serverErrors) {
+  if (!serverErrors) {
     console.log('Unidentified error')
     return
-  }else{
+  } else {
     let errors = {}
-    serverErrors.errors.forEach((error)=> {
+    serverErrors.errors.forEach((error) => {
       errors[errorKey(error.source)] = error.title
     })
     return errors
   }
 }
 
-function errorKey(source) {
+function errorKey (source) {
   return source.pointer.split('/').pop()
 }
 
 module.exports = {
   name: 'errors',
-  error: function(payload) {
+  error: function (payload) {
     return buildErrors(payload.data)
   }
 }
