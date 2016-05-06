@@ -7,7 +7,7 @@ describe('serialize', ()=> {
 
   var jsonApi = null
   beforeEach(()=> {
-    jsonApi = new JsonApi('http://myapi.com')
+    jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
   })
 
   it('should serialize resource items', ()=> {
