@@ -4,6 +4,7 @@ const _ = require('lodash')
 const Promise = require('es6-promise').Promise
 const deserialize = require('./middleware/json-api/_deserialize')
 const serialize = require('./middleware/json-api/_serialize')
+const Minilog = require('minilog')
 
 /*
 *   == JsonApiMiddleware
@@ -43,15 +44,20 @@ class JsonApi {
     }
 
     let defaults = {
-      middleware: jsonApiMiddleware
+      middleware: jsonApiMiddleware,
+      logger: true,
+      resetBuilderOnCall: true
     }
 
-    if (arguments.length === 2 || (arguments.length === 1 && _.isString(arguments[0]))) {
+    let deprecatedConstructos = (args) => {
+      return (args.length === 2 || (args.length === 1 && _.isString(args[0])))
+    }
+
+    if (deprecatedConstructos(arguments)) {
       defaults.apiUrl = arguments[0]
       if (arguments.length === 2) {
         defaults.middleware = arguments[1]
       }
-      console.error('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
     }
 
     options = _.assign(defaults, options)
@@ -65,6 +71,107 @@ class JsonApi {
     this.models = {}
     this.deserialize = deserialize
     this.serialize = serialize
+    this.builderStack = []
+    this.resetBuilderOnCall = !!options.resetBuilderOnCall
+    this.logger = Minilog('devour')
+    options.logger ? Minilog.enable() : MiniLog.disable()
+
+    if (deprecatedConstructos(arguments)) {
+      this.logger.warn('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
+    }
+
+  }
+
+  enableLogging(enabled = true){
+    enabled ? Minilog.enable() : MiniLog.disable()
+  }
+
+  one (model, id) {
+    this.builderStack.push({model: model, id: id, path: this.resourcePathFor(model, id)})
+    return this
+  }
+
+  all (model) {
+    this.builderStack.push({model: model, path: this.collectionPathFor(model)})
+    return this
+  }
+
+  resetBuilder (){
+    this.builderStack = []
+  }
+
+  buildPath () {
+    return _.map(this.builderStack, 'path').join('/')
+  }
+
+  buildUrl () {
+    return `${this.apiUrl}/${this.buildPath()}`
+  }
+
+  get (params = {}){
+    let req = {
+      method: 'GET',
+      url: this.urlFor(),
+      data: {},
+      params: params
+    }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
+    return this.runMiddleware(req)
+  }
+
+  post (payload) {
+    let lastRequest = _.chain(this.builderStack).last()
+
+    let req = {
+      method: 'POST',
+      url: this.urlFor(),
+      model: lastRequest.get('model').value(),
+      data: payload
+    }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
+    return this.runMiddleware(req)
+  }
+
+  patch (payload) {
+    let lastRequest = _.chain(this.builderStack).last()
+
+    let req = {
+      method: 'PATCH',
+      url: this.urlFor(),
+      model: lastRequest.get('model').value(),
+      data: payload
+    }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
+    return this.runMiddleware(req)
+  }
+
+  destroy () {
+    let lastRequest = _.chain(this.builderStack).last()
+
+    let req = {
+      method: 'DELETE',
+      url: this.urlFor(),
+      model: lastRequest.get('model').value(),
+      data: {}
+    }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
+    return this.runMiddleware(req)
   }
 
   insertMiddlewareBefore(middlewareName, newMiddleware) {
@@ -131,7 +238,7 @@ class JsonApi {
         let responsePromise = Promise.resolve(payload)
         return this.applyResponseMiddleware(responsePromise)
       }).catch((err) => {
-        console.error(err)
+        this.logger.error(err)
         let errorPromise = Promise.resolve(err)
         return this.applyErrorMiddleware(errorPromise).then(err => {
           return Promise.reject(err)
@@ -142,7 +249,7 @@ class JsonApi {
   find(modelName, id, params={}) {
     let req = {
       method: 'GET',
-      url: this.resourceUrlFor(modelName, id),
+      url: this.urlFor({model: modelName, id: id}),
       model: modelName,
       data: {},
       params: params
@@ -153,7 +260,7 @@ class JsonApi {
   findAll(modelName, params={}) {
     let req = {
       method: 'GET',
-      url: this.collectionUrlFor(modelName),
+      url: this.urlFor({model: modelName}),
       model: modelName,
       params: params,
       data: {}
@@ -164,7 +271,7 @@ class JsonApi {
   create(modelName, payload) {
     let req = {
       method: 'POST',
-      url: this.collectionUrlFor(modelName),
+      url: this.urlFor({model: modelName}),
       model: modelName,
       data: payload
     }
@@ -174,7 +281,7 @@ class JsonApi {
   update(modelName, payload) {
     let req = {
       method: 'PATCH',
-      url: this.resourceUrlFor(modelName, payload.id),
+      url: this.urlFor({model: modelName, id: payload.id}),
       model: modelName,
       data: payload
     }
@@ -184,7 +291,7 @@ class JsonApi {
   destroy(modelName, id) {
     let req = {
       method: 'DELETE',
-      url: this.resourceUrlFor(modelName, id),
+      url: this.urlFor({model: modelName, id: id}),
       model: modelName,
       data: {}
     }
@@ -196,7 +303,7 @@ class JsonApi {
   }
 
   collectionPathFor(modelName) {
-    let collectionPath = this.models[modelName].options.collectionPath || pluralize(modelName)
+    let collectionPath = _.get(this.models[modelName], 'options.collectionPath') || pluralize(modelName)
     return `${collectionPath}`
   }
 
@@ -215,6 +322,25 @@ class JsonApi {
     return `${this.apiUrl}/${resourcePath}`
   }
 
+  urlFor (options = {}) {
+    if (!_.isUndefined(options.model) && !_.isUndefined(options.id)) {
+      return this.resourceUrlFor(options.model, options.id)
+    } else if (!_.isUndefined(options.model)) {
+      return this.collectionUrlFor(options.model)
+    } else {
+      return this.buildUrl()
+    }
+  }
+
+  pathFor(options = {}){
+    if (!_.isUndefined(options.model) && !_.isUndefined(options.id)) {
+      return this.resourcePathFor(options.model, options.id)
+    } else if (!_.isUndefined(options.model)) {
+      return this.collectionPathFor(options.model)
+    } else {
+      return this.buildPath()
+    }
+  }
 }
 
 module.exports = JsonApi
