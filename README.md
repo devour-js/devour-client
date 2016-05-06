@@ -4,7 +4,7 @@
 
 -------------------------------------------------
 
-[![Build Status](https://travis-ci.org/twg/devour-client.svg?branch=master)](https://travis-ci.org/twg/devour-jsonapi-client)
+[![Build Status](https://travis-ci.org/twg/devour-client.svg?branch=master)](https://travis-ci.org/twg/devour-client)
 
 
 The [JSON API specification](http://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
