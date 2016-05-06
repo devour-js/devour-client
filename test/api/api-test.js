@@ -9,6 +9,111 @@ describe('JsonApi', ()=> {
     jsonApi = new JsonApi('http://myapi.com')
   })
 
+  afterEach(()=>{
+    jsonApi.resetBuilder()
+  })
+
+  it('should allow urlFor to be called with various options', () => {
+    expect(jsonApi.urlFor({model: 'foo', id: 1})).to.eql('http://myapi.com/foos/1')
+    expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos')
+    expect(jsonApi.urlFor({})).to.eql('http://myapi.com/')
+    expect(jsonApi.urlFor()).to.eql('http://myapi.com/')
+    expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos')
+  })
+
+  it('should allow pathFor to be called with various options', () => {
+    expect(jsonApi.pathFor({model: 'foo', id: 1})).to.eql('foos/1')
+    expect(jsonApi.pathFor({model: 'foo'})).to.eql('foos')
+    expect(jsonApi.pathFor({})).to.eql('')
+    expect(jsonApi.pathFor()).to.eql('')
+    expect(jsonApi.all('foo').pathFor()).to.eql('foos')
+  })
+
+  it('should allow builders to be used', ()=> {
+    expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
+  })
+
+  it('should allow builders on all', ()=> {
+    expect(jsonApi.all('foo').all('bar').all('baz').pathFor()).to.eql('foos/bars/bazs')
+
+    jsonApi.resetBuilder()
+
+    expect(jsonApi.all('foos').all('bars').all('bazs').pathFor()).to.eql('foos/bars/bazs')
+  })
+
+  it('should allow builders to be called to the base url', (done)=> {
+    mockResponse(jsonApi, {
+      data: {
+        data: [
+          {
+            id: '1',
+            type: 'foo',
+            attributes: {
+              title: 'foo 1'
+            }
+          },
+          {
+            id: '2',
+            type: 'foo',
+            attributes: {
+              title: 'foo 2'
+            }
+          }
+        ]
+      }
+    })
+
+    jsonApi.define('foo', {
+      title: ''
+    })
+
+    jsonApi.get().then((foos)=> {
+      expect(foos[0].id).to.eql('1')
+      expect(foos[0].title).to.eql('foo 1')
+      expect(foos[1].id).to.eql('2')
+      expect(foos[1].title).to.eql('foo 2')
+      done()
+    }).catch(err => console.log(err))
+  })
+
+  it('should allow builders to be called with get', (done)=> {
+    mockResponse(jsonApi, {
+      data: {
+        data: [
+          {
+            id: '1',
+            type: 'foo',
+            attributes: {
+              title: 'foo 1'
+            }
+          },
+          {
+            id: '2',
+            type: 'foo',
+            attributes: {
+              title: 'foo 2'
+            }
+          }
+        ]
+      }
+    })
+
+    jsonApi.define('foo', {
+      title: ''
+    })
+
+    jsonApi.get().then((foos)=> {
+      expect(foos[0].id).to.eql('1')
+      expect(foos[0].title).to.eql('foo 1')
+      expect(foos[1].id).to.eql('2')
+      expect(foos[1].title).to.eql('foo 2')
+      done()
+    }).catch(err => console.log(err))
+  })
+
+  it.skip('should allow builders to be called with post', ()=> {
+  })
+
   it('should set the apiUrl during setup', ()=> {
     expect(jsonApi.apiUrl).to.eql('http://myapi.com')
   })
@@ -86,6 +191,10 @@ describe('JsonApi', ()=> {
     expect(jsonApi.collectionPathFor('product')).to.eql('my-products')
   })
 
+  it('should allow arbitrary collections without a model', ()=> {
+    expect(jsonApi.collectionPathFor('foo')).to.eql('foos')
+  })
+
   it('should construct single resource paths for models', ()=> {
     jsonApi.define('product', {})
     expect(jsonApi.resourcePathFor('product', 1)).to.eql('products/1')
@@ -154,6 +263,9 @@ describe('JsonApi', ()=> {
       expect(products[1].title).to.eql('Another Title')
       done()
     }).catch(err => console.log(err))
+  })
+
+  it.skip('should make basic create call', ()=> {
   })
 
   it('should include meta information on response objects', (done)=> {

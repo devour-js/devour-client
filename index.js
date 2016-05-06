@@ -1,8 +1,10 @@
 const axios = require('axios')
 const pluralize = require('pluralize')
+const _ = require('lodash')
 const Promise = require('es6-promise').Promise
 const deserialize = require('./middleware/json-api/_deserialize')
 const serialize = require('./middleware/json-api/_serialize')
+const Minilog = require('minilog')
 
 /*
 *   == JsonApiMiddleware
@@ -45,7 +47,57 @@ class JsonApi {
     this.models = {}
     this.deserialize = deserialize
     this.serialize = serialize
+    this.builderStack = []
+    this.logger = Minilog('devour')
   }
+
+  enableLogging(enabled = true){
+    enabled ? Minilog.enable() : MiniLog.disable()
+  }
+
+  one (model, id) {
+    this.builderStack.push({model: model, id: id, path: this.resourcePathFor(model, id)})
+    return this
+  }
+
+  all (model) {
+    this.builderStack.push({model: model, path: this.collectionPathFor(model)})
+    return this
+  }
+
+  resetBuilder (){
+    this.builderStack = []
+  }
+
+  buildPath () {
+    return _.map(this.builderStack, 'path').join('/')
+  }
+
+  buildUrl () {
+    return `${this.apiUrl}/${this.buildPath()}`
+  }
+
+  get (params = {}){
+    let req = {
+      method: 'GET',
+      url: this.urlFor(),
+      data: {},
+      params: params
+    }
+    return this.runMiddleware(req)
+  }
+
+  post (payload) {
+    console.log(_.chain(this.builderStack).last().get('model').value())
+    let req = {
+      method: 'POST',
+      url: this.urlFor(),
+      model: _.chain(this.builderStack).last().get('model').value(),
+      data: payload
+    }
+    return this.runMiddleware(req)
+  }
+
 
   insertMiddlewareBefore(middlewareName, newMiddleware) {
     this.insertMiddleware(middlewareName, 'before', newMiddleware)
@@ -111,7 +163,7 @@ class JsonApi {
         let responsePromise = Promise.resolve(payload)
         return this.applyResponseMiddleware(responsePromise)
       }).catch((err) => {
-        console.error(err)
+        this.logger.error(err)
         let errorPromise = Promise.resolve(err)
         return this.applyErrorMiddleware(errorPromise).then(err => {
           return Promise.reject(err)
@@ -122,7 +174,7 @@ class JsonApi {
   find(modelName, id, params={}) {
     let req = {
       method: 'GET',
-      url: this.resourceUrlFor(modelName, id),
+      url: this.urlFor({model: modelName, id: id}),
       model: modelName,
       data: {},
       params: params
@@ -133,7 +185,7 @@ class JsonApi {
   findAll(modelName, params={}) {
     let req = {
       method: 'GET',
-      url: this.collectionUrlFor(modelName),
+      url: this.urlFor({model: modelName}),
       model: modelName,
       params: params,
       data: {}
@@ -144,7 +196,7 @@ class JsonApi {
   create(modelName, payload) {
     let req = {
       method: 'POST',
-      url: this.collectionUrlFor(modelName),
+      url: this.urlFor({model: modelName}),
       model: modelName,
       data: payload
     }
@@ -154,7 +206,7 @@ class JsonApi {
   update(modelName, payload) {
     let req = {
       method: 'PATCH',
-      url: this.resourceUrlFor(modelName, payload.id),
+      url: this.urlFor({model: modelName, id: payload.id}),
       model: modelName,
       data: payload
     }
@@ -164,7 +216,7 @@ class JsonApi {
   destroy(modelName, id) {
     let req = {
       method: 'DELETE',
-      url: this.resourceUrlFor(modelName, id),
+      url: this.urlFor({model: modelName, id: id}),
       model: modelName,
       data: {}
     }
@@ -176,7 +228,7 @@ class JsonApi {
   }
 
   collectionPathFor(modelName) {
-    let collectionPath = this.models[modelName].options.collectionPath || pluralize(modelName)
+    let collectionPath = _.get(this.models[modelName], 'options.collectionPath') || pluralize(modelName)
     return `${collectionPath}`
   }
 
@@ -195,6 +247,25 @@ class JsonApi {
     return `${this.apiUrl}/${resourcePath}`
   }
 
+  urlFor (options = {}) {
+    if (!_.isUndefined(options.model) && !_.isUndefined(options.id)) {
+      return this.resourceUrlFor(options.model, options.id)
+    } else if (!_.isUndefined(options.model)) {
+      return this.collectionUrlFor(options.model)
+    } else {
+      return this.buildUrl()
+    }
+  }
+
+  pathFor(options = {}){
+    if (!_.isUndefined(options.model) && !_.isUndefined(options.id)) {
+      return this.resourcePathFor(options.model, options.id)
+    } else if (!_.isUndefined(options.model)) {
+      return this.collectionPathFor(options.model)
+    } else {
+      return this.buildPath()
+    }
+  }
 }
 
 module.exports = JsonApi
