@@ -38,12 +38,31 @@ let jsonApiMiddleware = [
 
 class JsonApi {
 
-  constructor(apiUrl, middleware = jsonApiMiddleware) {
-    this._originalMiddleware = middleware.slice(0)
-    this.middleware = middleware.slice(0)
+  constructor (options = {}) {
+    if (!(arguments.length == 2 && _.isString(arguments[0]) && _.isArray(arguments[1])) && !(arguments.length === 1 && (_.isPlainObject(arguments[0]) || _.isString(arguments[0])))) {
+      throw new Error("Invalid argument, initialize Devour with an object.")
+    }
+
+    let defaults = {
+      middleware: jsonApiMiddleware
+    }
+
+    if (arguments.length === 2 || (arguments.length === 1 && _.isString(arguments[0]))) {
+      defaults.apiUrl = arguments[0]
+      if (arguments.length === 2) {
+        defaults.middleware = arguments[1]
+      }
+      console.error('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
+    }
+
+    options = _.assign(defaults, options)
+    let middleware = options.middleware
+
+    this._originalMiddleware = options.middleware.slice(0)
+    this.middleware = options.middleware.slice(0)
     this.headers = {}
     this.axios = axios
-    this.apiUrl = apiUrl
+    this.apiUrl = options.apiUrl
     this.models = {}
     this.deserialize = deserialize
     this.serialize = serialize

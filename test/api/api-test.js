@@ -6,7 +6,61 @@ describe('JsonApi', ()=> {
 
   var jsonApi = null
   beforeEach(()=> {
+    jsonApi = new JsonApi({apiUrl:'http://myapi.com'})
+  })
+
+  it('should allow both object and deprecated constructors to be used', ()=> {
+    let jsonApi
     jsonApi = new JsonApi('http://myapi.com')
+    expect(jsonApi).to.be.a(JsonApi)
+    jsonApi = new JsonApi('http://myapi.com', [])
+    expect(jsonApi).to.be.a(JsonApi)
+    jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+    expect(jsonApi).to.be.a(JsonApi)
+  })
+
+  it('should allow apiUrl to be set via the initializer object', ()=> {
+    let jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+    expect(jsonApi.apiUrl).to.eql('http://myapi.com')
+  })
+
+  it('should allow middleware to be set via the initializer object', ()=> {
+    let middleware = [
+      {
+        name: 'm1',
+        req: function(req) {
+          return req
+        },
+        res: function(res) {
+          return res
+        }
+      },
+      {
+        name: 'm2',
+        req: function(req) {
+          return req
+        },
+        res: function(res) {
+          return res
+        }
+      }
+    ]
+
+    let jsonApi = new JsonApi({apiUrl: 'http://myapi.com', middleware: middleware})
+    expect(jsonApi.middleware).to.eql(middleware)
+    expect(jsonApi.apiUrl).to.eql('http://myapi.com')
+  })
+
+  it.skip('should throw Exception if the constructor does not receive proper arguments', ()=> {
+
+    expect(function () {
+      throw new Error('boom!')
+    }).toThrow(/boom/)
+
+    expect(function(){
+      new JsonApi()
+    }).to.throw(Error)
+
   })
 
   afterEach(()=>{

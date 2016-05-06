@@ -7,7 +7,7 @@ describe('deserialize', ()=> {
 
   var jsonApi = null
   before(()=> {
-    jsonApi = new JsonApi('http://myapi.com')
+    jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
   })
 
   it('should deserialize single resource items', ()=> {
