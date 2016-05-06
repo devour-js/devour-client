@@ -19,6 +19,38 @@ describe('JsonApi', ()=> {
     expect(jsonApi).to.be.a(JsonApi)
   })
 
+  it('should allow apiUrl to be set via the initializer object', ()=> {
+    let jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+    expect(jsonApi.apiUrl).to.eql('http://myapi.com')
+  })
+
+  it('should allow middleware to be set via the initializer object', ()=> {
+    let middleware = [
+      {
+        name: 'm1',
+        req: function(req) {
+          return req
+        },
+        res: function(res) {
+          return res
+        }
+      },
+      {
+        name: 'm2',
+        req: function(req) {
+          return req
+        },
+        res: function(res) {
+          return res
+        }
+      }
+    ]
+
+    let jsonApi = new JsonApi({apiUrl: 'http://myapi.com', middleware: middleware})
+    expect(jsonApi.middleware).to.eql(middleware)
+    expect(jsonApi.apiUrl).to.eql('http://myapi.com')
+  })
+
   it.skip('should throw Exception if the constructor does not receive proper arguments', ()=> {
 
     expect(function () {
