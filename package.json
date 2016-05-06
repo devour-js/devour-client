@@ -1,6 +1,6 @@
 {
   "name": "devour-client",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Don't just consume your JSON API, Devour it...",
   "main": "index.js",
   "scripts": {
