@@ -4,7 +4,7 @@
   "description": "Don't just consume your JSON API, Devour it...",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -37,7 +37,8 @@
     "babel-register": "^6.8.0",
     "expect.js": "^0.3.1",
     "istanbul": "1.0.0-alpha.2",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "standard": "^7.0.1"
   },
   "dependencies": {
     "axios": "^0.11.0",

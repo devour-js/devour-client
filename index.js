@@ -7,14 +7,14 @@ const serialize = require('./middleware/json-api/_serialize')
 const Minilog = require('minilog')
 
 /*
-*   == JsonApiMiddleware
-*
-*   Here we construct the middleware stack that will handle building and making
-*   requests, as well as serializing and deserializing our payloads. Users can
-*   easily construct their own middleware layers that adhere to different
-*   standards.
-*
-*/
+ *   == JsonApiMiddleware
+ *
+ *   Here we construct the middleware stack that will handle building and making
+ *   requests, as well as serializing and deserializing our payloads. Users can
+ *   easily construct their own middleware layers that adhere to different
+ *   standards.
+ *
+ */
 const jsonApiPostMiddleware = require('./middleware/json-api/req-post')
 const jsonApiPatchMiddleware = require('./middleware/json-api/req-patch')
 const jsonApiDeleteMiddleware = require('./middleware/json-api/req-delete')
@@ -35,12 +35,11 @@ let jsonApiMiddleware = [
   deserializeResponseMiddleware
 ]
 
-
 class JsonApi {
 
   constructor (options = {}) {
-    if (!(arguments.length == 2 && _.isString(arguments[0]) && _.isArray(arguments[1])) && !(arguments.length === 1 && (_.isPlainObject(arguments[0]) || _.isString(arguments[0])))) {
-      throw new Error("Invalid argument, initialize Devour with an object.")
+    if (!(arguments.length === 2 && _.isString(arguments[0]) && _.isArray(arguments[1])) && !(arguments.length === 1 && (_.isPlainObject(arguments[0]) || _.isString(arguments[0])))) {
+      throw new Error('Invalid argument, initialize Devour with an object.')
     }
 
     let defaults = {
@@ -63,8 +62,8 @@ class JsonApi {
     options = _.assign(defaults, options)
     let middleware = options.middleware
 
-    this._originalMiddleware = options.middleware.slice(0)
-    this.middleware = options.middleware.slice(0)
+    this._originalMiddleware = middleware.slice(0)
+    this.middleware = middleware.slice(0)
     this.headers = {}
     this.axios = axios
     this.apiUrl = options.apiUrl
@@ -74,16 +73,15 @@ class JsonApi {
     this.builderStack = []
     this.resetBuilderOnCall = !!options.resetBuilderOnCall
     this.logger = Minilog('devour')
-    options.logger ? Minilog.enable() : MiniLog.disable()
+    options.logger ? Minilog.enable() : Minilog.disable()
 
     if (deprecatedConstructos(arguments)) {
       this.logger.warn('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
     }
-
   }
 
-  enableLogging(enabled = true){
-    enabled ? Minilog.enable() : MiniLog.disable()
+  enableLogging (enabled = true) {
+    enabled ? Minilog.enable() : Minilog.disable()
   }
 
   one (model, id) {
@@ -96,7 +94,7 @@ class JsonApi {
     return this
   }
 
-  resetBuilder (){
+  resetBuilder () {
     this.builderStack = []
   }
 
@@ -108,7 +106,7 @@ class JsonApi {
     return `${this.apiUrl}/${this.buildPath()}`
   }
 
-  get (params = {}){
+  get (params = {}) {
     let req = {
       method: 'GET',
       url: this.urlFor(),
@@ -158,53 +156,63 @@ class JsonApi {
   }
 
   destroy () {
-    let lastRequest = _.chain(this.builderStack).last()
+    if (arguments.length === 2) {
+      let req = {
+        method: 'DELETE',
+        url: this.urlFor({model: arguments[0], id: arguments[1]}),
+        model: arguments[0],
+        data: {}
+      }
+      return this.runMiddleware(req)
+    } else {
+      let lastRequest = _.chain(this.builderStack).last()
 
-    let req = {
-      method: 'DELETE',
-      url: this.urlFor(),
-      model: lastRequest.get('model').value(),
-      data: {}
+      let req = {
+        method: 'DELETE',
+        url: this.urlFor(),
+        model: lastRequest.get('model').value(),
+        data: {}
+      }
+
+      if (this.resetBuilderOnCall) {
+        this.resetBuilder()
+      }
+
+      return this.runMiddleware(req)
     }
-
-    if (this.resetBuilderOnCall) {
-      this.resetBuilder()
-    }
-
-    return this.runMiddleware(req)
   }
 
-  insertMiddlewareBefore(middlewareName, newMiddleware) {
+  insertMiddlewareBefore (middlewareName, newMiddleware) {
     this.insertMiddleware(middlewareName, 'before', newMiddleware)
   }
 
-  insertMiddlewareAfter(middlewareName, newMiddleware) {
+  insertMiddlewareAfter (middlewareName, newMiddleware) {
     this.insertMiddleware(middlewareName, 'after', newMiddleware)
   }
 
-  insertMiddleware(middlewareName, direction, newMiddleware) {
+  insertMiddleware (middlewareName, direction, newMiddleware) {
     let middleware = this.middleware.filter(middleware => (middleware.name === middlewareName))
-    if(middleware.length > 0) {
+    if (middleware.length > 0) {
       let index = this.middleware.indexOf(middleware[0])
-      if(direction === 'after') {
+      if (direction === 'after') {
         index = index + 1
       }
       this.middleware.splice(index, 0, newMiddleware)
     }
   }
 
-  define(modelName, attributes, options = {}) {
+  define (modelName, attributes, options = {}) {
     this.models[modelName] = {
       attributes: attributes,
       options: options
     }
   }
 
-  resetMiddleware() {
+  resetMiddleware () {
     this.middleware = this._originalMiddleware.slice(0)
   }
 
-  applyRequestMiddleware(promise) {
+  applyRequestMiddleware (promise) {
     let requestMiddlewares = this.middleware.filter(middleware => middleware.req)
     requestMiddlewares.forEach((middleware) => {
       promise = promise.then(middleware.req)
@@ -212,7 +220,7 @@ class JsonApi {
     return promise
   }
 
-  applyResponseMiddleware(promise) {
+  applyResponseMiddleware (promise) {
     let responseMiddleware = this.middleware.filter(middleware => middleware.res)
     responseMiddleware.forEach((middleware) => {
       promise = promise.then(middleware.res)
@@ -220,7 +228,7 @@ class JsonApi {
     return promise
   }
 
-  applyErrorMiddleware(promise) {
+  applyErrorMiddleware (promise) {
     let errorsMiddleware = this.middleware.filter(middleware => middleware.error)
     errorsMiddleware.forEach((middleware) => {
       promise = promise.then(middleware.error)
@@ -228,16 +236,17 @@ class JsonApi {
     return promise
   }
 
-  runMiddleware(req) {
+  runMiddleware (req) {
     let payload = {req: req, jsonApi: this}
     let requestPromise = Promise.resolve(payload)
     requestPromise = this.applyRequestMiddleware(requestPromise)
-    return requestPromise.then(
-      (res)=> {
+    return requestPromise
+      .then((res) => {
         payload.res = res
         let responsePromise = Promise.resolve(payload)
         return this.applyResponseMiddleware(responsePromise)
-      }).catch((err) => {
+      })
+      .catch((err) => {
         this.logger.error(err)
         let errorPromise = Promise.resolve(err)
         return this.applyErrorMiddleware(errorPromise).then(err => {
@@ -246,7 +255,7 @@ class JsonApi {
       })
   }
 
-  find(modelName, id, params={}) {
+  find (modelName, id, params = {}) {
     let req = {
       method: 'GET',
       url: this.urlFor({model: modelName, id: id}),
@@ -257,7 +266,7 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  findAll(modelName, params={}) {
+  findAll (modelName, params = {}) {
     let req = {
       method: 'GET',
       url: this.urlFor({model: modelName}),
@@ -268,7 +277,7 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  create(modelName, payload) {
+  create (modelName, payload) {
     let req = {
       method: 'POST',
       url: this.urlFor({model: modelName}),
@@ -278,7 +287,7 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  update(modelName, payload) {
+  update (modelName, payload) {
     let req = {
       method: 'PATCH',
       url: this.urlFor({model: modelName, id: payload.id}),
@@ -288,36 +297,26 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  destroy(modelName, id) {
-    let req = {
-      method: 'DELETE',
-      url: this.urlFor({model: modelName, id: id}),
-      model: modelName,
-      data: {}
-    }
-    return this.runMiddleware(req)
-  }
-
-  modelFor(modelName) {
+  modelFor (modelName) {
     return this.models[modelName]
   }
 
-  collectionPathFor(modelName) {
+  collectionPathFor (modelName) {
     let collectionPath = _.get(this.models[modelName], 'options.collectionPath') || pluralize(modelName)
     return `${collectionPath}`
   }
 
-  resourcePathFor(modelName, id) {
+  resourcePathFor (modelName, id) {
     let collectionPath = this.collectionPathFor(modelName)
     return `${collectionPath}/${id}`
   }
 
-  collectionUrlFor(modelName) {
+  collectionUrlFor (modelName) {
     let collectionPath = this.collectionPathFor(modelName)
     return `${this.apiUrl}/${collectionPath}`
   }
 
-  resourceUrlFor(modelName, id) {
+  resourceUrlFor (modelName, id) {
     let resourcePath = this.resourcePathFor(modelName, id)
     return `${this.apiUrl}/${resourcePath}`
   }
@@ -332,7 +331,7 @@ class JsonApi {
     }
   }
 
-  pathFor(options = {}){
+  pathFor (options = {}) {
     if (!_.isUndefined(options.model) && !_.isUndefined(options.id)) {
       return this.resourcePathFor(options.model, options.id)
     } else if (!_.isUndefined(options.model)) {
