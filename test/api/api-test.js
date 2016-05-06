@@ -9,6 +9,10 @@ describe('JsonApi', ()=> {
     jsonApi = new JsonApi({apiUrl:'http://myapi.com'})
   })
 
+  afterEach(()=>{
+    jsonApi.resetBuilder()
+  })
+
   it('should allow both object and deprecated constructors to be used', ()=> {
     let jsonApi
     jsonApi = new JsonApi('http://myapi.com')
@@ -61,10 +65,6 @@ describe('JsonApi', ()=> {
       new JsonApi()
     }).to.throw(Error)
 
-  })
-
-  afterEach(()=>{
-    jsonApi.resetBuilder()
   })
 
   it('should allow urlFor to be called with various options', () => {
@@ -130,42 +130,83 @@ describe('JsonApi', ()=> {
     }).catch(err => console.log(err))
   })
 
+  //{ method: 'GET', url: 'http://myapi.com/', data: {}, params: {} }
   it('should allow builders to be called with get', (done)=> {
-    mockResponse(jsonApi, {
-      data: {
-        data: [
-          {
-            id: '1',
-            type: 'foo',
-            attributes: {
-              title: 'foo 1'
-            }
-          },
-          {
-            id: '2',
-            type: 'foo',
-            attributes: {
-              title: 'foo 2'
-            }
-          }
-        ]
+    let inspectorMiddleware = {
+      name: 'inspector-middleware',
+      req: (payload)=> {
+        expect(payload.req.method).to.be.eql('GET')
+        expect(payload.req.url).to.be.eql('http://myapi.com/')
+        return {}
       }
-    })
+    }
+
+    jsonApi.middleware = [inspectorMiddleware]
 
     jsonApi.define('foo', {
       title: ''
     })
 
-    jsonApi.get().then((foos)=> {
-      expect(foos[0].id).to.eql('1')
-      expect(foos[0].title).to.eql('foo 1')
-      expect(foos[1].id).to.eql('2')
-      expect(foos[1].title).to.eql('foo 2')
-      done()
-    }).catch(err => console.log(err))
+    jsonApi.get().then(()=>done()).catch(()=>done())
   })
 
-  it.skip('should allow builders to be called with post', ()=> {
+  it('should allow builders to be called with post', (done)=> {
+    let inspectorMiddleware = {
+      name: 'inspector-middleware',
+      req: (payload)=> {
+        expect(payload.req.method).to.be.eql('POST')
+        expect(payload.req.url).to.be.eql('http://myapi.com/foos')
+        expect(payload.req.data).to.be.eql({title: 'foo'})
+        return {}
+      }
+    }
+
+    jsonApi.middleware = [inspectorMiddleware]
+
+    jsonApi.define('foo', {
+      title: ''
+    })
+
+    jsonApi.all('foo').post({title: 'foo'}).then(()=>done()).catch(()=>done())
+  })
+
+  it('should allow builders to be called with patch', (done)=> {
+    let inspectorMiddleware = {
+      name: 'inspector-middleware',
+      req: (payload)=> {
+        expect(payload.req.method).to.be.eql('PATCH')
+        expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+        expect(payload.req.data).to.be.eql({title: 'bar'})
+        return {}
+      }
+    }
+
+    jsonApi.middleware = [inspectorMiddleware]
+
+    jsonApi.define('foo', {
+      title: ''
+    })
+
+    jsonApi.one('foo', 1).patch({title: 'bar'}).then(()=>done()).catch(()=>done())
+  })
+
+  it('should allow builders to be called with destroy', (done)=> {
+    let inspectorMiddleware = {
+      name: 'inspector-middleware',
+      req: (payload)=> {
+        expect(payload.req.method).to.be.eql('DELETE')
+        expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+        return {}
+      }
+    }
+
+    jsonApi.middleware = [inspectorMiddleware]
+
+    jsonApi.define('foo', {
+      title: ''
+    })
+
+    jsonApi.one('foo', 1).destroy().then(()=>done()).catch(()=>done())
   })
 
   it('should set the apiUrl during setup', ()=> {
@@ -271,7 +312,7 @@ describe('JsonApi', ()=> {
           id: '1',
           type: 'products',
           attributes: {
-            'title': 'Some Title'
+            title: 'Some Title'
           }
         }
       }
@@ -294,14 +335,14 @@ describe('JsonApi', ()=> {
             id: '1',
             type: 'products',
             attributes: {
-              'title': 'Some Title'
+              title: 'Some Title'
             }
           },
           {
             id: '2',
             type: 'products',
             attributes: {
-              'title': 'Another Title'
+              title: 'Another Title'
             }
           }
         ]
@@ -319,7 +360,24 @@ describe('JsonApi', ()=> {
     }).catch(err => console.log(err))
   })
 
-  it.skip('should make basic create call', ()=> {
+  it('should make basic create call', ()=> {
+    let inspectorMiddleware = {
+      name: 'inspector-middleware',
+      req: (payload)=> {
+        expect(payload.req.method).to.be.eql('POST')
+        expect(payload.req.url).to.be.eql('http://myapi.com/foos')
+        expect(payload.req.data).to.be.eql({title: 'foo'})
+        return {}
+      }
+    }
+
+    jsonApi.middleware = [inspectorMiddleware]
+
+    jsonApi.define('foo', {
+      title: ''
+    })
+
+    jsonApi.create('foo', {title: 'foo'}).then(()=>done()).catch(()=>done())
   })
 
   it('should include meta information on response objects', (done)=> {
@@ -332,7 +390,7 @@ describe('JsonApi', ()=> {
           id: '1',
           type: 'products',
           attributes: {
-            'title': 'Some Title'
+            title: 'Some Title'
           }
         }]
       }

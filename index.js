@@ -44,7 +44,8 @@ class JsonApi {
     }
 
     let defaults = {
-      middleware: jsonApiMiddleware
+      middleware: jsonApiMiddleware,
+      logger: true
     }
 
     if (arguments.length === 2 || (arguments.length === 1 && _.isString(arguments[0]))) {
@@ -68,6 +69,9 @@ class JsonApi {
     this.serialize = serialize
     this.builderStack = []
     this.logger = Minilog('devour')
+
+    options.logger ? Minilog.enable() : MiniLog.disable()
+
   }
 
   enableLogging(enabled = true){
@@ -107,16 +111,41 @@ class JsonApi {
   }
 
   post (payload) {
-    console.log(_.chain(this.builderStack).last().get('model').value())
+    let lastRequest = _.chain(this.builderStack).last()
+
     let req = {
       method: 'POST',
       url: this.urlFor(),
-      model: _.chain(this.builderStack).last().get('model').value(),
+      model: lastRequest.get('model').value(),
       data: payload
     }
     return this.runMiddleware(req)
   }
 
+  patch (payload) {
+    let lastRequest = _.chain(this.builderStack).last()
+
+    let req = {
+      method: 'PATCH',
+      url: this.urlFor(),
+      model: lastRequest.get('model').value(),
+      data: payload
+    }
+    return this.runMiddleware(req)
+
+  }
+
+  destroy () {
+    let lastRequest = _.chain(this.builderStack).last()
+
+    let req = {
+      method: 'DELETE',
+      url: this.urlFor(),
+      model: lastRequest.get('model').value(),
+      data: {}
+    }
+    return this.runMiddleware(req)
+  }
 
   insertMiddlewareBefore(middlewareName, newMiddleware) {
     this.insertMiddleware(middlewareName, 'before', newMiddleware)
