@@ -361,6 +361,22 @@ describe('JsonApi', ()=> {
       jsonApi.get().then(()=>done()).catch(()=>done())
     })
 
+    it('should allow builders to be called with get with query params', (done)=> {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload)=> {
+          expect(payload.req.method).to.be.eql('GET')
+          expect(payload.req.url).to.be.eql('http://myapi.com/')
+          expect(payload.req.params).to.be.eql({page: {number: 2}})
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [inspectorMiddleware]
+
+      jsonApi.get({page: {number: 2}}).then(()=>done()).catch(()=>done())
+    })
+
     it('should allow builders to be called with get on all', (done)=> {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
