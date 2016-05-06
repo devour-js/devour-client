@@ -18,13 +18,13 @@ While there are quite a few [JavaScript client implementations](http://jsonapi.o
 ### Quick Start
 
 ```js
-// npm install devour-api-client --save
+// npm install devour-client --save
 
 // Import
-import JsonApi from 'devour-api-client'
+import JsonApi from 'devour-client'
 
 // Bootstrap
-const jsonApi = new JsonApi('http://your-api-here.com')
+const jsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})
 
 // Define Model
 jsonApi.define('post', {
@@ -60,6 +60,17 @@ jsonApi.update('post', {
 // To destroy...
 jsonApi.destroy('post', 5)
 ```
+
+### Initializer
+
+`const jsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})`
+
+Devour takes an object as the initializer. The following options are available:
+
+**apiUrl**: The HTTP API end point, for example: `http://your-api-here.com`
+
+**middleware**: An array of middleware to use. See below
+
 
 ### Relationships
 
