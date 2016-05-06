@@ -71,6 +71,9 @@ Devour takes an object as the initializer. The following options are available:
 
 **middleware**: An array of middleware to use. See below
 
+**logger**: A boolean to enable or disable the logger. (Default: true)
+
+**resetBuilderOnCall**: A boolean to clear the builder stack after a `.get`, `.post`, `.patch`, `.destroy` call. (Default: true)
 
 ### Relationships
 
@@ -155,4 +158,21 @@ jsonApi.headers['my-auth-token'] = 'xxxxx-xxxxx'
 jsonApi.middleware = [{...}, {...}, {...}]
 // Change the apiUrl
 jsonApi.apiUrl = 'http://api.yoursite.com'
+```
+
+### URL Builder
+
+JSON API Specs allows nested URLs to be used to define a resource. For example, `/authors/1/posts` may define posts from author with ID 1.
+
+The builder pattern allows arbitrary nested URL construction by chaining `.one(model, id)` and `.all(model)` and append an action, one of: `.get`, `.post`, `.patch` and `.destroy`
+
+For example:
+
+```js
+let jsonApi = new JsonApi({apiUrl: 'http://api.yoursite.com'})
+jsonApi.define('author', {name: ''})
+jsonApi.define('post', {title: ''})
+
+jsonApi.one('author', 1).all('post').get() // GET http://api.yoursite.com/authors/1/posts
+jsonApi.one('author', 1).all('post').post({title:'title'}) // POST http://api.yoursite.com/authors/1/posts
 ```

@@ -296,6 +296,64 @@ describe('JsonApi', ()=> {
       jsonApi.define('baz', {title: ''})
     })
 
+    it('should respect resetBuilderOnCall', (done)=> {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload)=> {
+          expect(payload.req.method).to.be.eql('GET')
+          expect(payload.req.url).to.be.eql('http://myapi.com/')
+          return {}
+        }
+      }
+      jsonApi.middleware = [inspectorMiddleware]
+      jsonApi.get().then(()=> {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload)=> {
+              expect(payload.req.method).to.be.eql('GET')
+              expect(payload.req.url).to.be.eql('http://myapi.com/foos')
+              return {}
+            }
+          }
+          jsonApi.middleware = [inspectorMiddleware]
+          return jsonApi.all('foo').get()
+        })
+        .then(()=>done())
+        .catch(()=>done())
+
+      expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
+    })
+
+    it('should respect resetBuilderOnCall when it is disabled', (done)=> {
+      jsonApi = new JsonApi({apiUrl: 'http://myapi.com', resetBuilderOnCall: false})
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload)=> {
+          expect(payload.req.method).to.be.eql('GET')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [inspectorMiddleware]
+
+      jsonApi.one('foo', 1).get().then(()=>{
+
+        let inspectorMiddleware = {
+          name: 'inspector-middleware',
+          req: (payload)=> {
+            expect(payload.req.method).to.be.eql('GET')
+            expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
+            return {}
+          }
+        }
+
+        jsonApi.middleware = [inspectorMiddleware]
+
+        return jsonApi.all('bar').get().then(()=>done())
+      }).catch(()=>done())
+    })
+
     it('should allow builders to be used', ()=> {
       expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
     })

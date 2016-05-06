@@ -45,7 +45,8 @@ class JsonApi {
 
     let defaults = {
       middleware: jsonApiMiddleware,
-      logger: true
+      logger: true,
+      resetBuilderOnCall: true
     }
 
     let deprecatedConstructos = (args) => {
@@ -71,6 +72,7 @@ class JsonApi {
     this.deserialize = deserialize
     this.serialize = serialize
     this.builderStack = []
+    this.resetBuilderOnCall = !!options.resetBuilderOnCall
     this.logger = Minilog('devour')
     options.logger ? Minilog.enable() : MiniLog.disable()
 
@@ -113,6 +115,11 @@ class JsonApi {
       data: {},
       params: params
     }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
     return this.runMiddleware(req)
   }
 
@@ -125,6 +132,11 @@ class JsonApi {
       model: lastRequest.get('model').value(),
       data: payload
     }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
     return this.runMiddleware(req)
   }
 
@@ -137,8 +149,12 @@ class JsonApi {
       model: lastRequest.get('model').value(),
       data: payload
     }
-    return this.runMiddleware(req)
 
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
+    return this.runMiddleware(req)
   }
 
   destroy () {
@@ -150,6 +166,11 @@ class JsonApi {
       model: lastRequest.get('model').value(),
       data: {}
     }
+
+    if (this.resetBuilderOnCall) {
+      this.resetBuilder()
+    }
+
     return this.runMiddleware(req)
   }
 
