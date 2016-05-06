@@ -48,12 +48,15 @@ class JsonApi {
       logger: true
     }
 
-    if (arguments.length === 2 || (arguments.length === 1 && _.isString(arguments[0]))) {
+    let deprecatedConstructos = (args) => {
+      return (args.length === 2 || (args.length === 1 && _.isString(args[0])))
+    }
+
+    if (deprecatedConstructos(arguments)) {
       defaults.apiUrl = arguments[0]
       if (arguments.length === 2) {
         defaults.middleware = arguments[1]
       }
-      console.error('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
     }
 
     options = _.assign(defaults, options)
@@ -69,8 +72,11 @@ class JsonApi {
     this.serialize = serialize
     this.builderStack = []
     this.logger = Minilog('devour')
-
     options.logger ? Minilog.enable() : MiniLog.disable()
+
+    if (deprecatedConstructos(arguments)) {
+      this.logger.warn('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
+    }
 
   }
 
