@@ -30,14 +30,14 @@
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/twg/devour-jsonapi-client/issues"
+    "url": "https://github.com/twg/devour/issues"
   },
   "babel": {
     "presets": [
       "es2015"
     ]
   },
-  "homepage": "https://github.com/twg/devour-jsonapi-client#readme",
+  "homepage": "https://github.com/twg/devour#readme",
   "devDependencies": {
     "babel-cli": "^6.8.0",
     "babel-core": "^6.7.7",
