@@ -1,7 +1,7 @@
 /* global describe, it, before */
 
-import JsonApi from '../../index'
-import deserialize from '../../middleware/json-api/_deserialize'
+import JsonApi from '../../src/index'
+import deserialize from '../../src/middleware/json-api/_deserialize'
 import expect from 'expect.js'
 
 describe('deserialize', () => {

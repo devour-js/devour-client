@@ -1,6 +1,6 @@
 /* global describe, it, beforeEach, afterEach */
 
-import JsonApi from '../../index'
+import JsonApi from '../../src/index'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 
