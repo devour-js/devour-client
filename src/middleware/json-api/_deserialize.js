@@ -13,8 +13,11 @@ function resource (item, included, responseModel) {
     throw new Error('The JSON API response had a type of "' + item.type + '" but Devour expected the type to be "' + responseModel + '".')
   }
 
-  let deserializedModel = {}
+  if (model.options.deserializer) {
+    return model.options.deserializer.call(this, item)
+  }
 
+  let deserializedModel = {}
   if (item.id) {
     deserializedModel.id = item.id
   }
@@ -26,6 +29,14 @@ function resource (item, included, responseModel) {
       deserializedModel[key] = item.attributes[key]
     }
   })
+
+  var params = ['meta', 'links']
+  params.forEach(function (param) {
+    if (item[param]) {
+      deserializedModel[param] = item[param]
+    }
+  })
+
   return deserializedModel
 }
 
