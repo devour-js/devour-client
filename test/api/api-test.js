@@ -78,6 +78,26 @@ describe('JsonApi', () => {
       })
     })
 
+    it('should allow users to add HTTP Basic Auth options', (done) => {
+      jsonApi = new JsonApi({apiUrl: 'http://myapi.com', auth: {username: 'admin', password: 'cheesecake'}})
+
+      jsonApi.define('foo', {title: ''})
+
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.auth).to.be.eql({username: 'admin', password: 'cheesecake'})
+          return {}
+        }
+      }
+
+      const jsonApiHttpBasicAuthMiddleware = require('./../../src/middleware/json-api/req-http-basic-auth')
+
+      jsonApi.middleware = [jsonApiHttpBasicAuthMiddleware, inspectorMiddleware]
+
+      jsonApi.one('foo', 1).get().then(() => done())
+    })
+
     it.skip('should throw Exception if the constructor does not receive proper arguments', () => {
       expect(function () {
         throw new Error('boom!')

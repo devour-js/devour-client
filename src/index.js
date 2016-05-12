@@ -15,6 +15,7 @@ const Minilog = require('minilog')
  *   standards.
  *
  */
+const jsonApiHttpBasicAuthMiddleware = require('./middleware/json-api/req-http-basic-auth')
 const jsonApiPostMiddleware = require('./middleware/json-api/req-post')
 const jsonApiPatchMiddleware = require('./middleware/json-api/req-patch')
 const jsonApiDeleteMiddleware = require('./middleware/json-api/req-delete')
@@ -25,6 +26,7 @@ const deserializeResponseMiddleware = require('./middleware/json-api/res-deseria
 const processErrors = require('./middleware/json-api/res-errors')
 
 let jsonApiMiddleware = [
+  jsonApiHttpBasicAuthMiddleware,
   jsonApiPostMiddleware,
   jsonApiPatchMiddleware,
   jsonApiDeleteMiddleware,
@@ -45,7 +47,8 @@ class JsonApi {
     let defaults = {
       middleware: jsonApiMiddleware,
       logger: true,
-      resetBuilderOnCall: true
+      resetBuilderOnCall: true,
+      auth: {}
     }
 
     let deprecatedConstructos = (args) => {
@@ -66,6 +69,7 @@ class JsonApi {
     this.middleware = middleware.slice(0)
     this.headers = {}
     this.axios = axios
+    this.auth = options.auth
     this.apiUrl = options.apiUrl
     this.models = {}
     this.deserialize = deserialize
