@@ -22,6 +22,12 @@ describe('deserialize', () => {
         attributes: {
           'title': 'Some Title',
           'about': 'Some about'
+        },
+        meta: {
+          info: 'Some meta data'
+        },
+        links: {
+          arbitrary: 'arbitrary link'
         }
       }
     }
@@ -29,6 +35,8 @@ describe('deserialize', () => {
     expect(product.id).to.eql('1')
     expect(product.title).to.eql('Some Title')
     expect(product.about).to.eql('Some about')
+    expect(product.meta.info).to.eql('Some meta data')
+    expect(product.links.arbitrary).to.eql('arbitrary link')
   })
 
   it('should deserialize hasMany relations', () => {
@@ -105,5 +113,60 @@ describe('deserialize', () => {
     expect(products[1].id).to.eql('2')
     expect(products[1].title).to.eql('Another Title')
     expect(products[1].about).to.eql('Another about')
+  })
+
+  it('should allow for custom deserialization if present on the resource definition', () => {
+    jsonApi.define('product', {title: ''}, {
+      deserializer: (rawItem) => {
+        return {
+          custom: true
+        }
+      }
+    })
+    let mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'Some Title',
+          about: 'Some about'
+        }
+      }
+    }
+    let product = deserialize.resource.call(jsonApi, mockResponse.data)
+    expect(product.custom).to.eql(true)
+  })
+
+  it('uses custom deserialization for each resource in a collection', () => {
+    jsonApi.define('product', {title: ''}, {
+      deserializer: () => {
+        return {
+          custom: true
+        }
+      }
+    })
+    let mockResponse = {
+      data: [
+        {
+          id: '1',
+          type: 'products',
+          attributes: {
+            title: 'Some Title',
+            about: 'Some about'
+          }
+        },
+        {
+          id: '2',
+          type: 'products',
+          attributes: {
+            title: 'Another Title',
+            about: 'Another about'
+          }
+        }
+      ]
+    }
+    let products = deserialize.collection.call(jsonApi, mockResponse.data)
+    expect(products[0].custom).to.eql(true)
+    expect(products[1].custom).to.eql(true)
   })
 })

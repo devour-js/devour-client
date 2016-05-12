@@ -145,6 +145,9 @@ jsonApi.define('product', {
   collectionPath: 'awesome-products',
   serializer: (rawItem)=> {
     return {customStuff: true}
+  },
+  deserializer: (rawItem)=> {
+    return {customStuff: true}
   }
 })
 ```
