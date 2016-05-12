@@ -63,7 +63,7 @@ jsonApi.destroy('post', 5)
 
 ### Initializer
 
-`const jsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})`
+`const jsonApi = new JsonApi({apiUrl: 'http://your-api-here.com'})`
 
 Devour takes an object as the initializer. The following options are available:
 
@@ -74,6 +74,8 @@ Devour takes an object as the initializer. The following options are available:
 **logger**: A boolean to enable or disable the logger. (Default: true)
 
 **resetBuilderOnCall**: A boolean to clear the builder stack after a `.get`, `.post`, `.patch`, `.destroy` call. (Default: true)
+
+**auth**: An object with username and password, used to pass in HTTP Basic Authentication Headers, `new JsonApi({apiUrl: 'http://your-api-here.com', auth: {username: 'secret', password: 'cheesecake})`
 
 ### Relationships
 
