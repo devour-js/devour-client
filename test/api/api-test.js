@@ -91,7 +91,7 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiHttpBasicAuthMiddleware = require('./../../middleware/json-api/req-http-basic-auth')
+      const jsonApiHttpBasicAuthMiddleware = require('./../../src/middleware/json-api/req-http-basic-auth')
 
       jsonApi.middleware = [jsonApiHttpBasicAuthMiddleware, inspectorMiddleware]
 
