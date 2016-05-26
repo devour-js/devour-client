@@ -51,6 +51,125 @@ describe('serialize', () => {
     expect(serializedItem.relationships.tags.data[2].type).to.eql('tags')
   })
 
+  it('should not serialize omitted relationships', () => {
+    jsonApi.define('product', {
+      title: '',
+      about: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      },
+      category: {
+        jsonApi: 'hasOne',
+        type: 'categories'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+    jsonApi.define('category', {
+      name: ''
+    })
+
+    let product = {
+      title: 'hello',
+      about: 'relationships',
+      tags: [
+        {id: 1, name: 'red'}
+      ]
+    }
+    let serializedItem = serialize.resource.call(jsonApi, 'product', product)
+    expect(serializedItem).to.have.property('relationships')
+    expect(serializedItem.relationships.tags.data).to.be.an('array')
+    expect(serializedItem.relationships.tags.data[0].id).to.eql(1)
+    expect(serializedItem.relationships.tags.data[0].type).to.eql('tags')
+
+    expect(serializedItem.relationships).to.not.have.property('category')
+  })
+
+  it('should omit the relationship object if none are specified', () => {
+    jsonApi.define('product', {
+      title: '',
+      about: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+
+    let product = {
+      title: 'hello',
+      about: 'relationships'
+    }
+
+    let serializedItem = serialize.resource.call(jsonApi, 'product', product)
+    expect(serializedItem).not.to.have.property('relationships')
+  })
+
+  it('should serialize null hasOne relationships', () => {
+    jsonApi.define('product', {
+      title: '',
+      about: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      },
+      category: {
+        jsonApi: 'hasOne',
+        type: 'categories'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+    jsonApi.define('category', {
+      name: ''
+    })
+
+    let product = {
+      title: 'hello',
+      about: 'relationships',
+      category: null
+    }
+    let serializedItem = serialize.resource.call(jsonApi, 'product', product)
+    expect(serializedItem).to.have.property('relationships')
+    expect(serializedItem.relationships.category.data).to.eql(null)
+  })
+
+  it('should serialize empty hasMany relationships', () => {
+    jsonApi.define('product', {
+      title: '',
+      about: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      },
+      category: {
+        jsonApi: 'hasOne',
+        type: 'categories'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+    jsonApi.define('category', {
+      name: ''
+    })
+
+    let product = {
+      title: 'hello',
+      about: 'relationships',
+      tags: []
+    }
+    let serializedItem = serialize.resource.call(jsonApi, 'product', product)
+    expect(serializedItem).to.have.property('relationships')
+    expect(serializedItem.relationships.tags.data).to.be.an('array')
+    expect(serializedItem.relationships.tags.data.length).to.eql(0)
+  })
+
   it('should serialize hasOne relationships', () => {
     jsonApi.define('product', {
       title: '',
