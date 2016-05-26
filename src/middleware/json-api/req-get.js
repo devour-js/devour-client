@@ -8,7 +8,7 @@ module.exports = {
       }
       payload.req.data = {}
     }
-    
+
     return payload
   }
 }
