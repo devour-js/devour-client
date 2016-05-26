@@ -31,7 +31,7 @@ let jsonApiMiddleware = [
   jsonApiPostMiddleware,
   jsonApiPatchMiddleware,
   jsonApiDeleteMiddleware,
-  jsonApiGetMiddleware
+  jsonApiGetMiddleware,
   jsonApiHeadersMiddleware,
   railsParamsSerializer,
   sendRequestMiddleware,
