@@ -19,6 +19,7 @@ const jsonApiHttpBasicAuthMiddleware = require('./middleware/json-api/req-http-b
 const jsonApiPostMiddleware = require('./middleware/json-api/req-post')
 const jsonApiPatchMiddleware = require('./middleware/json-api/req-patch')
 const jsonApiDeleteMiddleware = require('./middleware/json-api/req-delete')
+const jsonApiGetMiddleware = require('./middleware/json-api/req-get')
 const jsonApiHeadersMiddleware = require('./middleware/json-api/req-headers')
 const railsParamsSerializer = require('./middleware/json-api/rails-params-serializer')
 const sendRequestMiddleware = require('./middleware/request')
@@ -30,6 +31,7 @@ let jsonApiMiddleware = [
   jsonApiPostMiddleware,
   jsonApiPatchMiddleware,
   jsonApiDeleteMiddleware,
+  jsonApiGetMiddleware,
   jsonApiHeadersMiddleware,
   railsParamsSerializer,
   sendRequestMiddleware,
