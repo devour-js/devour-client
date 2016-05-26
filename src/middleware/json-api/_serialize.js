@@ -31,7 +31,11 @@ function resource (modelName, item) {
 
   serializedResource.type = typeName
   serializedResource.attributes = serializedAttributes
-  serializedResource.relationships = serializedRelationships
+
+  if (Object.keys(serializedRelationships).length > 0) {
+    serializedResource.relationships = serializedRelationships
+  }
+
   if (item.id) {
     serializedResource.id = item.id
   }
@@ -47,10 +51,10 @@ function isRelationship (attribute) {
 }
 
 function serializeRelationship (relationshipName, relationship, relationshipType, serializeRelationships) {
-  if (relationshipType.jsonApi === 'hasMany') {
+  if (relationshipType.jsonApi === 'hasMany' && relationship !== undefined) {
     serializeRelationships[relationshipName] = serializeHasMany(relationship, relationshipType.type)
   }
-  if (relationshipType.jsonApi === 'hasOne') {
+  if (relationshipType.jsonApi === 'hasOne' && relationship !== undefined) {
     serializeRelationships[relationshipName] = serializeHasOne(relationship, relationshipType.type)
   }
 }
@@ -64,8 +68,8 @@ function serializeHasMany (relationships, type) {
 }
 
 function serializeHasOne (relationship, type) {
-  if (!relationship) {
-    return null
+  if (relationship === null) {
+    return {data: null}
   }
   return {
     data: {id: relationship.id, type: type}
