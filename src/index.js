@@ -261,6 +261,11 @@ class JsonApi {
       })
   }
 
+  request (url, method = 'GET', params = {}, data = {}) {
+    let req = { url, method, params, data }
+    return this.runMiddleware(req)
+  }
+
   find (modelName, id, params = {}) {
     let req = {
       method: 'GET',
