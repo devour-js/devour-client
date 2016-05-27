@@ -59,6 +59,9 @@ jsonApi.update('post', {
 
 // To destroy...
 jsonApi.destroy('post', 5)
+
+// To make arbitrary requests through the middleware stack
+jsonApi.request('https://example.com', 'GET', { a_query_param: 3 }, { some_payload_item: 'blah' })
 ```
 
 ### Initializer
