@@ -18,13 +18,14 @@ module.exports = {
      *         a `data` attribute. This means we have `res.data.data`.
      */
     let jsonApi = payload.jsonApi
+    let status = payload.res.status
     let req = payload.req
     let res = payload.res.data
     let included = res.included
 
     let deserializedResponse = null
 
-    if (needsDeserialization(req.method)) {
+    if (status !== 204 && needsDeserialization(req.method)) {
       if (isCollection(res.data)) {
         deserializedResponse = deserialize.collection.call(jsonApi, res.data, included, req.model)
       } else {
