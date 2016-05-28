@@ -6,7 +6,7 @@ module.exports = {
         'Content-Type': 'application/vnd.api+json',
         'Accept': 'application/vnd.api+json'
       }
-      payload.req.data = {}
+      delete payload.req.data
     }
 
     return payload
