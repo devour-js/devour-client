@@ -3,6 +3,7 @@
 import JsonApi from '../../src/index'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
+import sinon from 'sinon'
 
 describe('JsonApi', () => {
   var jsonApi = null
@@ -302,6 +303,20 @@ describe('JsonApi', () => {
         expect(products[0].title).to.eql('Some Title')
         done()
       }).catch(err => console.log(err))
+    })
+
+    it('should expose a method for arbitrary HTTP calls', () => {
+      const url = 'https://example.com'
+      const method = 'PATCH'
+      const params = { id: 3 }
+      const data = { body: 'something different' }
+
+      jsonApi.runMiddleware = sinon.spy()
+
+      jsonApi.request(url, method, params, data)
+
+      expect(jsonApi.runMiddleware.called).to.be.truthy
+      expect(jsonApi.runMiddleware.calledWith(url, method, params, data)).to.be.truthy
     })
   })
 
