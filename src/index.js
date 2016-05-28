@@ -314,7 +314,7 @@ class JsonApi {
 
   resourcePathFor (modelName, id) {
     let collectionPath = this.collectionPathFor(modelName)
-    return `${collectionPath}/${id}`
+    return `${collectionPath}/${encodeURIComponent(id)}`
   }
 
   collectionUrlFor (modelName) {
