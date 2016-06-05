@@ -350,7 +350,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
 
-      jsonApi.destroy('foo', 1).then(() => done()).catch(() => done());
+      jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
     })
   })
 
