@@ -1,6 +1,8 @@
 /* global describe, it, beforeEach, afterEach */
 
 import JsonApi from '../../src/index'
+import jsonApiGetMiddleware from '../../src/middleware/json-api/req-get'
+import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 import sinon from 'sinon'
@@ -317,6 +319,38 @@ describe('JsonApi', () => {
 
       expect(jsonApi.runMiddleware.called).to.be.truthy
       expect(jsonApi.runMiddleware.calledWith(url, method, params, data)).to.be.truthy
+    })
+
+    it('should have an empty body on GET requests', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('GET')
+          expect(payload.req.data).to.be(undefined)
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [jsonApiGetMiddleware, inspectorMiddleware]
+
+      jsonApi.one('foo', 1).find().then(() => done()).catch(() => done())
+    })
+
+    it('should have an empty body on DELETE requests', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('DELETE')
+          expect(payload.req.data).to.be(undefined)
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+
+      jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
     })
   })
 
