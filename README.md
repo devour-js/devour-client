@@ -181,6 +181,6 @@ let jsonApi = new JsonApi({apiUrl: 'http://api.yoursite.com'})
 jsonApi.define('author', {name: ''})
 jsonApi.define('post', {title: ''})
 
-jsonApi.one('author', 1).all('post').get() // GET http://api.yoursite.com/authors/1/posts
-jsonApi.one('author', 1).all('post').post({title:'title'}) // POST http://api.yoursite.com/authors/1/posts
+jsonApi.one('author', 1).all('post').get({include: 'books'}) // GET http://api.yoursite.com/authors/1/posts?include=books
+jsonApi.one('author', 1).all('post').post({title:'title'}, {include: 'books'}) // POST http://api.yoursite.com/authors/1/posts?include=books
 ```
