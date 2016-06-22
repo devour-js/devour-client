@@ -24,7 +24,7 @@ function resource (item, included, responseModel) {
 
   _.forOwn(model.attributes, (value, key) => {
     if (isRelationship(value)) {
-      deserializedModel[key] = attachRelationsFor.call(this, model, value, item, included)
+      deserializedModel[key] = attachRelationsFor.call(this, model, value, item, included, key)
     } else {
       deserializedModel[key] = item.attributes[key]
     }
@@ -40,22 +40,22 @@ function resource (item, included, responseModel) {
   return deserializedModel
 }
 
-function attachRelationsFor (model, attribute, item, included) {
+function attachRelationsFor (model, attribute, item, included, key) {
   let relation = null
   if (attribute.jsonApi === 'hasOne') {
-    relation = attachHasOneFor.call(this, model, attribute, item, included)
+    relation = attachHasOneFor.call(this, model, attribute, item, included, key)
   }
   if (attribute.jsonApi === 'hasMany') {
-    relation = attachHasManyFor.call(this, model, attribute, item, included)
+    relation = attachHasManyFor.call(this, model, attribute, item, included, key)
   }
   return relation
 }
 
-function attachHasOneFor (model, attribute, item, included) {
+function attachHasOneFor (model, attribute, item, included, key) {
   if (!item.relationships) {
     return null
   }
-  let relatedItems = relatedItemsFor(model, attribute, item, included)
+  let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems[0]) {
     return resource.call(this, relatedItems[0], included)
   } else {
@@ -63,11 +63,11 @@ function attachHasOneFor (model, attribute, item, included) {
   }
 }
 
-function attachHasManyFor (model, attribute, item, included) {
+function attachHasManyFor (model, attribute, item, included, key) {
   if (!item.relationships) {
     return null
   }
-  let relatedItems = relatedItemsFor(model, attribute, item, included)
+  let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems.length > 0) {
     return collection.call(this, relatedItems, included)
   }
@@ -82,9 +82,8 @@ function isRelationship (attribute) {
  *   == relatedItemsFor
  *   Returns unserialized related items.
  */
-function relatedItemsFor (model, attribute, item, included) {
-  let relationName = _.findKey(model.attributes, attribute)
-  let relationMap = _.get(item.relationships, [relationName, 'data'], false)
+function relatedItemsFor (model, attribute, item, included, key) {
+  let relationMap = _.get(item.relationships, [key, 'data'], false)
   if (!relationMap) {
     return []
   }
