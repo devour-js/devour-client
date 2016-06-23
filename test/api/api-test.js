@@ -321,6 +321,21 @@ describe('JsonApi', () => {
       expect(jsonApi.runMiddleware.calledWith(url, method, params, data)).to.be.truthy
     })
 
+    it('should handle null primary data', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          data: null
+        }
+      })
+      jsonApi.define('product', {
+        title: ''
+      })
+      jsonApi.find('product', 1).then((product) => {
+        expect(product).to.eql(null)
+        done()
+      }).catch(err => console.log(err))
+    })
+
     it('should have an empty body on GET requests', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
