@@ -28,12 +28,12 @@ module.exports = {
     if (status !== 204 && needsDeserialization(req.method)) {
       if (isCollection(res.data)) {
         deserializedResponse = deserialize.collection.call(jsonApi, res.data, included, req.model)
-      } else {
+      } else if (res.data) {
         deserializedResponse = deserialize.resource.call(jsonApi, res.data, included, req.model)
       }
     }
 
-    if (res) {
+    if (res && deserializedResponse) {
       var params = ['meta', 'links']
       params.forEach(function (param) {
         deserializedResponse[param] = res[param]
