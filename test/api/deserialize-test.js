@@ -33,6 +33,7 @@ describe('deserialize', () => {
     }
     let product = deserialize.resource.call(jsonApi, mockResponse.data)
     expect(product.id).to.eql('1')
+    expect(product.type).to.eql('products')
     expect(product.title).to.eql('Some Title')
     expect(product.about).to.eql('Some about')
     expect(product.meta.info).to.eql('Some meta data')
@@ -73,11 +74,14 @@ describe('deserialize', () => {
     }
     let product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
     expect(product.id).to.eql('1')
+    expect(product.type).to.eql('products')
     expect(product.title).to.eql('hello')
     expect(product.tags).to.be.an('array')
     expect(product.tags[0].id).to.eql('5')
+    expect(product.tags[0].type).to.eql('tags')
     expect(product.tags[0].name).to.eql('one')
     expect(product.tags[1].id).to.eql('6')
+    expect(product.tags[1].type).to.eql('tags')
     expect(product.tags[1].name).to.eql('two')
   })
 
@@ -108,9 +112,11 @@ describe('deserialize', () => {
     }
     let products = deserialize.collection.call(jsonApi, mockResponse.data)
     expect(products[0].id).to.eql('1')
+    expect(products[0].type).to.eql('products')
     expect(products[0].title).to.eql('Some Title')
     expect(products[0].about).to.eql('Some about')
     expect(products[1].id).to.eql('2')
+    expect(products[1].type).to.eql('products')
     expect(products[1].title).to.eql('Another Title')
     expect(products[1].about).to.eql('Another about')
   })
