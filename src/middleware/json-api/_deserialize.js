@@ -1,34 +1,67 @@
 const _ = require('lodash')
 const pluralize = require('pluralize')
 
-function collection (items, included, responseModel) {
+const cache = new class {
+  constructor() { this._cache = []; }
+
+  set(type, id, deserializedData) {
+    this._cache.push({
+      type: type,
+      id: id,
+      deserialized: deserializedData
+    });
+  }
+
+  get(type, id) {
+    const match = _.find(this._cache, r => r.type === type && r.id === id);
+    return match && match.deserialized;
+  }
+}
+
+function collection (items, included, responseModel, useCache = false) {
   return items.map(item => {
-    return resource.call(this, item, included, responseModel)
+    return resource.call(this, item, included, responseModel, useCache)
   })
 }
 
-function resource (item, included, responseModel) {
+function resource (item, included, responseModel, useCache = false) {
+  if (useCache) {
+    const cachedItem = cache.get(item.type, item.id)
+    if (cachedItem) return cachedItem;
+  }
+
   let model = this.modelFor(pluralize.singular(item.type))
-  if (!model) {
-    throw new Error('The JSON API response had a type of "' + item.type + '" but Devour expected the type to be "' + responseModel + '".')
-  }
+  if (!model) throw new Error('The JSON API response had a type of "' + item.type + '" but Devour expected the type to be "' + responseModel + '".');
 
-  if (model.options.deserializer) {
-    return model.options.deserializer.call(this, item)
-  }
+  if (model.options.deserializer) return model.options.deserializer.call(this, item);
 
-  let deserializedModel = {}
-  if (item.id) {
-    deserializedModel.id = item.id
-  }
+  let deserializedModel = {id: item.id};
 
-  _.forOwn(model.attributes, (value, key) => {
-    if (isRelationship(value)) {
-      deserializedModel[key] = attachRelationsFor.call(this, model, value, item, included, key)
-    } else if (item.attributes) {
-      deserializedModel[key] = item.attributes[key]
+  _.forOwn(item.attributes, (value, attr) => {
+    const attrConfig = model.attributes[attr];
+
+    if (_.isUndefined(attrConfig) && attr !== "id")  {
+      console.warn(`Resource response contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`);
+    } else {
+      deserializedModel[attr] = value;
     }
-  })
+  });
+
+  // Important: cache before parsing relationships to avoid infinite loop
+  cache.set(item.type, item.id, deserializedModel);
+
+  _.forOwn(item.relationships, (value, rel) => {
+    const relConfig = model.attributes[rel];
+
+    if (_.isUndefined(relConfig))
+      console.warn(`Resource response contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
+    else if (!isRelationship(relConfig))
+      console.warn(`Resource response contains relationship "${rel}", but it is present on model config as a plain attribute.`)
+    else
+      deserializedModel[rel] =
+        attachRelationsFor.call(this, model, relConfig, item, included, rel);
+  });
+
 
   var params = ['meta', 'links']
   params.forEach(function (param) {
@@ -36,6 +69,8 @@ function resource (item, included, responseModel) {
       deserializedModel[param] = item[param]
     }
   })
+
+  cache.set(item.type, item.id, deserializedModel);
 
   return deserializedModel
 }
@@ -55,9 +90,10 @@ function attachHasOneFor (model, attribute, item, included, key) {
   if (!item.relationships) {
     return null
   }
+
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems[0]) {
-    return resource.call(this, relatedItems[0], included)
+    return resource.call(this, relatedItems[0], included, undefined, true)
   } else {
     return null
   }
@@ -69,7 +105,7 @@ function attachHasManyFor (model, attribute, item, included, key) {
   }
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems.length > 0) {
-    return collection.call(this, relatedItems, included)
+    return collection.call(this, relatedItems, included, undefined, true)
   }
   return []
 }
