@@ -25,7 +25,7 @@ function resource (item, included, responseModel) {
   _.forOwn(model.attributes, (value, key) => {
     if (isRelationship(value)) {
       deserializedModel[key] = attachRelationsFor.call(this, model, value, item, included, key)
-    } else {
+    } else if (item.attributes) {
       deserializedModel[key] = item.attributes[key]
     }
   })
