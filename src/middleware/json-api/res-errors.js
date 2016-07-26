@@ -1,11 +1,15 @@
+const _ = require('lodash')
+
 function buildErrors (serverErrors) {
   if (!serverErrors) {
     console.log('Unidentified error')
     return
   } else {
     let errors = {}
-    serverErrors.errors.forEach((error) => {
-      errors[errorKey(error.source)] = error.title
+    _.forEach(serverErrors.errors, (error) => {
+      if (error.source) {
+        errors[errorKey(error.source)] = error.title
+      }
     })
     return errors
   }
