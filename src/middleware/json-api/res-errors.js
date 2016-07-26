@@ -5,7 +5,11 @@ function buildErrors (serverErrors) {
   } else {
     let errors = {}
     serverErrors.errors.forEach((error) => {
-      errors[errorKey(error.source)] = error.title
+      if (error.source && error.title) {
+        errors[errorKey(error.source)] = error.title
+      } else if (error.title && error.detail) {
+        errors[error.title] = error.detail
+      }
     })
     return errors
   }
