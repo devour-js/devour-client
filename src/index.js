@@ -209,6 +209,11 @@ class JsonApi {
     }
   }
 
+  replaceMiddleware (middlewareName, newMiddleware) {
+    let index = _.findIndex(this.middleware, ['name', middlewareName])
+    this.middleware[index] = newMiddleware
+  }
+
   define (modelName, attributes, options = {}) {
     this.models[modelName] = {
       attributes: attributes,

@@ -132,8 +132,16 @@ let responseMiddleware = {
   }
 }
 
+let errorMiddleware = {
+  name: 'nothing-to-see-here',
+  error: function (payload) {
+    return { errors: [] }
+  }
+}
+
 jsonApi.insertMiddlewareBefore('axios-request', requestMiddleware)
 jsonApi.insertMiddlewareAfter('response', responseMiddleware)
+jsonApi.replaceMiddleware('errors', errorMiddleware)
 ```
 
 ### Options
