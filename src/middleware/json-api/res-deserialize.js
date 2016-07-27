@@ -36,7 +36,9 @@ module.exports = {
     if (res && deserializedResponse) {
       var params = ['meta', 'links']
       params.forEach(function (param) {
-        deserializedResponse[param] = res[param]
+        if (res[param]) {
+          deserializedResponse[param] = res[param]
+        }
       })
     }
 
