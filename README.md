@@ -192,3 +192,34 @@ jsonApi.define('post', {title: ''})
 jsonApi.one('author', 1).all('post').get({include: 'books'}) // GET http://api.yoursite.com/authors/1/posts?include=books
 jsonApi.one('author', 1).all('post').post({title:'title'}, {include: 'books'}) // POST http://api.yoursite.com/authors/1/posts?include=books
 ```
+
+### Polymorphic Relationships
+
+To specify a polymorphic relationship, simply define a model with a polymorphic relationship without specifying its type.
+
+```js
+jsonApi.define('order', {
+  name: '',
+  payables: {
+    jsonApi: 'hasMany'
+  }
+})
+
+let payables = [{id: 4, type: 'subtotal'}, {id: 5, type: 'tax'}]
+let order = jsonApi.all('order').post({ name: 'first', payables })
+/* => POST http://api.yoursite.com/orders
+{
+  type: orders,
+  attributes: {
+    name: 'first'
+  },  
+  relationships: {
+    payables: {
+      data: [
+        { id: 4, type: 'subtotal' },
+        { id: 5, type: 'tax' }
+      ]
+    }
+  }
+} */
+```
