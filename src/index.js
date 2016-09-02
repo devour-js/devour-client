@@ -46,11 +46,13 @@ class JsonApi {
       throw new Error('Invalid argument, initialize Devour with an object.')
     }
 
+    let defaultSlashes = {collection: false, resource: false}
     let defaults = {
       middleware: jsonApiMiddleware,
       logger: true,
       resetBuilderOnCall: true,
-      auth: {}
+      auth: {},
+      trailingSlash: defaultSlashes
     }
 
     let deprecatedConstructos = (args) => {
@@ -64,8 +66,9 @@ class JsonApi {
       }
     }
 
-    options = _.assign(defaults, options)
+    options = _.defaultsDeep(options, defaults)
     let middleware = options.middleware
+    let slashes = options.trailingSlash
 
     this._originalMiddleware = middleware.slice(0)
     this.middleware = middleware.slice(0)
@@ -79,6 +82,7 @@ class JsonApi {
     this.builderStack = []
     this.resetBuilderOnCall = !!options.resetBuilderOnCall
     this.logger = Minilog('devour')
+    this.trailingSlash = slashes === true ? _.forOwn(_.clone(defaultSlashes), (v, k, o) => { _.set(o, k, true) }) : slashes
     options.logger ? Minilog.enable() : Minilog.disable()
 
     if (deprecatedConstructos(arguments)) {
@@ -108,8 +112,10 @@ class JsonApi {
     return _.map(this.builderStack, 'path').join('/')
   }
 
-  buildUrl () {
-    return `${this.apiUrl}/${this.buildPath()}`
+  buildUrl (trailingSlash) {
+    let path = this.buildPath()
+    let slash = trailingSlash === true && path !== '' ? '/' : ''
+    return `${this.apiUrl}/${path}${slash}`
   }
 
   get (params = {}) {
@@ -331,12 +337,14 @@ class JsonApi {
 
   collectionUrlFor (modelName) {
     let collectionPath = this.collectionPathFor(modelName)
-    return `${this.apiUrl}/${collectionPath}`
+    let trailingSlash = this.trailingSlash['collection'] ? '/' : ''
+    return `${this.apiUrl}/${collectionPath}${trailingSlash}`
   }
 
   resourceUrlFor (modelName, id) {
     let resourcePath = this.resourcePathFor(modelName, id)
-    return `${this.apiUrl}/${resourcePath}`
+    let trailingSlash = this.trailingSlash['resource'] ? '/' : ''
+    return `${this.apiUrl}/${resourcePath}${trailingSlash}`
   }
 
   urlFor (options = {}) {
@@ -345,7 +353,8 @@ class JsonApi {
     } else if (!_.isUndefined(options.model)) {
       return this.collectionUrlFor(options.model)
     } else {
-      return this.buildUrl()
+      let slash = !_.isUndefined(options.trailingSlash) && options.trailingSlash
+      return this.buildUrl(slash)
     }
   }
 

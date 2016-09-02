@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach, afterEach */
+/* global describe, context, it, beforeEach, afterEach */
 
 import JsonApi from '../../src/index'
 import jsonApiGetMiddleware from '../../src/middleware/json-api/req-get'
@@ -101,6 +101,36 @@ describe('JsonApi', () => {
       jsonApi.one('foo', 1).get().then(() => done())
     })
 
+    describe('Trailing Slash options', () => {
+      context('no options passed -- default behavior', () => {
+        it('should use the default of no slashes for either url type', () => {
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+          expect(jsonApi.trailingSlash).to.eql({collection: false, resource: false})
+        })
+      })
+
+      context('option to add slashes to all urls', () => {
+        it('should use slashes for both url types', () => {
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: true})
+          expect(jsonApi.trailingSlash).to.eql({collection: true, resource: true})
+        })
+      })
+
+      context('option to add slashes to only collection urls', () => {
+        it('should only use slashes for collection urls', () => {
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: { collection: true }})
+          expect(jsonApi.trailingSlash).to.eql({collection: true, resource: false})
+        })
+      })
+
+      context('option to add slashes to only resource urls', () => {
+        it('should only use slashes for resource urls', () => {
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: { resource: true }})
+          expect(jsonApi.trailingSlash).to.eql({collection: false, resource: true})
+        })
+      })
+    })
+
     it.skip('should throw Exception if the constructor does not receive proper arguments', () => {
       expect(function () {
         throw new Error('boom!')
@@ -109,49 +139,115 @@ describe('JsonApi', () => {
   })
 
   describe('urlFor, pathFor and path builders', () => {
-    it('should construct collection paths for models', () => {
-      jsonApi.define('product', {})
-      expect(jsonApi.collectionPathFor('product')).to.eql('products')
+    context('default trailing no trailing slashes', () => {
+      it('should construct collection paths for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.collectionPathFor('product')).to.eql('products')
+      })
+
+      it('should allow overrides for collection paths', () => {
+        jsonApi.define('product', {}, {collectionPath: 'my-products'})
+        expect(jsonApi.collectionPathFor('product')).to.eql('my-products')
+      })
+
+      it('should allow arbitrary collections without a model', () => {
+        expect(jsonApi.collectionPathFor('foo')).to.eql('foos')
+      })
+
+      it('should construct single resource paths for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.resourcePathFor('product', 1)).to.eql('products/1')
+      })
+
+      it('should construct collection urls for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.collectionUrlFor('product')).to.eql('http://myapi.com/products')
+      })
+
+      it('should construct single resource urls for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.resourceUrlFor('product', 1)).to.eql('http://myapi.com/products/1')
+      })
+
+      it('should allow urlFor to be called with various options', () => {
+        expect(jsonApi.urlFor({model: 'foo', id: 1})).to.eql('http://myapi.com/foos/1')
+        expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos')
+        expect(jsonApi.urlFor({})).to.eql('http://myapi.com/')
+        expect(jsonApi.urlFor()).to.eql('http://myapi.com/')
+        expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos')
+      })
+
+      it('should allow urlFor to be called with the trailingSlash option', () => {
+        expect(jsonApi.urlFor({trailingSlash: true})).to.eql('http://myapi.com/')
+        expect(jsonApi.all('foo').urlFor({trailingSlash: true})).to.eql('http://myapi.com/foos/')
+      })
+
+      it('should allow pathFor to be called with various options', () => {
+        expect(jsonApi.pathFor({model: 'foo', id: 1})).to.eql('foos/1')
+        expect(jsonApi.pathFor({model: 'foo'})).to.eql('foos')
+        expect(jsonApi.pathFor({})).to.eql('')
+        expect(jsonApi.pathFor()).to.eql('')
+        expect(jsonApi.all('foo').pathFor()).to.eql('foos')
+      })
     })
 
-    it('should allow overrides for collection paths', () => {
-      jsonApi.define('product', {}, {collectionPath: 'my-products'})
-      expect(jsonApi.collectionPathFor('product')).to.eql('my-products')
-    })
+    context('with trailing slashes', () => {
+      beforeEach(() => {
+        jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: {collection: true, resource: true}})
+      })
 
-    it('should allow arbitrary collections without a model', () => {
-      expect(jsonApi.collectionPathFor('foo')).to.eql('foos')
-    })
+      afterEach(() => {
+        jsonApi.resetBuilder()
+      })
+      it('should construct collection paths for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.collectionPathFor('product')).to.eql('products')
+      })
 
-    it('should construct single resource paths for models', () => {
-      jsonApi.define('product', {})
-      expect(jsonApi.resourcePathFor('product', 1)).to.eql('products/1')
-    })
+      it('should allow overrides for collection paths', () => {
+        jsonApi.define('product', {}, {collectionPath: 'my-products'})
+        expect(jsonApi.collectionPathFor('product')).to.eql('my-products')
+      })
 
-    it('should construct collection urls for models', () => {
-      jsonApi.define('product', {})
-      expect(jsonApi.collectionUrlFor('product')).to.eql('http://myapi.com/products')
-    })
+      it('should allow arbitrary collections without a model', () => {
+        expect(jsonApi.collectionPathFor('foo')).to.eql('foos')
+      })
 
-    it('should construct single resource urls for models', () => {
-      jsonApi.define('product', {})
-      expect(jsonApi.resourceUrlFor('product', 1)).to.eql('http://myapi.com/products/1')
-    })
+      it('should construct single resource paths for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.resourcePathFor('product', 1)).to.eql('products/1')
+      })
 
-    it('should allow urlFor to be called with various options', () => {
-      expect(jsonApi.urlFor({model: 'foo', id: 1})).to.eql('http://myapi.com/foos/1')
-      expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos')
-      expect(jsonApi.urlFor({})).to.eql('http://myapi.com/')
-      expect(jsonApi.urlFor()).to.eql('http://myapi.com/')
-      expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos')
-    })
+      it('should construct collection urls for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.collectionUrlFor('product')).to.eql('http://myapi.com/products/')
+      })
 
-    it('should allow pathFor to be called with various options', () => {
-      expect(jsonApi.pathFor({model: 'foo', id: 1})).to.eql('foos/1')
-      expect(jsonApi.pathFor({model: 'foo'})).to.eql('foos')
-      expect(jsonApi.pathFor({})).to.eql('')
-      expect(jsonApi.pathFor()).to.eql('')
-      expect(jsonApi.all('foo').pathFor()).to.eql('foos')
+      it('should construct single resource urls for models', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.resourceUrlFor('product', 1)).to.eql('http://myapi.com/products/1/')
+      })
+
+      it('should allow urlFor to be called with various options', () => {
+        expect(jsonApi.urlFor({model: 'foo', id: 1})).to.eql('http://myapi.com/foos/1/')
+        expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos/')
+        expect(jsonApi.urlFor({})).to.eql('http://myapi.com/')
+        expect(jsonApi.urlFor()).to.eql('http://myapi.com/')
+        expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos')
+      })
+
+      it('should allow urlFor to be called with the trailingSlash option', () => {
+        expect(jsonApi.urlFor({trailingSlash: true})).to.eql('http://myapi.com/')
+        expect(jsonApi.all('foo').urlFor({trailingSlash: true})).to.eql('http://myapi.com/foos/')
+      })
+
+      it('should allow pathFor to be called with various options', () => {
+        expect(jsonApi.pathFor({model: 'foo', id: 1})).to.eql('foos/1')
+        expect(jsonApi.pathFor({model: 'foo'})).to.eql('foos')
+        expect(jsonApi.pathFor({})).to.eql('')
+        expect(jsonApi.pathFor()).to.eql('')
+        expect(jsonApi.all('foo').pathFor()).to.eql('foos')
+      })
     })
   })
 
