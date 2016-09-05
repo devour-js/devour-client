@@ -62,7 +62,7 @@ function serializeRelationship (relationshipName, relationship, relationshipType
 function serializeHasMany (relationships, type) {
   return {
     data: _.map(relationships, (item) => {
-      return {id: item.id, type: type}
+      return {id: item.id, type: type || item.type}
     })
   }
 }
@@ -72,7 +72,7 @@ function serializeHasOne (relationship, type) {
     return {data: null}
   }
   return {
-    data: {id: relationship.id, type: type}
+    data: {id: relationship.id, type: type || relationship.type}
   }
 }
 

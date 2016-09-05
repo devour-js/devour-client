@@ -245,4 +245,36 @@ describe('serialize', () => {
     let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello'})
     expect(serializedItem.custom).to.eql(true)
   })
+
+  it('should serialize polymorphic hasOne relationships', () => {
+    jsonApi.define('order', {
+      title: '',
+      payable: {
+        jsonApi: 'hasOne'
+      }
+    })
+
+    let serializedItem = serialize.resource.call(jsonApi, 'order', {id: '5', title: 'Hello', payable: {id: 4, type: 'subtotal'}})
+    expect(serializedItem.type).to.eql('orders')
+    expect(serializedItem.attributes.title).to.eql('Hello')
+    expect(serializedItem.relationships.payable.data.id).to.eql(4)
+    expect(serializedItem.relationships.payable.data.type).to.eql('subtotal')
+  })
+
+  it('should serialize polymorphic hasMany relationships', () => {
+    jsonApi.define('order', {
+      title: '',
+      payables: {
+        jsonApi: 'hasMany'
+      }
+    })
+
+    let serializedItem = serialize.resource.call(jsonApi, 'order', {id: '5', title: 'Hello', payables: [{id: 4, type: 'subtotal'}, {id: 4, type: 'tax'}]})
+    expect(serializedItem.type).to.eql('orders')
+    expect(serializedItem.attributes.title).to.eql('Hello')
+    expect(serializedItem.relationships.payables.data[0].id).to.eql(4)
+    expect(serializedItem.relationships.payables.data[0].type).to.eql('subtotal')
+    expect(serializedItem.relationships.payables.data[1].id).to.eql(4)
+    expect(serializedItem.relationships.payables.data[1].type).to.eql('tax')
+  })
 })
