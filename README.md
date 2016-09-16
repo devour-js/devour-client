@@ -78,7 +78,9 @@ Devour takes an object as the initializer. The following options are available:
 
 **resetBuilderOnCall**: A boolean to clear the builder stack after a `.get`, `.post`, `.patch`, `.destroy` call. (Default: true)
 
-**auth**: An object with username and password, used to pass in HTTP Basic Authentication Headers, `new JsonApi({apiUrl: 'http://your-api-here.com', auth: {username: 'secret', password: 'cheesecake})`
+**auth**: An object with username and password, used to pass in HTTP Basic Authentication Headers, `new JsonApi({apiUrl: 'http://your-api-here.com', auth: {username: 'secret', password: 'cheesecake'})`
+
+**trailingSlashes**: An optional object to use trailing slashes on resource and/or collection urls (defaults to false), `new JsonApi({apiUrl: 'http://your-api-here.com', trailingSlashes: {resource: false, collection: true})`
 
 ### Relationships
 
