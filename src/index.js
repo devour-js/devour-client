@@ -50,21 +50,22 @@ class JsonApi {
       middleware: jsonApiMiddleware,
       logger: true,
       resetBuilderOnCall: true,
-      auth: {}
+      auth: {},
+      trailingSlash: {collection: false, resource: false}
     }
 
-    let deprecatedConstructos = (args) => {
+    let deprecatedConstructors = (args) => {
       return (args.length === 2 || (args.length === 1 && _.isString(args[0])))
     }
 
-    if (deprecatedConstructos(arguments)) {
+    if (deprecatedConstructors(arguments)) {
       defaults.apiUrl = arguments[0]
       if (arguments.length === 2) {
         defaults.middleware = arguments[1]
       }
     }
 
-    options = _.assign(defaults, options)
+    options = _.defaultsDeep(options, defaults)
     let middleware = options.middleware
 
     this._originalMiddleware = middleware.slice(0)
@@ -79,9 +80,10 @@ class JsonApi {
     this.builderStack = []
     this.resetBuilderOnCall = !!options.resetBuilderOnCall
     this.logger = Minilog('devour')
+    this.trailingSlash = options.trailingSlash === true ? _.forOwn(_.clone(defaults.trailingSlash), (v, k, o) => { _.set(o, k, true) }) : options.trailingSlash
     options.logger ? Minilog.enable() : Minilog.disable()
 
-    if (deprecatedConstructos(arguments)) {
+    if (deprecatedConstructors(arguments)) {
       this.logger.warn('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
     }
   }
@@ -104,12 +106,22 @@ class JsonApi {
     this.builderStack = []
   }
 
+  stackForResource () {
+    return _.hasIn(_.last(this.builderStack), 'id')
+  }
+
+  addSlash () {
+    return this.stackForResource() ? this.trailingSlash.resource : this.trailingSlash.collection
+  }
+
   buildPath () {
     return _.map(this.builderStack, 'path').join('/')
   }
 
   buildUrl () {
-    return `${this.apiUrl}/${this.buildPath()}`
+    let path = this.buildPath()
+    let slash = path !== '' && this.addSlash() ? '/' : ''
+    return `${this.apiUrl}/${path}${slash}`
   }
 
   get (params = {}) {
@@ -331,12 +343,14 @@ class JsonApi {
 
   collectionUrlFor (modelName) {
     let collectionPath = this.collectionPathFor(modelName)
-    return `${this.apiUrl}/${collectionPath}`
+    let trailingSlash = this.trailingSlash['collection'] ? '/' : ''
+    return `${this.apiUrl}/${collectionPath}${trailingSlash}`
   }
 
   resourceUrlFor (modelName, id) {
     let resourcePath = this.resourcePathFor(modelName, id)
-    return `${this.apiUrl}/${resourcePath}`
+    let trailingSlash = this.trailingSlash['resource'] ? '/' : ''
+    return `${this.apiUrl}/${resourcePath}${trailingSlash}`
   }
 
   urlFor (options = {}) {
