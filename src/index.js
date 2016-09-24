@@ -92,7 +92,7 @@ class JsonApi {
     enabled ? Minilog.enable() : Minilog.disable()
   }
 
-  one (model, id) {
+  one (model, id = null) {
     this.builderStack.push({model: model, id: id, path: this.resourcePathFor(model, id)})
     return this
   }
@@ -175,13 +175,13 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  destroy () {
+  destroy (payload = {}) {
     if (arguments.length === 2) {
       let req = {
         method: 'DELETE',
         url: this.urlFor({model: arguments[0], id: arguments[1]}),
         model: arguments[0],
-        data: {}
+        data: payload
       }
       return this.runMiddleware(req)
     } else {
@@ -191,7 +191,7 @@ class JsonApi {
         method: 'DELETE',
         url: this.urlFor(),
         model: lastRequest.get('model').value(),
-        data: {}
+        data: payload
       }
 
       if (this.resetBuilderOnCall) {
@@ -337,8 +337,11 @@ class JsonApi {
   }
 
   resourcePathFor (modelName, id) {
-    let collectionPath = this.collectionPathFor(modelName)
-    return `${collectionPath}/${encodeURIComponent(id)}`
+    if (id) {
+      let collectionPath = this.collectionPathFor(modelName)
+      return `${collectionPath}/${encodeURIComponent(id)}`
+    }
+    return pluralize(modelName, 1)
   }
 
   collectionUrlFor (modelName) {

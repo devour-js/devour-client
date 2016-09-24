@@ -562,6 +562,30 @@ describe('JsonApi', () => {
       expect(jsonApi.one('foos', 1).one('bars', 2).all('bazs').pathFor()).to.eql('foos/1/bars/2/bazs')
     })
 
+    it('should allow builders for one without id', () => {
+      expect(jsonApi.one('bar').pathFor()).to.eql('bar')
+
+      jsonApi.resetBuilder()
+
+      expect(jsonApi.one('bars').pathFor()).to.eql('bar')
+    })
+
+    it('should allow builders for one finishing with one without id', () => {
+      expect(jsonApi.one('foo', 1).one('bar').pathFor()).to.eql('foos/1/bar')
+
+      jsonApi.resetBuilder()
+
+      expect(jsonApi.one('foos', 1).one('bars').pathFor()).to.eql('foos/1/bar')
+    })
+
+    it('should allow builders for one and all finishing with one without an id', () => {
+      expect(jsonApi.one('foo', 1).all('bar').one('baz').pathFor()).to.eql('foos/1/bars/baz')
+
+      jsonApi.resetBuilder()
+
+      expect(jsonApi.one('foos', 1).all('bars').one('bazs').pathFor()).to.eql('foos/1/bars/2/baz')
+    })
+
     it('should allow builders to be called to the base url', (done) => {
       mockResponse(jsonApi, {
         data: {
