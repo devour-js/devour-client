@@ -47,6 +47,8 @@ jsonApi.create('post', {
   title: 'hello',
   content: 'some content',
   tags: ['one', 'two']
+}, {
+  include: 'tags'
 })
 
 // To update...
@@ -55,6 +57,8 @@ jsonApi.update('post', {
   title: 'new title',
   content: 'new content',
   tags: ['new tag']
+}, {
+  include: 'tags'
 })
 
 // To destroy...
