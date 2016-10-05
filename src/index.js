@@ -315,11 +315,12 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  create (modelName, payload) {
+  create (modelName, payload, params = {}) {
     let req = {
       method: 'POST',
       url: this.urlFor({model: modelName}),
       model: modelName,
+      params: params,
       data: payload
     }
     return this.runMiddleware(req)

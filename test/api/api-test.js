@@ -395,6 +395,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
           expect(payload.req.data).to.be.eql({title: 'foo'})
+          expect(payload.req.params).to.be.eql({include: 'something'})
           return {}
         }
       }
@@ -405,7 +406,8 @@ describe('JsonApi', () => {
         title: ''
       })
 
-      jsonApi.create('foo', {title: 'foo'}).then(() => done()).catch(() => done())
+      jsonApi.create('foo', {title: 'foo'}, {include: 'something'})
+        .then(() => done()).catch(() => done())
     })
 
     it('should include meta information on response objects', (done) => {
