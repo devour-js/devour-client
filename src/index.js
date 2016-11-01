@@ -80,6 +80,14 @@ class JsonApi {
     this.builderStack = []
     this.resetBuilderOnCall = !!options.resetBuilderOnCall
     this.logger = Minilog('devour')
+    if (options.pluralize === false) {
+      this.pluralize = s => s
+      this.pluralize.singular = s => s
+    } else if ('pluralize' in options) {
+      this.pluralize = options.pluralize
+    } else {
+      this.pluralize = pluralize
+    }
     this.trailingSlash = options.trailingSlash === true ? _.forOwn(_.clone(defaults.trailingSlash), (v, k, o) => { _.set(o, k, true) }) : options.trailingSlash
     options.logger ? Minilog.enable() : Minilog.disable()
 
@@ -332,7 +340,7 @@ class JsonApi {
   }
 
   collectionPathFor (modelName) {
-    let collectionPath = _.get(this.models[modelName], 'options.collectionPath') || pluralize(modelName)
+    let collectionPath = _.get(this.models[modelName], 'options.collectionPath') || this.pluralize(modelName)
     return `${collectionPath}`
   }
 

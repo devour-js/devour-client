@@ -76,6 +76,8 @@ Devour takes an object as the initializer. The following options are available:
 
 **logger**: A boolean to enable or disable the logger. (Default: true)
 
+**pluralize**: A function like [pluralize](https://www.npmjs.com/package/pluralize), or `false` to disable pluralization. (Default: `require('pluralize')`)
+
 **resetBuilderOnCall**: A boolean to clear the builder stack after a `.get`, `.post`, `.patch`, `.destroy` call. (Default: true)
 
 **auth**: An object with username and password, used to pass in HTTP Basic Authentication Headers, `new JsonApi({apiUrl: 'http://your-api-here.com', auth: {username: 'secret', password: 'cheesecake'})`
