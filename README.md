@@ -80,7 +80,7 @@ Devour takes an object as the initializer. The following options are available:
 
 **auth**: An object with username and password, used to pass in HTTP Basic Authentication Headers, `new JsonApi({apiUrl: 'http://your-api-here.com', auth: {username: 'secret', password: 'cheesecake'})`
 
-**trailingSlashes**: An optional object to use trailing slashes on resource and/or collection urls (defaults to false), `new JsonApi({apiUrl: 'http://your-api-here.com', trailingSlashes: {resource: false, collection: true})`
+**trailingSlash**: An optional object to use trailing slashes on resource and/or collection urls (defaults to false), `new JsonApi({apiUrl: 'http://your-api-here.com', trailingSlash: {resource: false, collection: true})`
 
 ### Relationships
 
