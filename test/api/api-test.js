@@ -101,6 +101,33 @@ describe('JsonApi', () => {
       jsonApi.one('foo', 1).get().then(() => done())
     })
 
+    describe('Pluralize options', () => {
+      context('no options passed -- default behavior', () => {
+        it('should use the pluralize package', () => {
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+          expect(jsonApi.pluralize).to.eql(require('pluralize'))
+        })
+      })
+
+      context('false -- no pluralization', () => {
+        it('should not pluralize text', () => {
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', pluralize: false})
+          expect(jsonApi.pluralize('model')).to.eql('model')
+          expect(jsonApi.pluralize.singular('models')).to.eql('models')
+        })
+      })
+
+      context('custom pluralization', () => {
+        it('should pluralize as requested', () => {
+          const pluralizer = s => 'Q' + s
+          pluralizer.singular = s => s.replace(/^Q/, '')
+          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', pluralize: pluralizer})
+          expect(jsonApi.pluralize('model')).to.eql('Qmodel')
+          expect(jsonApi.pluralize.singular('Qmodel')).to.eql('model')
+        })
+      })
+    })
+
     describe('Trailing Slash options', () => {
       context('no options passed -- default behavior', () => {
         it('should use the default of no slashes for either url type', () => {

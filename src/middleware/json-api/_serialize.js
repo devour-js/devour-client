@@ -1,5 +1,4 @@
 const _ = require('lodash')
-const pluralize = require('pluralize')
 
 function collection (modelName, items) {
   return items.map(item => {
@@ -11,7 +10,7 @@ function resource (modelName, item) {
   let model = this.modelFor(modelName)
   let options = model.options || {}
   let readOnly = options.readOnly || []
-  let typeName = options.type || pluralize(modelName)
+  let typeName = options.type || this.pluralize(modelName)
   let serializedAttributes = {}
   let serializedRelationships = {}
   let serializedResource = {}
