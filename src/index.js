@@ -288,8 +288,8 @@ class JsonApi {
       })
   }
 
-  request (url, method = 'GET', params = {}, data = {}) {
-    let req = { url, method, params, data }
+  request (url, method = 'GET', params = {}, data = {}, reqOverride = {}) {
+    const req = Object.assign({ url, method, params, data }, reqOverride)
     return this.runMiddleware(req)
   }
 
