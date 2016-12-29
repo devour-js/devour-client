@@ -6,6 +6,9 @@ module.exports = {
     let jsonApi = payload.jsonApi
 
     if (payload.req.method === 'POST') {
+      if (!payload.req.model) {
+        throw new Error('model parameter is mandatory !');
+      }
       payload.req.headers = {
         'Content-Type': 'application/vnd.api+json',
         'Accept': 'application/vnd.api+json'
