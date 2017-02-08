@@ -315,22 +315,24 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  create (modelName, payload) {
+  create (modelName, payload, params = {}) {
     let req = {
       method: 'POST',
       url: this.urlFor({model: modelName}),
       model: modelName,
+      params: params,
       data: payload
     }
     return this.runMiddleware(req)
   }
 
-  update (modelName, payload) {
+  update (modelName, payload, params = {}) {
     let req = {
       method: 'PATCH',
       url: this.urlFor({model: modelName, id: payload.id}),
       model: modelName,
-      data: payload
+      data: payload,
+      params: params
     }
     return this.runMiddleware(req)
   }
