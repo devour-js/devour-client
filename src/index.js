@@ -71,7 +71,11 @@ class JsonApi {
     this._originalMiddleware = middleware.slice(0)
     this.middleware = middleware.slice(0)
     this.headers = {}
-    this.axios = axios
+    if ('axios' in options) {
+      this.axios = options.axios
+    } else {
+      this.axios = axios
+    }
     this.auth = options.auth
     this.apiUrl = options.apiUrl
     this.models = {}
