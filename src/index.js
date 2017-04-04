@@ -1,4 +1,3 @@
-const axios = require('axios')
 const pluralize = require('pluralize')
 const _ = require('lodash')
 const Promise = require('es6-promise').Promise
@@ -74,7 +73,7 @@ class JsonApi {
     if ('axios' in options) {
       this.axios = options.axios
     } else {
-      this.axios = axios
+      this.logger.warn('Axios has been removed please initialize Devour with an Axios instance.')
     }
     this.auth = options.auth
     this.apiUrl = options.apiUrl
