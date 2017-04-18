@@ -5,6 +5,7 @@
 -------------------------------------------------
 
 [![Build Status](https://travis-ci.org/twg/devour.svg?branch=master)](https://travis-ci.org/twg/devour)
+[![Known Vulnerabilities](https://snyk.io/test/github/twg/devour/badge.svg)](https://snyk.io/test/github/twg/devour)
 
 
 The [JSON API specification](http://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
