@@ -9,9 +9,9 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "compile": "rm -rf lib/ && ./node_modules/.bin/babel -d lib/ src/",
-    "watch": "./node_modules/.bin/babel --watch -d lib/ src/",
-    "test": "./node_modules/.bin/standard && ./node_modules/.bin/mocha"
+    "compile": "rm -rf lib/ && babel -d lib/ src/",
+    "watch": "babel --watch -d lib/ src/",
+    "test": "standard && mocha"
   },
   "repository": {
     "type": "git",
