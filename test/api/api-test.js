@@ -520,6 +520,90 @@ describe('JsonApi', () => {
     })
   })
 
+  describe('Complex API calls', () => {
+    it('should work on bidirectional connected entities', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          data: {
+            id: '1',
+            type: 'product',
+            attributes: {
+              title: 'Some Title'
+            },
+            relationships: {
+              company: {
+                data: {
+                  type: 'company',
+                  id: '42'
+                }
+              }
+            }
+          },
+          included:
+            [{
+              type: 'company',
+              id: '42',
+              attributes: {
+                brand: 'Cool Company'
+              },
+              relationships: {
+                products: {
+                  data: [{
+                    type: 'product',
+                    id: '1'
+                  },
+                  {
+                    type: 'product',
+                    id: '2'
+                  }]
+                }
+              }
+            },
+            {
+              id: '1',
+              type: 'product',
+              attributes: {
+                title: 'Some Title'
+              },
+              relationships: {
+                company: {
+                  data: {
+                    type: 'company',
+                    id: '42'
+                  }
+                }
+              }
+            }
+            ]
+        }
+      })
+
+      jsonApi.define('product', {
+        title: '',
+        company: {
+          jsonApi: 'hasOne',
+          type: 'company'
+        }
+      })
+      jsonApi.define('company', {
+        brand: '',
+        products: {
+          jsonApi: 'hasMany',
+          type: 'product'
+        }
+      })
+      jsonApi.find('company', 42, { include: 'company,company.products' }).then((product) => {
+        expect(product.id).to.eql('1')
+        expect(product.title).to.eql('Some Title')
+        expect(product.company.id).to.eql('42')
+        expect(product.company.brand).to.eql('Cool Company')
+        expect(product.company.products[0].id).to.eql('1')
+        expect(product.company.products[0].title).to.eql('Some Title')
+        done()
+      }).catch(err => console.log(err))
+    })
+  })
+
   describe('Builder pattern for route construction', () => {
     beforeEach(() => {
       jsonApi.define('foo', {title: ''})

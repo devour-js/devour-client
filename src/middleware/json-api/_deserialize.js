@@ -1,35 +1,65 @@
 const _ = require('lodash')
 
-function collection (items, included) {
+const cache = new class {
+  constructor () { this._cache = [] }
+
+  set (type, id, deserializedData) {
+    this._cache.push({
+      type: type,
+      id: id,
+      deserialized: deserializedData
+    })
+  }
+
+  get (type, id) {
+    const match = _.find(this._cache, r => r.type === type && r.id === id)
+    return match && match.deserialized
+  }
+}
+
+function collection (items, included, useCache = false) {
   return items.map(item => {
-    return resource.call(this, item, included)
+    return resource.call(this, item, included, useCache)
   })
 }
 
-function resource (item, included) {
+function resource (item, included, useCache = false) {
+  if (useCache) {
+    const cachedItem = cache.get(item.type, item.id)
+    if (cachedItem) return cachedItem
+  }
+
   let model = this.modelFor(this.pluralize.singular(item.type))
   if (!model) {
     throw new Error('Could not find definition for model "' + this.pluralize.singular(item.type) + '" which was returned by the JSON API.')
   }
+  if (model.options.deserializer) return model.options.deserializer.call(this, item)
 
-  if (model.options.deserializer) {
-    return model.options.deserializer.call(this, item)
-  }
+  let deserializedModel = {id: item.id, type: item.type}
 
-  let deserializedModel = {}
-  if (item.id) {
-    deserializedModel.id = item.id
-  }
+  _.forOwn(item.attributes, (value, attr) => {
+    const attrConfig = model.attributes[attr]
 
-  if (item.type) {
-    deserializedModel.type = item.type
-  }
+    if (_.isUndefined(attrConfig) && attr !== 'id') {
+      console.warn(`Resource response contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
+    } else {
+      deserializedModel[attr] = value
+    }
+  })
 
-  _.forOwn(model.attributes, (value, key) => {
-    if (isRelationship(value)) {
-      deserializedModel[key] = attachRelationsFor.call(this, model, value, item, included, key)
-    } else if (item.attributes) {
-      deserializedModel[key] = item.attributes[key]
+  // Important: cache before parsing relationships to avoid infinite loop
+  cache.set(item.type, item.id, deserializedModel)
+
+  _.forOwn(item.relationships, (value, rel) => {
+    const relConfig = model.attributes[rel]
+
+    if (_.isUndefined(relConfig)) {
+      console.warn(`Resource response contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
+    } else if (!isRelationship(relConfig)) {
+      console.warn(`Resource response contains relationship "${rel}", but it is present on model config as a plain attribute.`)
+    } else {
+      deserializedModel[rel] =
+        attachRelationsFor.call(this, model, relConfig, item, included, rel)
     }
   })
 
@@ -39,6 +69,8 @@ function resource (item, included) {
       deserializedModel[param] = item[param]
     }
   })
+
+  cache.set(item.type, item.id, deserializedModel)
 
   return deserializedModel
 }
@@ -58,9 +90,10 @@ function attachHasOneFor (model, attribute, item, included, key) {
   if (!item.relationships) {
     return null
   }
+
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems[0]) {
-    return resource.call(this, relatedItems[0], included)
+    return resource.call(this, relatedItems[0], included, true)
   } else {
     return null
   }
@@ -72,7 +105,7 @@ function attachHasManyFor (model, attribute, item, included, key) {
   }
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems.length > 0) {
-    return collection.call(this, relatedItems, included)
+    return collection.call(this, relatedItems, included, true)
   }
   return []
 }
