@@ -11,6 +11,7 @@
     "release:major": "npm version major && npm publish",
     "compile": "rm -rf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
+    "autofix": "standard --fix",
     "test": "standard && mocha"
   },
   "repository": {
