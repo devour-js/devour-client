@@ -15,6 +15,10 @@ const cache = new class {
     const match = _.find(this._cache, r => r.type === type && r.id === id)
     return match && match.deserialized
   }
+
+  clear () {
+    this._cache = []
+  }
 }
 
 function collection (items, included, useCache = false) {
@@ -70,7 +74,7 @@ function resource (item, included, useCache = false) {
     }
   })
 
-  cache.set(item.type, item.id, deserializedModel)
+  cache.clear()
 
   return deserializedModel
 }
