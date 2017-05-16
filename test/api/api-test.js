@@ -592,7 +592,7 @@ describe('JsonApi', () => {
           type: 'product'
         }
       })
-      jsonApi.find('company', 42, { include: 'company,company.products' }).then((product) => {
+      jsonApi.find('product', 42, { include: 'company,company.products' }).then((product) => {
         expect(product.id).to.eql('1')
         expect(product.title).to.eql('Some Title')
         expect(product.company.id).to.eql('42')
@@ -600,6 +600,191 @@ describe('JsonApi', () => {
         expect(product.company.products[0].id).to.eql('1')
         expect(product.company.products[0].title).to.eql('Some Title')
         done()
+      }).catch(err => console.log(err))
+    })
+
+    it('should not cache the second requeset', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          data: [{
+            id: '42',
+            type: 'clan',
+            attributes: {
+              title: 'MyClan'
+            },
+            relationships: {
+              leader: {
+                data: {
+                  type: 'player',
+                  id: '5'
+                }
+              },
+              memberships: {
+                data: [{
+                  type: 'clanMembership',
+                  id: '15'
+                }, {
+                  type: 'clanMembership',
+                  id: '16'
+                }]
+              }
+            }
+          }],
+          included:
+            [{
+              type: 'clanMembership',
+              id: '15',
+              relationships: {
+                clan: {
+                  data: {
+                    type: 'clan',
+                    id: '42'
+                  }
+                },
+                player: {
+                  data: {
+                    type: 'player',
+                    id: '5'
+                  }
+                }
+              }
+            }, {
+              type: 'clanMembership',
+              id: '16',
+              relationships: {
+                clan: {
+                  data: {
+                    type: 'clan',
+                    id: '42'
+                  }
+                },
+                player: {
+                  data: {
+                    type: 'player',
+                    id: '6'
+                  }
+                }
+              }
+            }, {
+              type: 'player',
+              id: '5',
+              attributes: {
+                name: 'Dragonfire'
+              }
+            }]
+        }
+      })
+
+      jsonApi.define('clan', {
+        title: '',
+        leader: {
+          jsonApi: 'hasOne',
+          type: 'player'
+        },
+        memberships: {
+          jsonApi: 'hasMany',
+          type: 'clanMembership'
+        }
+      })
+      jsonApi.define('clanMembership', {
+        clan: {
+          jsonApi: 'hasOne',
+          type: 'clan'
+        },
+        player: {
+          jsonApi: 'hasOne',
+          type: 'player'
+        }
+      })
+      jsonApi.define('player', {
+        name: ''
+      })
+
+      jsonApi.findAll('clan', { include: 'memberships' }).then((clans) => {
+        // console.log('request 1', clans);
+        // console.log('memberships', clans[0].memberships);
+        expect(clans[0].memberships.length).to.eql(2)
+        // expect(clans[0].memberships[0].clan.id).to.eql("42")
+        // expect(clans[0].memberships[1].clan.id).to.eql("42")
+        // second request
+        mockResponse(jsonApi, {
+          data: {
+            data: {
+              id: '42',
+              type: 'clan',
+              attributes: {
+                title: 'MyClan'
+              },
+              relationships: {
+                memberships: {
+                  data: [{
+                    type: 'clanMembership',
+                    id: '15'
+                  }, {
+                    type: 'clanMembership',
+                    id: '16'
+                  }]
+                }
+              }
+            },
+            included:
+            [{
+              type: 'clanMembership',
+              id: '15',
+              relationships: {
+                clan: {
+                  data: {
+                    type: 'clan',
+                    id: '42'
+                  }
+                },
+                player: {
+                  data: {
+                    type: 'player',
+                    id: '5'
+                  }
+                }
+              }
+            }, {
+              type: 'clanMembership',
+              id: '16',
+              relationships: {
+                clan: {
+                  data: {
+                    type: 'clan',
+                    id: '42'
+                  }
+                },
+                player: {
+                  data: {
+                    type: 'player',
+                    id: '6'
+                  }
+                }
+              }
+            }, {
+              type: 'player',
+              id: '5',
+              attributes: {
+                name: 'Dragonfire'
+              }
+            }, {
+              type: 'player',
+              id: '6',
+              attributes: {
+                name: 'nicooga'
+              }
+            }]
+          }
+        })
+        jsonApi.find('clan', 42, { include: 'memberships,memberships.player' }).then((clan) => {
+          // console.log('request 2: ', clan);
+          expect(clan.memberships[0].player.name).to.eql('Dragonfire')
+          // expect(clan.memberships[0].clan.id).to.eql('42')
+          expect(clan.memberships[1].player.name).to.eql('nicooga')
+          // expect(clan.memberships[1].clan.id).to.eql('42')
+          done()
+        }).catch(err => console.log(err))
       }).catch(err => console.log(err))
     })
   })
