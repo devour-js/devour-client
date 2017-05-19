@@ -21,13 +21,13 @@ const cache = new class {
   }
 }
 
-function collection (items, included, useCache = false) {
+function collection (items, included, useCache = false, clearCache = true) {
   return items.map(item => {
-    return resource.call(this, item, included, useCache)
+    return resource.call(this, item, included, useCache, clearCache)
   })
 }
 
-function resource (item, included, useCache = false) {
+function resource (item, included, useCache = false, clearCache = true) {
   if (useCache) {
     const cachedItem = cache.get(item.type, item.id)
     if (cachedItem) return cachedItem
@@ -74,8 +74,9 @@ function resource (item, included, useCache = false) {
     }
   })
 
-  cache.clear()
-
+  if (clearCache) {
+    cache.clear()
+  }
   return deserializedModel
 }
 
@@ -95,9 +96,18 @@ function attachHasOneFor (model, attribute, item, included, key) {
     return null
   }
 
+  let relationMap = getRelationMap(item, key)
+  if (relationMap) {
+    let cachedItem = cache.get(relationMap.type, relationMap.id)
+    if (cachedItem) {
+      return cachedItem
+    }
+  }
+
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems[0]) {
-    return resource.call(this, relatedItems[0], included, true)
+    // important: don't clear the cache internally
+    return resource.call(this, relatedItems[0], included, true, false)
   } else {
     return null
   }
@@ -109,7 +119,8 @@ function attachHasManyFor (model, attribute, item, included, key) {
   }
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems.length > 0) {
-    return collection.call(this, relatedItems, included, true)
+    // important: don't clear the cache internally
+    return collection.call(this, relatedItems, included, true, false)
   }
   return []
 }
@@ -118,12 +129,16 @@ function isRelationship (attribute) {
   return (_.isPlainObject(attribute) && _.includes(['hasOne', 'hasMany'], attribute.jsonApi))
 }
 
+function getRelationMap (item, key) {
+  return _.get(item.relationships, [key, 'data'], false)
+}
+
 /*
  *   == relatedItemsFor
  *   Returns unserialized related items.
  */
 function relatedItemsFor (model, attribute, item, included, key) {
-  let relationMap = _.get(item.relationships, [key, 'data'], false)
+  let relationMap = getRelationMap(item, key)
   if (!relationMap) {
     return []
   }

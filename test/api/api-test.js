@@ -704,8 +704,8 @@ describe('JsonApi', () => {
         // console.log('request 1', clans);
         // console.log('memberships', clans[0].memberships);
         expect(clans[0].memberships.length).to.eql(2)
-        // expect(clans[0].memberships[0].clan.id).to.eql("42")
-        // expect(clans[0].memberships[1].clan.id).to.eql("42")
+        expect(clans[0].memberships[0].clan.id).to.eql('42')
+        expect(clans[0].memberships[1].clan.id).to.eql('42')
         // second request
         mockResponse(jsonApi, {
           data: {
@@ -780,9 +780,9 @@ describe('JsonApi', () => {
         jsonApi.find('clan', 42, { include: 'memberships,memberships.player' }).then((clan) => {
           // console.log('request 2: ', clan);
           expect(clan.memberships[0].player.name).to.eql('Dragonfire')
-          // expect(clan.memberships[0].clan.id).to.eql('42')
+          expect(clan.memberships[0].clan.id).to.eql('42')
           expect(clan.memberships[1].player.name).to.eql('nicooga')
-          // expect(clan.memberships[1].clan.id).to.eql('42')
+          expect(clan.memberships[1].clan.id).to.eql('42')
           done()
         }).catch(err => console.log(err))
       }).catch(err => console.log(err))
