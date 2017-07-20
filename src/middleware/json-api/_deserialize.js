@@ -42,7 +42,12 @@ function resource (item, included, useCache = false) {
   let deserializedModel = {id: item.id, type: item.type}
 
   _.forOwn(item.attributes, (value, attr) => {
-    const attrConfig = model.attributes[attr]
+    var attrConfig = model.attributes[attr]
+
+    if (_.isUndefined(attrConfig) && attr !== 'id') {
+      attr = attr.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
+      attrConfig = model.attributes[attr]
+    }
 
     if (_.isUndefined(attrConfig) && attr !== 'id') {
       console.warn(`Resource response contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
@@ -55,7 +60,12 @@ function resource (item, included, useCache = false) {
   cache.set(item.type, item.id, deserializedModel)
 
   _.forOwn(item.relationships, (value, rel) => {
-    const relConfig = model.attributes[rel]
+    var relConfig = model.attributes[rel]
+
+    if (_.isUndefined(relConfig)) {
+      rel = rel.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
+      relConfig = model.attributes[rel]
+    }
 
     if (_.isUndefined(relConfig)) {
       console.warn(`Resource response contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
