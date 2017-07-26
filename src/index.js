@@ -147,7 +147,7 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  post (payload, params = {}) {
+  post (payload, params = {}, meta = {}) {
     let lastRequest = _.chain(this.builderStack).last()
 
     let req = {
@@ -155,7 +155,8 @@ class JsonApi {
       url: this.urlFor(),
       model: lastRequest.get('model').value(),
       data: payload,
-      params
+      params,
+      meta
     }
 
     if (this.resetBuilderOnCall) {
@@ -174,7 +175,7 @@ class JsonApi {
       model: lastRequest.get('model').value(),
       data: payload,
       params,
-      meta,
+      meta
     }
 
     if (this.resetBuilderOnCall) {
@@ -316,24 +317,26 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  create (modelName, payload, params = {}) {
+  create (modelName, payload, params = {}, meta = {}) {
     let req = {
       method: 'POST',
       url: this.urlFor({model: modelName}),
       model: modelName,
       params: params,
-      data: payload
+      data: payload,
+      meta: meta
     }
     return this.runMiddleware(req)
   }
 
-  update (modelName, payload, params = {}) {
+  update (modelName, payload, params = {}, meta = {}) {
     let req = {
       method: 'PATCH',
       url: this.urlFor({model: modelName, id: payload.id}),
       model: modelName,
       data: payload,
-      params: params
+      params: params,
+      meta: meta
     }
     return this.runMiddleware(req)
   }
