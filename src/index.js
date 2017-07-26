@@ -165,7 +165,7 @@ class JsonApi {
     return this.runMiddleware(req)
   }
 
-  patch (payload, params = {}) {
+  patch (payload, params = {}, meta = {}) {
     let lastRequest = _.chain(this.builderStack).last()
 
     let req = {
@@ -173,7 +173,8 @@ class JsonApi {
       url: this.urlFor(),
       model: lastRequest.get('model').value(),
       data: payload,
-      params
+      params,
+      meta,
     }
 
     if (this.resetBuilderOnCall) {
