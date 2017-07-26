@@ -12,11 +12,13 @@ module.exports = {
       }
       if (payload.req.data.constructor === Array) {
         payload.req.data = {
-          data: serialize.collection.call(jsonApi, payload.req.model, payload.req.data)
+          data: serialize.collection.call(jsonApi, payload.req.model, payload.req.data),
+          meta: payload.req.meta
         }
       } else {
         payload.req.data = {
-          data: serialize.resource.call(jsonApi, payload.req.model, payload.req.data)
+          data: serialize.resource.call(jsonApi, payload.req.model, payload.req.data),
+          meta: payload.req.meta
         }
       }
     }
