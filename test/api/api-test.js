@@ -481,7 +481,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.find('product', 1).then(({ data, errors, meta, link }) => {
+      jsonApi.find('product', 1).then(({ data, errors, meta, links }) => {
         expect(data).to.eql(null)
         done()
       }).catch(err => console.log(err))
