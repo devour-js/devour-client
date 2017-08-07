@@ -21,27 +21,30 @@ module.exports = {
     let status = payload.res.status
     let req = payload.req
     let res = payload.res.data
+    let errors = res.errors
+    let meta = res.meta
+    let links = res.links
     let included = res.included
 
-    let deserializedResponse = null
+    let data = null
 
     if (status !== 204 && needsDeserialization(req.method)) {
       if (isCollection(res.data)) {
-        deserializedResponse = deserialize.collection.call(jsonApi, res.data, included)
+        data = deserialize.collection.call(jsonApi, res.data, included)
       } else if (res.data) {
-        deserializedResponse = deserialize.resource.call(jsonApi, res.data, included)
+        data = deserialize.resource.call(jsonApi, res.data, included)
       }
     }
 
-    if (res && deserializedResponse) {
+    if (res.data && data) {
       var params = ['meta', 'links']
       params.forEach(function (param) {
-        if (res[param]) {
-          deserializedResponse[param] = res[param]
+        if (res.data[param]) {
+          data[param] = res.data[param]
         }
       })
     }
 
-    return deserializedResponse
+    return { data, errors, meta, links }
   }
 }
