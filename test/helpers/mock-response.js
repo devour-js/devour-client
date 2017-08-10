@@ -2,8 +2,8 @@ export default function (jsonApi, res = {}) {
   let mockResponse = {
     name: 'mock-response',
     req: (payload) => {
-      payload.req.adapter = function (resolve) {
-        resolve(res)
+      payload.req.adapter = function () {
+        return Promise.resolve(res)
       }
       return payload
     }
