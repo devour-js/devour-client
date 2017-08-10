@@ -458,6 +458,142 @@ describe('JsonApi', () => {
       }).catch(err => console.log(err))
     })
 
+    it('should include meta information on response data objects', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          meta: {
+            totalObjects: 1
+          },
+          data: [{
+            id: '1',
+            type: 'products',
+            attributes: {
+              title: 'Some Title'
+            },
+            meta: {
+              totalAttributes: 1
+            }
+          }]
+        }
+      })
+      jsonApi.define('product', {
+        title: ''
+      })
+      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+        expect(data[0].meta.totalAttributes).to.eql(1)
+        expect(data[0].id).to.eql('1')
+        expect(data[0].title).to.eql('Some Title')
+        done()
+      }).catch(err => console.log(err))
+    })
+
+    it('should include links information on response objects', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          meta: {
+            totalObjects: 13
+          },
+          data: [{
+            id: '1',
+            type: 'products',
+            attributes: {
+              title: 'Some Title'
+            }
+          }],
+          links: {
+            self: 'http://example.com/products?page[number]=3&page[size]=1',
+            first: 'http://example.com/products?page[number]=1&page[size]=1',
+            prev: 'http://example.com/products?page[number]=2&page[size]=1',
+            next: 'http://example.com/products?page[number]=4&page[size]=1',
+            last: 'http://example.com/products?page[number]=13&page[size]=1'
+          }
+        }
+      })
+      jsonApi.define('product', {
+        title: ''
+      })
+      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+        expect(links.self).to.eql('http://example.com/products?page[number]=3&page[size]=1')
+        expect(links.first).to.eql('http://example.com/products?page[number]=1&page[size]=1')
+        expect(links.prev).to.eql('http://example.com/products?page[number]=2&page[size]=1')
+        expect(links.next).to.eql('http://example.com/products?page[number]=4&page[size]=1')
+        expect(links.last).to.eql('http://example.com/products?page[number]=13&page[size]=1')
+        expect(data[0].id).to.eql('1')
+        expect(data[0].title).to.eql('Some Title')
+        done()
+      }).catch(err => console.log(err))
+    })
+
+    it('should include links information on response data objects', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          meta: {
+            totalObjects: 13
+          },
+          data: [{
+            id: '1',
+            type: 'products',
+            attributes: {
+              title: 'Some Title'
+            },
+            links: {
+              self: 'http://example.com/products/1'
+            }
+          }],
+          links: {
+            self: 'http://example.com/products?page[number]=3&page[size]=1',
+            first: 'http://example.com/products?page[number]=1&page[size]=1',
+            prev: 'http://example.com/products?page[number]=2&page[size]=1',
+            next: 'http://example.com/products?page[number]=4&page[size]=1',
+            last: 'http://example.com/products?page[number]=13&page[size]=1'
+          }
+        }
+      })
+      jsonApi.define('product', {
+        title: ''
+      })
+      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+        expect(data[0].links.self).to.eql('http://example.com/products/1')
+        expect(data[0].id).to.eql('1')
+        expect(data[0].title).to.eql('Some Title')
+        done()
+      }).catch(err => console.log(err))
+    })
+
+    it('should include errors information on response objects', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          data: [{
+            id: '1',
+            type: 'products',
+            attributes: {
+              title: 'Some Title'
+            }
+          }],
+          errors: [
+            {
+              status: 422,
+              source: { pointer: '/data/attributes/first-name' },
+              title: 'Invalid Attribute',
+              detail: 'First name must contain at least three characters.'
+            }
+          ]
+        }
+      })
+      jsonApi.define('product', {
+        title: ''
+      })
+      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+        expect(errors[0].status).to.eql('422')
+        expect(errors[0].source.pointer).to.eql('/data/attributes/first-name')
+        expect(errors[0].title).to.eql('Invalid Attribute')
+        expect(errors[0].detail).to.eql('First name must contain at least three characters.')
+        expect(data[0].id).to.eql('1')
+        expect(data[0].title).to.eql('Some Title')
+        done()
+      }).catch(err => console.log(err))
+    })
+
     it('should expose a method for arbitrary HTTP calls', () => {
       const url = 'https://example.com'
       const method = 'PATCH'
