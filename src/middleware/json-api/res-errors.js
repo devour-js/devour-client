@@ -18,6 +18,6 @@ function errorKey (source) {
 module.exports = {
   name: 'errors',
   error: function (payload) {
-    return buildErrors(payload.data)
+    return buildErrors(payload.response.data)
   }
 }
