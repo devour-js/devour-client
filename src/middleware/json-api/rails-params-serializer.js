@@ -7,7 +7,7 @@ module.exports = {
       payload.req.paramsSerializer = function (params) {
         return Qs.stringify(params, {
           arrayFormat: 'brackets',
-          encode: false
+          encodeValuesOnly: true
         })
       }
     }
