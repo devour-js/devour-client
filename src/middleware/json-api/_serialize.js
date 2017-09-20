@@ -34,7 +34,7 @@ function resource (modelName, item) {
     return serializedAttributes[key]
   })
 
-  if (!!attrValues && attrValues.filter(val => val !== undefined).length === attrValues.length) {
+  if (!!attrValues && attrValues.filter(val => val === undefined).length !== attrValues.length) {
     serializedResource.attributes = serializedAttributes
   }
 
