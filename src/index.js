@@ -344,7 +344,7 @@ class JsonApi {
   modelFor (modelName) {
     if (modelName) {
       if (!this.models[modelName]) {
-        throw new Error('API resource definition for model ' + modelName + ' not found.')
+        throw new Error('API resource definition for model \'' + modelName + '\' not found.')
       }
       return this.models[modelName] || {}
     } else {
