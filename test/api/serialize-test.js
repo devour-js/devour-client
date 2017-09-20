@@ -10,6 +10,15 @@ describe('serialize', () => {
     jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
   })
 
+  it('should not serialize undefined attributes', () => {
+    jsonApi.define('product', {
+      title: '',
+      about: ''
+    })
+    let serializedItem = serialize.resource.call(jsonApi, 'product', {title: undefined, about: undefined})
+    expect(serializedItem.attributes).to.eql(undefined)
+  })
+
   it('should serialize resource items', () => {
     jsonApi.define('product', {
       title: '',

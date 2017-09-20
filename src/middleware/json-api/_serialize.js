@@ -30,9 +30,12 @@ function resource (modelName, item) {
 
   serializedResource.type = typeName
 
-  var attrs = serializedResource.attributes
-  if (attrs && Object.values(attrs).filter(val => val !== undefined).length > 0) {
-    attrs = serializedAttributes
+  var attrValues = Object.keys(serializedAttributes).map(key => {
+    return serializedAttributes[key]
+  })
+
+  if (!!attrValues && attrValues.filter(val => val !== undefined).length === attrValues.length) {
+    serializedResource.attributes = serializedAttributes
   }
 
   if (Object.keys(serializedRelationships).length > 0) {
