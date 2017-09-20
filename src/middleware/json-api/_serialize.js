@@ -14,8 +14,8 @@ function resource (modelName, item) {
   let serializedAttributes = {}
   let serializedRelationships = {}
   let serializedResource = {}
-  if (model.options.serializer) {
-    return model.options.serializer.call(this, item)
+  if (options.serializer) {
+    return options.serializer.call(this, item)
   }
   _.forOwn(model.attributes, (value, key) => {
     if (isReadOnly(key, readOnly)) {

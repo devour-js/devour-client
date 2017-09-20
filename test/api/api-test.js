@@ -654,6 +654,10 @@ describe('JsonApi', () => {
 
       jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
     })
+
+    it.skip('should throw an error while attempting to access undefined model', (done) => {
+      expect(jsonApi.findAll('derp').then(() => done()).catch(() => done())).toThrow(/API/)
+    })
   })
 
   describe('Complex API calls', () => {

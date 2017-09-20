@@ -342,7 +342,14 @@ class JsonApi {
   }
 
   modelFor (modelName) {
-    return this.models[modelName]
+    if (modelName) {
+      if (!this.models[modelName]) {
+        throw new Error('API resource definition for model ' + modelName + ' not found.')
+      }
+      return this.models[modelName] || {}
+    } else {
+      return {}
+    }
   }
 
   collectionPathFor (modelName) {
