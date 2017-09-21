@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const Logger = require('../../logger')
 
 const cache = new class {
   constructor () { this._cache = [] }
@@ -50,7 +51,7 @@ function resource (item, included, useCache = false) {
     }
 
     if (_.isUndefined(attrConfig) && attr !== 'id') {
-      console.warn(`Resource response contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
+      Logger.warn(`Resource response contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
     } else {
       deserializedModel[attr] = value
     }
@@ -68,9 +69,9 @@ function resource (item, included, useCache = false) {
     }
 
     if (_.isUndefined(relConfig)) {
-      console.warn(`Resource response contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
+      Logger.warn(`Resource response contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
     } else if (!isRelationship(relConfig)) {
-      console.warn(`Resource response contains relationship "${rel}", but it is present on model config as a plain attribute.`)
+      Logger.warn(`Resource response contains relationship "${rel}", but it is present on model config as a plain attribute.`)
     } else {
       deserializedModel[rel] =
         attachRelationsFor.call(this, model, relConfig, item, included, rel)

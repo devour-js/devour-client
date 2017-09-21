@@ -242,6 +242,10 @@ describe('JsonApi', () => {
         expect(jsonApi.one('bar', '1').all('foo').urlFor()).to.eql('http://myapi.com/bars/1/foos/')
       })
 
+      it('should construct the relationships URL', () => {
+        expect(jsonApi.one('bar', '1').relationships().all('foo').urlFor()).to.eql('http://myapi.com/bars/1/relationships/foos/')
+      })
+
       it('should construct resource urls with urlFor', () => {
         expect(jsonApi.urlFor({model: 'foo', id: '1'})).to.eql('http://myapi.com/foos/1/')
         expect(jsonApi.one('foo', '1').urlFor()).to.eql('http://myapi.com/foos/1/')
@@ -760,7 +764,7 @@ describe('JsonApi', () => {
       }).catch(err => console.log(err))
     })
 
-    it('should not cache the second requeset', (done) => {
+    it('should not cache the second request', (done) => {
       mockResponse(jsonApi, {
         data: {
           data: [{
