@@ -658,6 +658,27 @@ describe('JsonApi', () => {
 
       jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
     })
+
+    it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('DELETE')
+          expect(payload.req.data).to.be.an('array')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+
+      const payload = [
+        {type: 'bar', id: 2},
+        {type: 'bar', id: 3}
+      ]
+
+      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch(() => done())
+    })
   })
 
   describe('Complex API calls', () => {
