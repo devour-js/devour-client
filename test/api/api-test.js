@@ -677,7 +677,7 @@ describe('JsonApi', () => {
         {type: 'bar', id: 3}
       ]
 
-      jsonApi.one('foo', 1).all('relationship').all('bar').destroy(payload).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch(() => done())
     })
   })
 
