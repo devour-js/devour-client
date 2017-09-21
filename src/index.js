@@ -110,6 +110,11 @@ class JsonApi {
     return this
   }
 
+  relationships () {
+    this.builderStack.push({path: 'relationships'})
+    return this
+  }
+
   resetBuilder () {
     this.builderStack = []
   }
