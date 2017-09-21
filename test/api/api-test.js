@@ -242,6 +242,10 @@ describe('JsonApi', () => {
         expect(jsonApi.one('bar', '1').all('foo').urlFor()).to.eql('http://myapi.com/bars/1/foos/')
       })
 
+      it('should construct the relationships URL', () => {
+        expect(jsonApi.one('bar', '1').relationships().all('foo').urlFor()).to.eql('http://myapi.com/bars/1/relationships/foos/')
+      })
+
       it('should construct resource urls with urlFor', () => {
         expect(jsonApi.urlFor({model: 'foo', id: '1'})).to.eql('http://myapi.com/foos/1/')
         expect(jsonApi.one('foo', '1').urlFor()).to.eql('http://myapi.com/foos/1/')
@@ -655,6 +659,27 @@ describe('JsonApi', () => {
       jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
     })
 
+    it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('DELETE')
+          expect(payload.req.data).to.be.an('array')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+
+      const payload = [
+        {type: 'bar', id: 2},
+        {type: 'bar', id: 3}
+      ]
+
+      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch(() => done())
+    })
+
     it.skip('should throw an error while attempting to access undefined model', function (done) {
       expect(function () { jsonApi.findAll('derp').then(done).catch(done) }).to.throwException(/API resource definition for model/)
     })
@@ -743,7 +768,7 @@ describe('JsonApi', () => {
       }).catch(err => console.log(err))
     })
 
-    it('should not cache the second requeset', (done) => {
+    it('should not cache the second request', (done) => {
       mockResponse(jsonApi, {
         data: {
           data: [{

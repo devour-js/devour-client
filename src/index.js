@@ -4,7 +4,7 @@ const _ = require('lodash')
 const Promise = require('es6-promise').Promise
 const deserialize = require('./middleware/json-api/_deserialize')
 const serialize = require('./middleware/json-api/_serialize')
-const Minilog = require('minilog')
+const Logger = require('./logger')
 
 /*
  *   == JsonApiMiddleware
@@ -79,7 +79,6 @@ class JsonApi {
     this.serialize = serialize
     this.builderStack = []
     this.resetBuilderOnCall = !!options.resetBuilderOnCall
-    this.logger = Minilog('devour')
     if (options.pluralize === false) {
       this.pluralize = s => s
       this.pluralize.singular = s => s
@@ -89,15 +88,15 @@ class JsonApi {
       this.pluralize = pluralize
     }
     this.trailingSlash = options.trailingSlash === true ? _.forOwn(_.clone(defaults.trailingSlash), (v, k, o) => { _.set(o, k, true) }) : options.trailingSlash
-    options.logger ? Minilog.enable() : Minilog.disable()
+    options.logger ? Logger.enable() : Logger.disable()
 
     if (deprecatedConstructors(arguments)) {
-      this.logger.warn('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
+      Logger.warn('Constructor (apiUrl, middleware) has been deprecated, initialize Devour with an object.')
     }
   }
 
   enableLogging (enabled = true) {
-    enabled ? Minilog.enable() : Minilog.disable()
+    enabled ? Logger.enable() : Logger.disable()
   }
 
   one (model, id) {
@@ -107,6 +106,11 @@ class JsonApi {
 
   all (model) {
     this.builderStack.push({model: model, path: this.collectionPathFor(model)})
+    return this
+  }
+
+  relationships () {
+    this.builderStack.push({path: 'relationships'})
     return this
   }
 
@@ -186,30 +190,31 @@ class JsonApi {
   }
 
   destroy () {
+    let req = null
+
     if (arguments.length === 2) {
-      let req = {
+      req = {
         method: 'DELETE',
         url: this.urlFor({model: arguments[0], id: arguments[1]}),
         model: arguments[0],
         data: {}
       }
-      return this.runMiddleware(req)
     } else {
-      let lastRequest = _.chain(this.builderStack).last()
+      const lastRequest = _.chain(this.builderStack).last()
 
-      let req = {
+      req = {
         method: 'DELETE',
         url: this.urlFor(),
         model: lastRequest.get('model').value(),
-        data: {}
+        data: arguments.length === 1 ? arguments[0] : {}
       }
 
       if (this.resetBuilderOnCall) {
         this.resetBuilder()
       }
-
-      return this.runMiddleware(req)
     }
+
+    return this.runMiddleware(req)
   }
 
   insertMiddlewareBefore (middlewareName, newMiddleware) {
