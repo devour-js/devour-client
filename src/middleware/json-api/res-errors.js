@@ -1,6 +1,8 @@
+const Logger = require('../../logger')
+
 function buildErrors (serverErrors) {
   if (!serverErrors) {
-    console.log('Unidentified error')
+    Logger.error('Unidentified error')
     return
   } else {
     let errors = {}
