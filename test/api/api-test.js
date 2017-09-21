@@ -679,6 +679,10 @@ describe('JsonApi', () => {
 
       jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch(() => done())
     })
+
+    it.skip('should throw an error while attempting to access undefined model', function (done) {
+      expect(function () { jsonApi.findAll('derp').then(done).catch(done) }).to.throwException(/API resource definition for model/)
+    })
   })
 
   describe('Complex API calls', () => {

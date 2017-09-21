@@ -35,9 +35,6 @@ function resource (item, included, useCache = false) {
   }
 
   let model = this.modelFor(this.pluralize.singular(item.type))
-  if (!model) {
-    throw new Error('Could not find definition for model "' + this.pluralize.singular(item.type) + '" which was returned by the JSON API.')
-  }
   if (model.options.deserializer) return model.options.deserializer.call(this, item)
 
   let deserializedModel = {id: item.id, type: item.type}
