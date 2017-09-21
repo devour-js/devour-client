@@ -186,30 +186,31 @@ class JsonApi {
   }
 
   destroy () {
+    let req = null
+
     if (arguments.length === 2) {
-      let req = {
+      req = {
         method: 'DELETE',
         url: this.urlFor({model: arguments[0], id: arguments[1]}),
         model: arguments[0],
         data: {}
       }
-      return this.runMiddleware(req)
     } else {
-      let lastRequest = _.chain(this.builderStack).last()
+      const lastRequest = _.chain(this.builderStack).last()
 
-      let req = {
+      req = {
         method: 'DELETE',
         url: this.urlFor(),
         model: lastRequest.get('model').value(),
-        data: {}
+        data: arguments.length === 1 ? arguments[0] : {}
       }
 
       if (this.resetBuilderOnCall) {
         this.resetBuilder()
       }
-
-      return this.runMiddleware(req)
     }
+
+    return this.runMiddleware(req)
   }
 
   insertMiddlewareBefore (middlewareName, newMiddleware) {
