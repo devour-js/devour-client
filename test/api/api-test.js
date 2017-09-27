@@ -664,7 +664,8 @@ describe('JsonApi', () => {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
-          expect(payload.req.data).to.be.an('array')
+          expect(payload.req.data).to.be.an('object')
+          expect(payload.req.data.data).to.be.an('array')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
           return {}
         }

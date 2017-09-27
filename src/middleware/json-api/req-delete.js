@@ -8,8 +8,12 @@ module.exports = {
       }
 
       const data = payload.req.data
-      if (typeof data === 'object' && Object.keys(data).length === 0) {
-        delete payload.req.data
+      if (typeof data === 'object') {
+        if (Object.keys(data).length === 0) {
+          delete payload.req.data
+        } else {
+          payload.req.data = { data }
+        }
       }
     }
 
