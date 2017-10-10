@@ -6,15 +6,19 @@ function buildErrors (serverErrors) {
     return
   } else {
     let errors = {}
-    serverErrors.errors.forEach((error) => {
-      errors[errorKey(error.source)] = error.title
-    })
+    for (let [index, error] of serverErrors.errors.entries()) {
+      errors[errorKey(index, error.source)] = { title: error.title, detail: error.detail }
+    }
     return errors
   }
 }
 
-function errorKey (source) {
-  return source.pointer.split('/').pop()
+function errorKey (index, source) {
+  if (source.pointer == null) {
+    return index
+  } else {
+    return source.pointer.split('/').pop()
+  }
 }
 
 module.exports = {
