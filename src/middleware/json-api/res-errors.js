@@ -16,9 +16,8 @@ function buildErrors (serverErrors) {
 function errorKey (index, source) {
   if (source.pointer == null) {
     return index
-  } else {
-    return source.pointer.split('/').pop()
   }
+  return source.pointer.split('/').pop()
 }
 
 module.exports = {
