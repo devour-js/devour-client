@@ -153,6 +153,29 @@ jsonApi.insertMiddlewareAfter('response', responseMiddleware)
 jsonApi.replaceMiddleware('errors', errorMiddleware)
 ```
 
+### Your Second Middleware
+
+This request middleware may be handy for live queries as it permits the last pending request to be cancelled (via Axios [request cancellation feature](https://github.com/axios/axios#cancellation)).
+```
+let cancellableRequest = {
+    name: 'axios-cancellable-request',
+    req: function (payload) {
+        let jsonApi = payload.jsonApi
+        return jsonApi.axios(payload.req, {
+            cancelToken: new jsonApi.axios.CancelToken(function executor(c) {
+                // An executor function receives a cancel function as a parameter
+                jsonApi.cancel = c;
+            })
+        })
+    }
+}
+
+jsonApi.replaceMiddleware('axios-request', cancellableRequest)
+
+// jsonApi.cancel() will cancel the last pending request
+```
+
+
 ### Options
 
 When declaring a model you may pass in a few extra options. We will likely expand these options as we find new and interesting requirements.
