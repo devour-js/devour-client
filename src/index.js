@@ -328,8 +328,7 @@ class JsonApi {
       url: this.urlFor({model: modelName}),
       model: modelName,
       params: params,
-      data: payload,
-      meta: meta
+      data: payload
     }
     return this.runMiddleware(req)
   }
