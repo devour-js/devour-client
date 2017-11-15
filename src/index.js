@@ -159,8 +159,7 @@ class JsonApi {
       url: this.urlFor(),
       model: lastRequest.get('model').value(),
       data: payload,
-      params,
-      meta
+      params
     }
 
     if (this.resetBuilderOnCall) {
@@ -178,8 +177,7 @@ class JsonApi {
       url: this.urlFor(),
       model: lastRequest.get('model').value(),
       data: payload,
-      params,
-      meta
+      params
     }
 
     if (this.resetBuilderOnCall) {
@@ -339,8 +337,7 @@ class JsonApi {
       url: this.urlFor({model: modelName, id: payload.id}),
       model: modelName,
       data: payload,
-      params: params,
-      meta: meta
+      params: params
     }
     return this.runMiddleware(req)
   }
