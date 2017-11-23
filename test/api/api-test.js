@@ -399,6 +399,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
           expect(payload.req.data).to.be.eql({title: 'foo'})
+          expect(payload.req.meta).to.be(undefined)
           expect(payload.req.params).to.be.eql({include: 'something'})
           return {}
         }
