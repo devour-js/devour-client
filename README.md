@@ -115,8 +115,8 @@ let { data, errors, meta, links } = jsonApi.findAll('post', {include: 'comments'
 
 Devour uses a fully middleware based approach. This allows you to easily manipulate any part of the request and response cycle by injecting your own middleware. In fact, it's entirely possible to fully remove our default middleware and write your own. Moving forward we hope to see adapters for different server implementations. If you'd like to take a closer look at the middleware layer, please checkout:
 
-* The [index.js file](https://github.com/twg/devour/blob/master/src/index.js#L8) where we construct our default middleware stack
-* The middleware folder that contains all our default [JSON API middleware](https://github.com/twg/devour/tree/master/src/middleware/json-api)
+* The [index.js file](src/index.js#L8) where we construct our default middleware stack
+* The middleware folder that contains all our default [JSON API middleware](src/middleware/json-api)
 
 ### Your First Middleware
 
