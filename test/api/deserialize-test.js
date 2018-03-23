@@ -77,12 +77,59 @@ describe('deserialize', () => {
     expect(product.type).to.eql('products')
     expect(product.title).to.eql('hello')
     expect(product.tags).to.be.an('array')
+    expect(product.complexTags.length).to.eql(2)
     expect(product.tags[0].id).to.eql('5')
     expect(product.tags[0].type).to.eql('tags')
     expect(product.tags[0].name).to.eql('one')
     expect(product.tags[1].id).to.eql('6')
     expect(product.tags[1].type).to.eql('tags')
     expect(product.tags[1].name).to.eql('two')
+  })
+
+  it('should deserialize relationships with dashes', () => {
+    jsonApi.define('product', {
+      title: '',
+      complexTags: {
+        jsonApi: 'hasMany',
+        type: 'complex-tags'
+      }
+    })
+    jsonApi.define('complex-tag', {
+      name: ''
+    })
+    let mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          'complex-tags': {
+            data: [
+              {id: '5', type: 'complex-tags'},
+              {id: '6', type: 'complex-tags'}
+            ]
+          }
+        }
+      },
+      included: [
+        {id: '5', type: 'complex-tags', attributes: {name: 'one'}},
+        {id: '6', type: 'complex-tags', attributes: {name: 'two'}}
+      ]
+    }
+    let product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    expect(product.id).to.eql('1')
+    expect(product.type).to.eql('products')
+    expect(product.title).to.eql('hello')
+    expect(product.complexTags).to.be.an('array')
+    expect(product.complexTags.length).to.eql(2)
+    expect(product.complexTags[0].id).to.eql('5')
+    expect(product.complexTags[0].type).to.eql('complex-tags')
+    expect(product.complexTags[0].name).to.eql('one')
+    expect(product.complexTags[1].id).to.eql('6')
+    expect(product.complexTags[1].type).to.eql('complex-tags')
+    expect(product.complexTags[1].name).to.eql('two')
   })
 
   it('should deserialize collections of resource items', () => {

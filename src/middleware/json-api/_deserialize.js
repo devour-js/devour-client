@@ -58,20 +58,25 @@ function resource (item, included, useCache = false) {
   cache.set(item.type, item.id, deserializedModel)
 
   _.forOwn(item.relationships, (value, rel) => {
+    // We need to save the unadulterated relationship key so that we can look relatedItemsFor can
+    // find the right items.
+    let key = rel
     var relConfig = model.attributes[rel]
 
+    // If we fail to look up the relationship config by its model name attempt to find
+    // the attribute to populate by camelcasing the name.
     if (_.isUndefined(relConfig)) {
       rel = rel.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
       relConfig = model.attributes[rel]
     }
 
     if (_.isUndefined(relConfig)) {
-      Logger.warn(`Resource response contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
+      Logger.warn(`Resource response contains relationship "${key}", but it is not present on model config and therefore not deserialized.`)
     } else if (!isRelationship(relConfig)) {
-      Logger.warn(`Resource response contains relationship "${rel}", but it is present on model config as a plain attribute.`)
+      Logger.warn(`Resource response contains relationship "${key}", but it is present on model config as a plain attribute.`)
     } else {
       deserializedModel[rel] =
-        attachRelationsFor.call(this, model, relConfig, item, included, rel)
+        attachRelationsFor.call(this, model, relConfig, item, included, key)
     }
   })
 
