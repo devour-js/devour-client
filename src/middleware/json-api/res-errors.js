@@ -6,8 +6,13 @@ function buildErrors (serverErrors) {
     return
   } else {
     let errors = {}
-    for (let [index, error] of serverErrors.errors.entries()) {
-      errors[errorKey(index, error.source)] = { title: error.title, detail: error.detail }
+    if (serverErrors.errors) {
+      for (let [index, error] of serverErrors.errors.entries()) {
+        errors[errorKey(index, error.source)] = {title: error.title, detail: error.detail}
+      }
+    }
+    if (serverErrors.error) {
+      errors['data'] = {title: serverErrors.error}
     }
     return errors
   }
@@ -23,6 +28,12 @@ function errorKey (index, source) {
 module.exports = {
   name: 'errors',
   error: function (payload) {
-    return buildErrors(payload.response.data)
+    if (payload.response) {
+      return buildErrors(payload.response.data)
+    }
+    if (payload instanceof Error) {
+      return payload
+    }
+    return null
   }
 }
