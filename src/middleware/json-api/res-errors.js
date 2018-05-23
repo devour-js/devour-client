@@ -11,6 +11,9 @@ function buildErrors (serverErrors) {
         errors[errorKey(index, error.source)] = {title: error.title, detail: error.detail}
       }
     }
+    if (serverErrors.error) {
+      errors['data'] = {title: serverErrors.error}
+    }
     return errors
   }
 }
