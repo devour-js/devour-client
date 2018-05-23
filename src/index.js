@@ -1,7 +1,7 @@
 const axios = require('axios')
 const pluralize = require('pluralize')
 const _ = require('lodash')
-const Promise = require('es6-promise').Promise
+require('es6-promise').polyfill()
 const deserialize = require('./middleware/json-api/_deserialize')
 const serialize = require('./middleware/json-api/_serialize')
 const Logger = require('./logger')
