@@ -19,7 +19,7 @@ function buildErrors (serverErrors) {
 }
 
 function errorKey (index, source) {
-  if (source.pointer == null) {
+  if (!source || source.pointer == null) {
     return index
   }
   return source.pointer.split('/').pop()
