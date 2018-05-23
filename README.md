@@ -120,7 +120,7 @@ Devour uses a fully middleware based approach. This allows you to easily manipul
 
 ### Your First Middleware
 
-Adding your own middleware is easy. It's just a simple JavaScript object that has a `name`, `req`, and/or `res` property. The `req` or `res` property is a function that receives a `payload`, which houses all the details of the request cycle _(inspect it for yourself to learn more)_. For async operations, your `req` or `res` methods can return a promise, which will need to resolve before the middleware chain continues. Otherwise, you may just manipulate the `payload` as needed and return it immediately.
+Adding your own middleware is easy. It's just a simple JavaScript object that has a `name`, `req`, and/or `res` property. The `req` or `res` property is a function that receives a `payload`, which houses all the details of the request cycle _(see documentation below)_. For async operations, your `req` or `res` methods can return a promise, which will need to resolve before the middleware chain continues. Otherwise, you may just manipulate the `payload` as needed and return it immediately.
 
 ```js
 let requestMiddleware = {
@@ -152,6 +152,24 @@ jsonApi.insertMiddlewareBefore('axios-request', requestMiddleware)
 jsonApi.insertMiddlewareAfter('response', responseMiddleware)
 jsonApi.replaceMiddleware('errors', errorMiddleware)
 ```
+
+#### The payload object
+
+The `payload` object that gets passed to your middleware function has the following shape:
+
+* `data` - JSON data contained in request/response body
+* `headers` - An object containing the headers for the request/response
+* `method` - A string representing the HTTP verb used, e.g. `'GET'` or `'PATCH'`
+* `model` - The model that initiated this request
+* `params` - An object containing the keys/values passed in the query params of the request
+* `url` - The URL to which the request was sent
+
+The payload for response middleware contains these additional fields:
+
+* `config` - An object of low-level config data
+* `request` - The original XMLHttpRequest object used to make the request
+* `status` - HTTP status code for the request, e.g. 200
+* `statusText` - Text representation of the HTTP status, e.g. "OK", "Created"
 
 ### Your Second Middleware
 
