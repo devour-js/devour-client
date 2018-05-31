@@ -45,6 +45,14 @@ function resource (modelName, item) {
   if (item.id) {
     serializedResource.id = item.id
   }
+
+  if (item.meta) {
+    serializedResource.meta = item.meta
+  }
+
+  if (item.links) {
+    serializedResource.links = item.links
+  }
   return serializedResource
 }
 
