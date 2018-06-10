@@ -29,7 +29,10 @@ module.exports = {
   name: 'errors',
   error: function (payload) {
     if (payload.response) {
-      return buildErrors(payload.response.data)
+      if (payload.response.data) {
+        return buildErrors(payload.response.data)
+      }
+      return buildErrors({error: payload.response.statusText})
     }
     if (payload instanceof Error) {
       return payload
