@@ -48,7 +48,7 @@ function resource (item, included, useCache = false) {
     }
 
     if (_.isUndefined(attrConfig) && attr !== 'id') {
-      Logger.warn(`Resource response contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
+      Logger.warn(`Resource response for type "${item.type}" contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
     } else {
       deserializedModel[attr] = value
     }
