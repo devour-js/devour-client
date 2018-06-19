@@ -1,4 +1,15 @@
-const _ = require('lodash')
+const _forOwn = require('lodash/forOwn')
+const _isArray = require('lodash/isArray')
+const _isUndefined = require('lodash/isUndefined')
+const _isPlainObject = require('lodash/isPlainObject')
+const _includes = require('lodash/includes')
+const _find = require('lodash/find')
+const _get = require('lodash/get')
+const _map = require('lodash/map')
+const _filter = require('lodash/filter')
+const _matches = require('lodash/matches')
+const _flatten = require('lodash/flatten')
+
 const Logger = require('../../logger')
 
 const cache = new class {
@@ -13,7 +24,7 @@ const cache = new class {
   }
 
   get (type, id) {
-    const match = _.find(this._cache, r => r.type === type && r.id === id)
+    const match = _find(this._cache, r => r.type === type && r.id === id)
     return match && match.deserialized
   }
 
@@ -39,15 +50,15 @@ function resource (item, included, useCache = false) {
 
   let deserializedModel = {id: item.id, type: item.type}
 
-  _.forOwn(item.attributes, (value, attr) => {
+  _forOwn(item.attributes, (value, attr) => {
     var attrConfig = model.attributes[attr]
 
-    if (_.isUndefined(attrConfig) && attr !== 'id') {
+    if (_isUndefined(attrConfig) && attr !== 'id') {
       attr = attr.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
       attrConfig = model.attributes[attr]
     }
 
-    if (_.isUndefined(attrConfig) && attr !== 'id') {
+    if (_isUndefined(attrConfig) && attr !== 'id') {
       Logger.warn(`Resource response for type "${item.type}" contains attribute "${attr}", but it is not present on model config and therefore not deserialized.`)
     } else {
       deserializedModel[attr] = value
@@ -57,15 +68,15 @@ function resource (item, included, useCache = false) {
   // Important: cache before parsing relationships to avoid infinite loop
   cache.set(item.type, item.id, deserializedModel)
 
-  _.forOwn(item.relationships, (value, rel) => {
+  _forOwn(item.relationships, (value, rel) => {
     var relConfig = model.attributes[rel]
 
-    if (_.isUndefined(relConfig)) {
+    if (_isUndefined(relConfig)) {
       rel = rel.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
       relConfig = model.attributes[rel]
     }
 
-    if (_.isUndefined(relConfig)) {
+    if (_isUndefined(relConfig)) {
       Logger.warn(`Resource response for type "${item.type}" contains relationship "${rel}", but it is not present on model config and therefore not deserialized.`)
     } else if (!isRelationship(relConfig)) {
       Logger.warn(`Resource response for type "${item.type}" contains relationship "${rel}", but it is present on model config as a plain attribute.`)
@@ -123,7 +134,7 @@ function attachHasManyFor (model, attribute, item, included, key) {
 }
 
 function isRelationship (attribute) {
-  return (_.isPlainObject(attribute) && _.includes(['hasOne', 'hasMany'], attribute.jsonApi))
+  return (_isPlainObject(attribute) && _includes(['hasOne', 'hasMany'], attribute.jsonApi))
 }
 
 /*
@@ -131,19 +142,19 @@ function isRelationship (attribute) {
  *   Returns unserialized related items.
  */
 function relatedItemsFor (model, attribute, item, included, key) {
-  let relationMap = _.get(item.relationships, [key, 'data'], false)
+  let relationMap = _get(item.relationships, [key, 'data'], false)
   if (!relationMap) {
     return []
   }
 
-  if (_.isArray(relationMap)) {
-    return _.flatten(_.map(relationMap, function (relationMapItem) {
-      return _.filter(included, (includedItem) => {
+  if (_isArray(relationMap)) {
+    return _flatten(_map(relationMap, function (relationMapItem) {
+      return _filter(included, (includedItem) => {
         return isRelatedItemFor(attribute, includedItem, relationMapItem)
       })
     }))
   } else {
-    return _.filter(included, (includedItem) => {
+    return _filter(included, (includedItem) => {
       return isRelatedItemFor(attribute, includedItem, relationMap)
     })
   }
@@ -152,7 +163,7 @@ function relatedItemsFor (model, attribute, item, included, key) {
 function isRelatedItemFor (attribute, relatedItem, relationMapItem) {
   let passesFilter = true
   if (attribute.filter) {
-    passesFilter = _.matches(relatedItem.attributes, attribute.filter)
+    passesFilter = _matches(relatedItem.attributes, attribute.filter)
   }
   return (
     relatedItem.id === relationMapItem.id &&
