@@ -243,6 +243,20 @@ describe('serialize', () => {
     expect(serializedItem.id).to.eql('5')
   })
 
+  it('should serialize meta on resource if present', () => {
+    jsonApi.define('product', {title: ''})
+    let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello', meta: {customStuff: 'More custom stuff'}})
+    expect(serializedItem.type).to.eql('products')
+    expect(serializedItem.meta.customStuff).to.eql('More custom stuff')
+  })
+
+  it('should serialize links on resource if present', () => {
+    jsonApi.define('product', {title: ''})
+    let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello', links: {self: 'http://example.com/products'}})
+    expect(serializedItem.type).to.eql('products')
+    expect(serializedItem.links.self).to.eql('http://example.com/products')
+  })
+
   it('should allow for custom serialization if present on the model', () => {
     jsonApi.define('product', {title: ''}, {
       serializer: () => {
