@@ -1,4 +1,7 @@
-const _ = require('lodash')
+const _isPlainObject = require('lodash/isPlainObject')
+const _includes = require('lodash/includes')
+const _map = require('lodash/map')
+const _forOwn = require('lodash/forOwn')
 
 function collection (modelName, items) {
   return items.map(item => {
@@ -17,7 +20,7 @@ function resource (modelName, item) {
   if (options.serializer) {
     return options.serializer.call(this, item)
   }
-  _.forOwn(model.attributes, (value, key) => {
+  _forOwn(model.attributes, (value, key) => {
     if (isReadOnly(key, readOnly)) {
       return
     }
@@ -53,7 +56,7 @@ function isReadOnly (attribute, readOnly) {
 }
 
 function isRelationship (attribute) {
-  return (_.isPlainObject(attribute) && _.includes(['hasOne', 'hasMany'], attribute.jsonApi))
+  return (_isPlainObject(attribute) && _includes(['hasOne', 'hasMany'], attribute.jsonApi))
 }
 
 function serializeRelationship (relationshipName, relationship, relationshipType, serializeRelationships) {
@@ -67,7 +70,7 @@ function serializeRelationship (relationshipName, relationship, relationshipType
 
 function serializeHasMany (relationships, type) {
   return {
-    data: _.map(relationships, (item) => {
+    data: _map(relationships, (item) => {
       return {id: item.id, type: type || item.type}
     })
   }
