@@ -30,6 +30,9 @@ module.exports = {
   error: function (payload) {
     if (payload.response) {
       if (payload.response.data) {
+        if (typeof payload.response.data === 'string') {
+          return buildErrors({error: `${payload.response.statusText}: ${payload.response.data}`})
+        }
         return buildErrors(payload.response.data)
       }
       return buildErrors({error: payload.response.statusText})
