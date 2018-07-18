@@ -206,14 +206,16 @@ class JsonApi {
   destroy () {
     let req = null
 
-    if (arguments.length === 2) {
+    if (arguments.length >= 2) { // destroy (modelName, id, [payload], [meta])
       req = {
         method: 'DELETE',
         url: this.urlFor({model: arguments[0], id: arguments[1]}),
         model: arguments[0],
-        data: {}
+        data: arguments.length >= 3 ? arguments[2] : {},
+        meta: arguments.length >= 4 ? arguments[3] : {}
       }
-    } else {
+    } else { // destroy ([payload])
+      // TODO: find a way to pass meta
       const lastRequest = _last(this.builderStack)
 
       req = {
