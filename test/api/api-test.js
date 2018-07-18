@@ -659,6 +659,56 @@ describe('JsonApi', () => {
       jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
     })
 
+    it('should accept a data payload on DELETE requests when provided as a third argument', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('DELETE')
+          expect(payload.req.data).to.be.an('object')
+          expect(payload.req.data.data).to.be.an('array')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+
+      const payload = [
+        {type: 'bar', id: 2},
+        {type: 'bar', id: 3}
+      ]
+
+      jsonApi.destroy('foo', 1, payload).then(() => done()).catch(() => done())
+    })
+
+    it('should accept a meta and data payload on DELETE requests when provided as a third and fourth arguments', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('DELETE')
+          expect(payload.req.data).to.be.an('object')
+          expect(payload.req.data.data).to.be.an('array')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          expect(payload.req.meta.totalObjects).to.eql(1)
+
+          return {}
+        }
+      }
+
+      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+
+      const payload = [
+        {type: 'bar', id: 2},
+        {type: 'bar', id: 3}
+      ]
+
+      const meta = {
+        totalObjects: 1
+      }
+
+      jsonApi.destroy('foo', 1, payload, meta).then(() => done()).catch(() => done())
+    })
+
     it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
       let inspectorMiddleware = {
         name: 'inspector-middleware',
