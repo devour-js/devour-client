@@ -48,7 +48,7 @@ function resource (item, included, useCache = false) {
   let model = this.modelFor(this.pluralize.singular(item.type))
   if (model.options.deserializer) return model.options.deserializer.call(this, item)
 
-  let deserializedModel = {id: item.id, type: item.type}
+  let deserializedModel = { id: item.id, type: item.type }
 
   _forOwn(item.attributes, (value, attr) => {
     var attrConfig = model.attributes[attr]
@@ -117,9 +117,13 @@ function attachHasOneFor (model, attribute, item, included, key) {
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems[0]) {
     return resource.call(this, relatedItems[0], included, true)
-  } else {
-    return null
   }
+
+  const relatedId = _get(item.relationships, [key, 'data', 'id'], false)
+  if (relatedId) {
+    return relatedId
+  }
+  return null
 }
 
 function attachHasManyFor (model, attribute, item, included, key) {
@@ -130,6 +134,12 @@ function attachHasManyFor (model, attribute, item, included, key) {
   if (relatedItems && relatedItems.length > 0) {
     return collection.call(this, relatedItems, included, true)
   }
+
+  const relatedIds = _get(item.relationships, [key, 'data'], false)
+  if (relatedIds) {
+    return _map(relatedIds, relatedItem => relatedItem.id)
+  }
+
   return []
 }
 
