@@ -225,15 +225,15 @@ describe('deserialize', () => {
         relationships: {
           tags: {
             data: [
-            {id: '5', type: 'tags'},
-            {id: '6', type: 'tags'}
+              { id: '5', type: 'tags' },
+              { id: '6', type: 'tags' }
             ]
           }
         }
       },
       included: [
-      {id: '5', type: 'tags'},
-      {id: '6', type: 'tags', attributes: {name: 'two'}}
+        { id: '5', type: 'tags' },
+        { id: '6', type: 'tags', attributes: { name: 'two' } }
       ]
     }
     let product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
@@ -244,5 +244,41 @@ describe('deserialize', () => {
     expect(product.tags[0].name).to.be.undefined
     expect(product.tags[1].id).to.eql('6')
     expect(product.tags[1].name).to.eql('two')
+  })
+
+  it('should deserialize ids of related resources that are not included', () => {
+    jsonApi.define('product', {
+      title: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+    let mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { id: '5', type: 'tags' },
+              { id: '6', type: 'tags' }
+            ]
+          }
+        }
+      }
+    }
+    let product = deserialize.resource.call(jsonApi, mockResponse.data)
+    expect(product.id).to.eql('1')
+    expect(product.title).to.eql('hello')
+    expect(product.tags).to.be.an('array')
+    expect(product.tags[0]).to.eql('5')
+    expect(product.tags[1]).to.eql('6')
   })
 })
