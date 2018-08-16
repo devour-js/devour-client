@@ -93,8 +93,6 @@ function resource (item, included, useCache = false) {
     }
   })
 
-  cache.clear()
-
   return deserializedModel
 }
 
@@ -173,6 +171,7 @@ function isRelatedItemFor (attribute, relatedItem, relationMapItem) {
 }
 
 module.exports = {
+  cache: cache,
   resource: resource,
   collection: collection
 }
