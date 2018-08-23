@@ -46,7 +46,7 @@ function resource (item, included, useCache = false) {
   }
 
   let model = this.modelFor(this.pluralize.singular(item.type))
-  if (model.options.deserializer) return model.options.deserializer.call(this, item)
+  if (model.options.deserializer) return model.options.deserializer.call(this, item, included)
 
   let deserializedModel = {id: item.id, type: item.type}
 
