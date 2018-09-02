@@ -54,8 +54,8 @@ function resource (item, included, useCache = false) {
     var attrConfig = model.attributes[attr]
 
     if (_isUndefined(attrConfig) && attr !== 'id') {
-      attr = attr.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
-      attrConfig = model.attributes[attr]
+      const camelCaseAttr = attr.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
+      attrConfig = model.attributes[camelCaseAttr]
     }
 
     if (_isUndefined(attrConfig) && attr !== 'id') {
