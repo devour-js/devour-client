@@ -85,6 +85,131 @@ describe('deserialize', () => {
     expect(product.tags[1].name).to.eql('two')
   })
 
+  it('should deserialize complex relations without going into an infinite loop', () => {
+    jsonApi.define('course', {
+      title: '',
+      instructor: {
+        jsonApi: 'hasOne',
+        type: 'instructors'
+      },
+      lessons: {
+        jsonApi: 'hasMany',
+        type: 'lessons'
+      }
+    })
+    jsonApi.define('lesson', {
+      title: '',
+      course: {
+        jsonApi: 'hasOne',
+        type: 'courses'
+      },
+      instructor: {
+        jsonApi: 'hasOne',
+        type: 'instructors'
+      }
+    })
+    jsonApi.define('instructor', {
+      name: '',
+      lessons: {
+        jsonApi: 'hasMany',
+        type: 'lessons'
+      }
+    })
+
+    let mockResponse = {
+      data: {
+        id: '1',
+        type: 'courses',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          lessons: {
+            data: [
+              {
+                id: '42',
+                type: 'lessons'
+              },
+              {
+                id: '43',
+                type: 'lessons'
+              }
+            ]
+          },
+          instructor: {
+            data: {
+              id: '5',
+              type: 'instructors'
+            }
+          }
+        }
+      },
+      included: [
+        { id: '42', type: 'lessons', attributes: {title: 'sp-one'},
+          relationships: {
+            course: {
+              data: {
+                id: '1',
+                type: 'courses'
+              }
+            },
+            instructor: {
+              data: {
+                id: '5',
+                type: 'instructors'
+              }
+            }
+          }
+        },
+        {id: '43', type: 'lessons', attributes: {title: 'sp-two'},
+          relationships: {
+            course: {
+              data: {
+                id: '1',
+                type: 'courses'
+              }
+            },
+            instructor: {
+              data: {
+                id: '5',
+                type: 'instructors'
+              }
+            }
+          }
+        },
+        {id: '5', type: 'instructors', attributes: {name: 'instructor one'},
+          relationships: {
+            lessons: {
+              data: [
+                {
+                  id: '42',
+                  type: 'lessons'
+                },
+                {
+                  id: '43',
+                  type: 'lessons'
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+    let course = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    expect(course.id).to.eql('1')
+    expect(course.instructor.type).to.eql('instructors')
+    expect(course.instructor.lessons).to.be.an('array')
+    expect(course.instructor.lessons.length).to.equal(2)
+    expect(course.lessons).to.be.an('array')
+    expect(course.lessons.length).to.equal(2)
+    expect(course.lessons[0].type).to.eql('lessons')
+    expect(course.lessons[0].id).to.eql('42')
+    expect(course.lessons[0].instructor.id).to.eql('5')
+    expect(course.lessons[1].type).to.eql('lessons')
+    expect(course.lessons[1].id).to.eql('43')
+    expect(course.lessons[1].instructor.id).to.eql('5')
+  })
+
   it('should deserialize collections of resource items', () => {
     jsonApi.define('product', {
       title: '',
