@@ -293,6 +293,12 @@ describe('JsonApi', () => {
             .then(() => done())
             .catch(() => done())
         })
+
+        it('complains if the relationship is not defined', () => {
+          expect(function () { 
+            jsonApi.one('order', 1).relationships('baz').patch({}).then(done).catch(done) 
+          }).to.throwException(/API resource definition on model "order" for relationship "baz"/)
+        })
       })
 
       it('should construct resource urls with urlFor', () => {
