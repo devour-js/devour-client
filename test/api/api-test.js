@@ -6,6 +6,7 @@ import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 import sinon from 'sinon'
+import _last from 'lodash/last'
 
 describe('JsonApi', () => {
   var jsonApi = null
@@ -264,14 +265,14 @@ describe('JsonApi', () => {
             req: (payload) => {
               expect(payload.req.method).to.be.eql('PATCH')
               expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
-              expect(payload.req.data).to.be.eql([{ type: 'product', id: 2 }])
+              expect(payload.req.data).to.be.eql([{ id: 2 }])
               return {}
             }
           }
 
           jsonApi.middleware = [inspectorMiddleware]
 
-          jsonApi.one('order', 1).relationships('items').patch([{ type: 'product', id: 2 }])
+          jsonApi.one('order', 1).relationships('items').patch([{ id: 2 }])
             .then(() => done())
             .catch(() => done())
         })
@@ -282,22 +283,33 @@ describe('JsonApi', () => {
             req: (payload) => {
               expect(payload.req.method).to.be.eql('DELETE')
               expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
-              expect(payload.req.data).to.be.eql([{ type: 'product', id: 2 }])
+              expect(payload.req.data).to.be.eql([{ id: 2 }])
               return {}
             }
           }
-
           jsonApi.middleware = [inspectorMiddleware]
 
-          jsonApi.one('order', 1).relationships('items').destroy([{ type: 'product', id: 2 }])
+          jsonApi.one('order', 1).relationships('items').destroy([{ id: 2 }])
             .then(() => done())
             .catch(() => done())
         })
 
+        it('sets the model correctly for serialization', () => {
+          jsonApi.one('order', 1).relationships('items')
+
+          expect(_last(jsonApi.builderStack).model).to.eql('product')
+        })
+
         it('complains if the relationship is not defined', () => {
-          expect(function () { 
-            jsonApi.one('order', 1).relationships('baz').patch({}).then(done).catch(done) 
+          expect(function (done) {
+            jsonApi.one('order', 1).relationships('baz').patch({}).then(done).catch(done)
           }).to.throwException(/API resource definition on model "order" for relationship "baz"/)
+        })
+
+        it('complains if relationships is called without a model', () => {
+          expect(function (done) {
+            jsonApi.relationships('baz').patch({}).then(done).catch(done)
+          }).to.throwException(/Relationships must be called with a preceeding model/)
         })
       })
 
