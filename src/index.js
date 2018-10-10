@@ -123,8 +123,21 @@ class JsonApi {
     return this
   }
 
-  relationships () {
-    this.builderStack.push({path: 'relationships'})
+  relationships (relationship) {
+    let lastRequest = _last(this.builderStack)
+    this.builderStack.push({ path: 'relationships' })
+    if (!relationship) return this 
+    
+    let modelName = _get(lastRequest, 'model')
+    let model = this.modelFor(modelName)
+    let relationshipAttribute = model.attributes[relationship]
+    
+    if (!relationshipAttribute) {
+      throw new Error(`API resource definition on model "${modelName}" for relationship "${relationship}" not found. Available attributes: ${Object.keys(model.attributes)}`)
+    }
+
+    this.builderStack.push({ path: relationship, model: relationshipAttribute.type })
+
     return this
   }
 

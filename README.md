@@ -243,6 +243,22 @@ jsonApi.one('author', 1).all('post').get({include: 'books'}) // GET http://api.y
 jsonApi.one('author', 1).all('post').post({title:'title'}, {include: 'books'}) // POST http://api.yoursite.com/authors/1/posts?include=books
 ```
 
+JSON API Specs also allow the _relationships_ between resources to be created, updated and deleted. For example, `/authors/1/relationships/posts` defines the relationships between an author and its post. You can use `.patch`, `.post` and `.delete` to edit relationships ([read more](http://jsonapi.org/format/#crud-updating-relationships)).
+
+For example:
+
+```js
+let jsonApi = new JsonApi({apiUrl: 'http://api.yoursite.com'})
+jsonApi.define('author', {name: '', articles: { jsonApi: 'hasMany', type: 'post' } })
+jsonApi.define('post', {title: ''})
+
+jsonApi.create('author', { name: 'Joanna Blogs' }) // Create an author
+jsonApi.create('post', { title: 'How to Make Relationships' }) // Create a post
+
+// Create a relationship between the author and the post
+jsonApi.one('author', 1).relationships('articles').patch([{ type: 'post', id: 1 }]) 
+```
+
 ### Polymorphic Relationships
 
 To specify a polymorphic relationship, simply define a model with a polymorphic relationship without specifying its type.

@@ -246,6 +246,55 @@ describe('JsonApi', () => {
         expect(jsonApi.one('bar', '1').relationships().all('foo').urlFor()).to.eql('http://myapi.com/bars/1/relationships/foos/')
       })
 
+      context('with relationships which arent named after their type', () => {
+        beforeEach(() => {
+          jsonApi.define('product')
+          jsonApi.define('order', { items: { jsonApi: 'hasMany', type: 'product' } })
+        })
+
+        it('should construct the relationship URL', () => {
+          const url = jsonApi.one('order', 1).relationships('items').urlFor()
+
+          expect(url).to.eql('http://myapi.com/orders/1/relationships/items/')
+        })
+
+        it('should be able to update the relationships', (done) => {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload) => {
+              expect(payload.req.method).to.be.eql('PATCH')
+              expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
+              expect(payload.req.data).to.be.eql([{ type: 'product', id: 2 }])
+              return {}
+            }
+          }
+
+          jsonApi.middleware = [inspectorMiddleware]
+
+          jsonApi.one('order', 1).relationships('items').patch([{ type: 'product', id: 2 }])
+            .then(() => done())
+            .catch(() => done())
+        })
+
+        it('should be able to delete the relationships', (done) => {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload) => {
+              expect(payload.req.method).to.be.eql('DELETE')
+              expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
+              expect(payload.req.data).to.be.eql([{ type: 'product', id: 2 }])
+              return {}
+            }
+          }
+
+          jsonApi.middleware = [inspectorMiddleware]
+
+          jsonApi.one('order', 1).relationships('items').destroy([{ type: 'product', id: 2 }])
+            .then(() => done())
+            .catch(() => done())
+        })
+      })
+
       it('should construct resource urls with urlFor', () => {
         expect(jsonApi.urlFor({model: 'foo', id: '1'})).to.eql('http://myapi.com/foos/1/')
         expect(jsonApi.one('foo', '1').urlFor()).to.eql('http://myapi.com/foos/1/')
