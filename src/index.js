@@ -214,9 +214,9 @@ class JsonApi {
       req = {
         method: 'DELETE',
         url: this.urlFor({model, id}),
-        model,
-        data,
-        meta
+        model: model,
+        data: data || {},
+        meta: meta || {}
       }
     } else { // destroy ([payload])
       // TODO: find a way to pass meta
