@@ -207,12 +207,16 @@ class JsonApi {
     let req = null
 
     if (arguments.length >= 2) { // destroy (modelName, id, [payload], [meta])
+      const [model, id, data, meta] = [...arguments]
+
+      console.assert(model, 'No model specified')
+      console.assert(id, 'No ID specified')
       req = {
         method: 'DELETE',
-        url: this.urlFor({model: arguments[0], id: arguments[1]}),
-        model: arguments[0],
-        data: arguments.length >= 3 ? arguments[2] : {},
-        meta: arguments.length >= 4 ? arguments[3] : {}
+        url: this.urlFor({model, id}),
+        model,
+        data,
+        meta
       }
     } else { // destroy ([payload])
       // TODO: find a way to pass meta
