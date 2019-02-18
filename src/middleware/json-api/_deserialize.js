@@ -34,9 +34,13 @@ const cache = new class {
 }
 
 function collection (items, included, useCache = false) {
-  return items.map(item => {
+  const collection = items.map(item => {
     return resource.call(this, item, included, useCache)
   })
+
+  cache.clear()
+
+  return collection
 }
 
 function resource (item, included, useCache = false) {
