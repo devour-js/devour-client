@@ -94,8 +94,6 @@ function resource (item, included, useCache = false) {
     }
   })
 
-  cache.clear()
-
   return deserializedModel
 }
 
