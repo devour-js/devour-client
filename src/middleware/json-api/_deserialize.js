@@ -176,6 +176,7 @@ function isRelatedItemFor (attribute, relatedItem, relationMapItem) {
 }
 
 module.exports = {
+  cache: cache,
   resource: resource,
   collection: collection
 }

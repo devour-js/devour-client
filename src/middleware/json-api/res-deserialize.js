@@ -34,6 +34,7 @@ module.exports = {
       } else if (res.data) {
         data = deserialize.resource.call(jsonApi, res.data, included)
       }
+      deserialize.cache.clear()
     }
 
     if (res.data && data) {
