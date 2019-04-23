@@ -123,8 +123,20 @@ class JsonApi {
     return this
   }
 
-  relationships () {
-    this.builderStack.push({path: 'relationships'})
+  relationships (relationshipName) {
+    let lastRequest = _last(this.builderStack)
+    this.builderStack.push({ path: 'relationships' })
+    if (!relationshipName) return this
+
+    let modelName = _get(lastRequest, 'model')
+    if (!modelName) {
+      throw new Error('Relationships must be called with a preceeding model.')
+    }
+
+    let relationship = this.relationshipFor(modelName, relationshipName)
+
+    this.builderStack.push({ path: relationshipName, model: relationship.type })
+
     return this
   }
 
@@ -372,6 +384,17 @@ class JsonApi {
     }
 
     return this.models[modelName]
+  }
+
+  relationshipFor (modelName, relationshipName) {
+    let model = this.modelFor(modelName)
+    let relationship = model.attributes[relationshipName]
+
+    if (!relationship) {
+      throw new Error(`API resource definition on model "${modelName}" for relationship "${relationshipName}" not found. Available attributes: ${Object.keys(model.attributes)}`)
+    }
+
+    return relationship
   }
 
   collectionPathFor (modelName) {

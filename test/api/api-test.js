@@ -6,6 +6,7 @@ import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 import sinon from 'sinon'
+import _last from 'lodash/last'
 
 describe('JsonApi', () => {
   var jsonApi = null
@@ -244,6 +245,72 @@ describe('JsonApi', () => {
 
       it('should construct the relationships URL', () => {
         expect(jsonApi.one('bar', '1').relationships().all('foo').urlFor()).to.eql('http://myapi.com/bars/1/relationships/foos/')
+      })
+
+      context('with relationships which arent named after their type', () => {
+        beforeEach(() => {
+          jsonApi.define('product')
+          jsonApi.define('order', { items: { jsonApi: 'hasMany', type: 'product' } })
+        })
+
+        it('should construct the relationship URL', () => {
+          const url = jsonApi.one('order', 1).relationships('items').urlFor()
+
+          expect(url).to.eql('http://myapi.com/orders/1/relationships/items/')
+        })
+
+        it('should be able to update the relationships', (done) => {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload) => {
+              expect(payload.req.method).to.be.eql('PATCH')
+              expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
+              expect(payload.req.data).to.be.eql([{ id: 2 }])
+              return {}
+            }
+          }
+
+          jsonApi.middleware = [inspectorMiddleware]
+
+          jsonApi.one('order', 1).relationships('items').patch([{ id: 2 }])
+            .then(() => done())
+            .catch(() => done())
+        })
+
+        it('should be able to delete the relationships', (done) => {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload) => {
+              expect(payload.req.method).to.be.eql('DELETE')
+              expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
+              expect(payload.req.data).to.be.eql([{ id: 2 }])
+              return {}
+            }
+          }
+          jsonApi.middleware = [inspectorMiddleware]
+
+          jsonApi.one('order', 1).relationships('items').destroy([{ id: 2 }])
+            .then(() => done())
+            .catch(() => done())
+        })
+
+        it('sets the model correctly for serialization', () => {
+          jsonApi.one('order', 1).relationships('items')
+
+          expect(_last(jsonApi.builderStack).model).to.eql('product')
+        })
+
+        it('complains if the relationship is not defined', () => {
+          expect(function (done) {
+            jsonApi.one('order', 1).relationships('baz').patch({}).then(done).catch(done)
+          }).to.throwException(/API resource definition on model "order" for relationship "baz"/)
+        })
+
+        it('complains if relationships is called without a model', () => {
+          expect(function (done) {
+            jsonApi.relationships('baz').patch({}).then(done).catch(done)
+          }).to.throwException(/Relationships must be called with a preceeding model/)
+        })
       })
 
       it('should construct resource urls with urlFor', () => {
