@@ -401,6 +401,173 @@ describe('JsonApi', () => {
       expect(jsonApi.models['product']['attributes']).to.have.key('id')
       expect(jsonApi.models['product']['attributes']).to.have.key('title')
     })
+
+    //
+    it('should deserialize self-referential resources', (done) => {
+      mockResponse(jsonApi, {
+        data: {
+          data: {
+            id: '1',
+            type: 'products',
+            attributes: {
+              title: 'Product 1'
+            },
+            relationships: {
+              relatedProducts: { data: [
+                { id: '1', type: 'products' }
+              ] }
+            }
+          }
+        }
+      })
+      jsonApi.define('product', {
+        title: '',
+        relatedProducts: {
+          jsonApi: 'hasMany',
+          type: 'products'
+        }
+      })
+
+      jsonApi.find('products', 1, { include: 'relatedProducts' }).then(({ data: product, errors, meta, links }) => {
+        expect(product.title).to.be.eql('Product 1')
+        expect(product.relatedProducts).to.be.an('array')
+        expect(product.relatedProducts.length).to.be.eql(1)
+        expect(product.relatedProducts[0].title).to.be.eql('Product 1')
+
+        done()
+      }).catch(err => done(err))
+    })
+
+    //
+    it('should deserialize all hasMany relations referring to resources in the main document', (done) => {
+      jsonApi.define('product', {
+        title: '',
+        relatedProducts: {
+          jsonApi: 'hasMany',
+          type: 'products'
+        }
+      })
+      mockResponse(jsonApi, {
+        data: {
+          data: {
+            id: '2',
+            type: 'products',
+            attributes: {
+              title: 'Product 2'
+            },
+            relationships: {
+              relatedProducts: { data: [
+                { id: '1', type: 'products' },
+                { id: '3', type: 'products' }
+              ]}
+            }
+          },
+          included: [
+            {
+              id: '1',
+              type: 'products'
+            },
+            {
+              id: '3',
+              type: 'products',
+              attributes: {
+                title: 'Product 3'
+              },
+              relationships: {
+                relatedProducts: { data: [
+                    { id: '2', type: 'products' },
+                    { id: '1', type: 'products' }
+                ]}
+              }
+            }
+          ]
+        }
+      })
+
+      jsonApi.find('products', '2', { include: 'relatedProducts,relatedProducts.relatedProducts' }).then(({ data: product, errors, meta, links }) => {
+        expect(product.title).to.be.eql('Product 2')
+        expect(product.relatedProducts).to.be.an('array')
+        expect(product.relatedProducts.length).to.be.eql(2)
+        expect(product.relatedProducts[0].id).to.be.eql('1')
+
+        // the pretzel
+        const nestedProduct = product.relatedProducts[1]
+
+        expect(nestedProduct.title).to.be.eql('Product 3')
+
+        expect(nestedProduct.relatedProducts).to.be.an('array')
+        expect(nestedProduct.relatedProducts.length).to.be.eql(2)
+        expect(nestedProduct.relatedProducts[0].title).to.be.eql('Product 2')
+        expect(nestedProduct.relatedProducts[1].id).to.be.eql('1')
+        // expect(nestedProduct.relatedProducts[1].title).to.be.undefined
+
+        done()
+      }).catch(err => done(err))
+    })
+
+    it('should deserialize hasOne relations referring to resources in the main document', (done) => {
+      jsonApi.define('product', {
+        title: '',
+        relatedProduct: {
+          jsonApi: 'hasOne',
+          type: 'product'
+        }
+      })
+      mockResponse(jsonApi, {
+        data: {
+          data: {
+            id: '1',
+            type: 'products',
+            attributes: {
+              title: 'Product 1'
+            },
+            relationships: {
+              relatedProduct: { data: { id: '2', type: 'products' } }
+            }
+          },
+          included: [
+            {
+              id: '2',
+              type: 'products',
+              attributes: {
+                title: 'Product 2'
+              },
+              relationships: {
+                relatedProduct: { data: { id: '3', type: 'products' } }
+              }
+            },
+            {
+              id: '3',
+              type: 'products',
+              attributes: {
+                title: 'Product 3'
+              },
+              relationships: {
+                relatedProduct: { data: { id: '1', type: 'products' } }
+              }
+            }
+          ]
+        }
+      })
+
+      // as misguided as such a query could be ...
+      jsonApi.find('product', 1, { include: 'relatedProduct,relatedProduct.relatedProduct' }).then(({ data: product, errors, meta, links }) => {
+        expect(product.title).to.be.eql('Product 1')
+
+        expect(product.relatedProduct).to.be.an('object')
+        expect(product.relatedProduct.title).to.be.eql('Product 2')
+
+        console.log(product.relatedProduct)
+        expect(product.relatedProduct.relatedProduct).to.be.an('object')
+        expect(product.relatedProduct.relatedProduct.title).to.be.eql('Product 3')
+
+        // full circle
+        expect(product.relatedProduct.relatedProduct.relatedProduct).to.be.an('object')
+        expect(product.relatedProduct.relatedProduct.relatedProduct.title).to.be.eql('Product 1')
+
+        done()
+      }).catch(err => done(err))
+    })
   })
 
   describe('Basic API calls', () => {

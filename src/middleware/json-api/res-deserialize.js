@@ -26,6 +26,9 @@ module.exports = {
     let links = res.links
     let included = res.included
 
+    if (included) included.push(res.data)
+    else included = [res.data]
+
     let data = null
 
     if (status !== 204 && needsDeserialization(req.method)) {
