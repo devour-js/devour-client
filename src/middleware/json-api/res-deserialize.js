@@ -26,8 +26,13 @@ module.exports = {
     let links = res.links
     let included = res.included
 
-    if (included) included.push(res.data)
-    else included = [res.data]
+    if (included) {
+      if (Array.isArray(res.data)) {
+        included = included.concat(res.data)
+      } else {
+        included.push(res.data)
+      }
+    } else included = [res.data]
 
     let data = null
 
