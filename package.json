@@ -9,7 +9,7 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "compile": "rm -rf lib/ && babel -d lib/ src/",
+    "compile": "rm -rf lib/ && cp -R src/ lib/",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
     "test": "standard && mocha"
