@@ -5,12 +5,11 @@
   "main": "lib/",
   "scripts": {
     "prepublish": "npm run compile",
-    "prepare": "npm run compile",
     "publish": "git push origin && git push origin --tags",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "compile": "rm -rf lib/ && cp -R src/ lib/",
+    "compile": "rm -rf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
     "test": "standard && mocha"
