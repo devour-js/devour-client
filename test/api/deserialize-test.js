@@ -14,7 +14,7 @@ describe('deserialize', () => {
     jsonApi.define('product', {
       title: '',
       about: '',
-      snakeCaseDescription: ''
+      kebabCaseDescription: ''
     })
     let mockResponse = {
       data: {
@@ -23,7 +23,7 @@ describe('deserialize', () => {
         attributes: {
           'title': 'Some Title',
           'about': 'Some about',
-          'snake-case-description': 'Lorem ipsum'
+          'kebab-case-description': 'Lorem ipsum'
         },
         meta: {
           info: 'Some meta data'
@@ -38,7 +38,7 @@ describe('deserialize', () => {
     expect(product.type).to.eql('products')
     expect(product.title).to.eql('Some Title')
     expect(product.about).to.eql('Some about')
-    expect(product.snakeCaseDescription).to.eql('Lorem ipsum')
+    expect(product.kebabCaseDescription).to.eql('Lorem ipsum')
     expect(product.meta.info).to.eql('Some meta data')
     expect(product.links.arbitrary).to.eql('arbitrary link')
   })
