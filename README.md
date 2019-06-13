@@ -16,11 +16,15 @@ While JSON API is amazing, it can be painful to work with if you don't have a go
 
 While there are quite a few [JavaScript client implementations](http://jsonapi.org/implementations/#client-libraries-javascript), none of them appeared to offer the exact feature set we needed with the simplicity we required.
 
+### Installation
+
+```javascript
+$ npm install devour-client
+```
+
 ### Quick Start
 
 ```js
-// npm install devour-client --save
-
 // Import
 import JsonApi from 'devour-client'
 
