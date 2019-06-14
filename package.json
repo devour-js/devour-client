@@ -51,7 +51,7 @@
     "standard": "^7.0.1"
   },
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^0.18.1",
     "es6-promise": "^3.1.2",
     "lodash": "^4.11.2",
     "minilog": "^3.0.0",
