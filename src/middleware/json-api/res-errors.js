@@ -28,14 +28,18 @@ function errorKey (index, source) {
 module.exports = {
   name: 'errors',
   error: function (payload) {
+    console.log('---------')
     if (payload.response) {
-      if (payload.response.data) {
-        if (typeof payload.response.data === 'string') {
-          return buildErrors({error: `${payload.response.statusText}: ${payload.response.data}`})
+      const response = payload.response
+      console.dir(response)
+      if (response.data) {
+        if (typeof response.data === 'string') {
+          const error = response.statusText ? `${response.statusText}: ${response.data}` : response.data
+          return buildErrors({ error })
         }
-        return buildErrors(payload.response.data)
+        return buildErrors(response.data)
       }
-      return buildErrors({error: payload.response.statusText})
+      return buildErrors({error: response.statusText})
     }
     if (payload instanceof Error) {
       return payload
