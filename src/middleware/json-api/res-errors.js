@@ -28,10 +28,8 @@ function errorKey (index, source) {
 module.exports = {
   name: 'errors',
   error: function (payload) {
-    console.log('---------')
     if (payload.response) {
       const response = payload.response
-      console.dir(response)
       if (response.data) {
         if (typeof response.data === 'string') {
           const error = response.statusText ? `${response.statusText}: ${response.data}` : response.data
