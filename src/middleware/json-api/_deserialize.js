@@ -38,8 +38,6 @@ function collection (items, included, useCache = false) {
     return resource.call(this, item, included, useCache)
   })
 
-  cache.clear()
-
   return collection
 }
 
