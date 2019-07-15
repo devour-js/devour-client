@@ -26,18 +26,14 @@ function resource (modelName, item) {
     }
     if (isRelationship(value)) {
       serializeRelationship(key, item[key], value, serializedRelationships)
-    } else {
+    } else if (item[key] !== undefined) {
       serializedAttributes[key] = item[key]
     }
   })
 
   serializedResource.type = typeName
 
-  var attrValues = Object.keys(serializedAttributes).map(key => {
-    return serializedAttributes[key]
-  })
-
-  if (Boolean(attrValues) && attrValues.filter(val => val === undefined).length !== attrValues.length) {
+  if (Object.keys(serializedAttributes).length > 0) {
     serializedResource.attributes = serializedAttributes
   }
 

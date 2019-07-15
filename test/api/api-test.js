@@ -1074,7 +1074,7 @@ describe('JsonApi', () => {
 
   describe('Builder pattern for route construction', () => {
     beforeEach(() => {
-      jsonApi.define('foo', {title: ''})
+      jsonApi.define('foo', {title: '', subtitle: ''})
       jsonApi.define('bar', {title: ''})
       jsonApi.define('baz', {title: ''})
     })
@@ -1345,6 +1345,55 @@ describe('JsonApi', () => {
       jsonApi.one('foo', 1).one('bar', 2).all('foo').one('bar', 3).all('baz').one('baz', 1).one('baz', 2).one('baz', 3)
       expect(jsonApi.pathFor()).to.be.eql('foos/1/bars/2/foos/bars/3/bazs/bazs/1/bazs/2/bazs/3')
       expect(jsonApi.urlFor()).to.be.eql('http://myapi.com/foos/1/bars/2/foos/bars/3/bazs/bazs/1/bazs/2/bazs/3')
+    })
+
+    it('should not serialize empty attributes', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('PATCH')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.data).to.be.eql({
+            data: {
+              type: 'foos'
+              // notice that attributes are not serialized
+            },
+            meta: {}
+          })
+          return {}
+        }
+      }
+
+      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
+      jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
+      jsonApi.one('foo', 1).patch({title: undefined})
+        .then(() => done()).catch((error) => done(error))
+    })
+
+    it('should serialize only specified attributes', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('PATCH')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.data).to.be.eql({
+            data: {
+              type: 'foos',
+              attributes: {
+                title: 'bar'
+                // notice that subtitle is not serialized
+              }
+            },
+            meta: {}
+          })
+          return {}
+        }
+      }
+
+      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
+      jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
+      jsonApi.one('foo', 1).patch({title: 'bar'})
+        .then(() => done()).catch((error) => done(error))
     })
   })
 })
