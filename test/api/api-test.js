@@ -274,7 +274,7 @@ describe('JsonApi', () => {
 
           jsonApi.one('order', 1).relationships('items').patch([{ id: 2 }])
             .then(() => done())
-            .catch(() => done())
+            .catch((error) => done(error))
         })
 
         it('should be able to delete the relationships', (done) => {
@@ -291,7 +291,7 @@ describe('JsonApi', () => {
 
           jsonApi.one('order', 1).relationships('items').destroy([{ id: 2 }])
             .then(() => done())
-            .catch(() => done())
+            .catch((error) => done(error))
         })
 
         it('sets the model correctly for serialization', () => {
@@ -478,7 +478,7 @@ describe('JsonApi', () => {
       })
 
       jsonApi.create('foo', {title: 'foo'}, {include: 'something'})
-        .then(() => done()).catch(() => done())
+        .then(() => done()).catch((error) => done(error))
     })
 
     it('should make basic update call', (done) => {
@@ -500,7 +500,7 @@ describe('JsonApi', () => {
       })
 
       jsonApi.update('foo', {title: 'foo'}, {include: 'something'})
-        .then(() => done()).catch(() => done())
+        .then(() => done()).catch((error) => done(error))
     })
 
     it('should include meta information on response objects', (done) => {
@@ -707,7 +707,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [jsonApiGetMiddleware, inspectorMiddleware]
 
-      jsonApi.one('foo', 1).find().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).find().then(() => done()).catch((error) => done(error))
     })
 
     it('should have an empty body on DELETE requests', (done) => {
@@ -723,7 +723,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
 
-      jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
+      jsonApi.destroy('foo', 1).then(() => done()).catch((error) => done(error))
     })
 
     it('should accept a data payload on DELETE requests when provided as a third argument', (done) => {
@@ -733,7 +733,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.data).to.be.an('object')
           expect(payload.req.data.data).to.be.an('array')
-          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           return {}
         }
       }
@@ -745,7 +745,7 @@ describe('JsonApi', () => {
         {type: 'bar', id: 3}
       ]
 
-      jsonApi.destroy('foo', 1, payload).then(() => done()).catch(() => done())
+      jsonApi.destroy('foo', 1, payload).then(() => { done() }).catch((error) => { done(error) })
     })
 
     it('should accept a meta and data payload on DELETE requests when provided as a third and fourth arguments', (done) => {
@@ -755,7 +755,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.data).to.be.an('object')
           expect(payload.req.data.data).to.be.an('array')
-          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           expect(payload.req.meta.totalObjects).to.eql(1)
 
           return {}
@@ -773,7 +773,7 @@ describe('JsonApi', () => {
         totalObjects: 1
       }
 
-      jsonApi.destroy('foo', 1, payload, meta).then(() => done()).catch(() => done())
+      jsonApi.destroy('foo', 1, payload, meta).then(() => done()).catch((error) => done(error))
     })
 
     it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
@@ -795,7 +795,7 @@ describe('JsonApi', () => {
         {type: 'bar', id: 3}
       ]
 
-      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch((error) => done(error))
     })
 
     it.skip('should throw an error while attempting to access undefined model', function (done) {
@@ -1103,7 +1103,7 @@ describe('JsonApi', () => {
           return jsonApi.all('foo').get()
         })
         .then(() => done())
-        .catch(() => done())
+        .catch((error) => done(error))
 
       expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
     })
@@ -1134,7 +1134,7 @@ describe('JsonApi', () => {
         jsonApi.middleware = [inspectorMiddleware]
 
         return jsonApi.all('bar').get().then(() => done())
-      }).catch(() => done())
+      }).catch((error) => done(error))
     })
 
     it('should allow builders to be used', () => {
@@ -1199,7 +1199,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get().then(() => done()).catch(() => done())
+      jsonApi.get().then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get with query params', (done) => {
@@ -1215,7 +1215,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get({page: {number: 2}}).then(() => done()).catch(() => done())
+      jsonApi.get({page: {number: 2}}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get on all', (done) => {
@@ -1230,7 +1230,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').get().then(() => done()).catch(() => done())
+      jsonApi.all('foo').get().then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get on one', (done) => {
@@ -1245,7 +1245,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).get().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).get().then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with post', (done) => {
@@ -1261,7 +1261,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').post({title: 'foo'}).then(() => done()).catch(() => done())
+      jsonApi.all('foo').post({title: 'foo'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with post with nested one', (done) => {
@@ -1277,7 +1277,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with patch', (done) => {
@@ -1293,7 +1293,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).patch({title: 'bar'}).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).patch({title: 'bar'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with patch with nested one', (done) => {
@@ -1309,7 +1309,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with destroy', (done) => {
@@ -1324,7 +1324,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).destroy().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).destroy().then(() => done()).catch((error) => done(error))
     })
     it('should allow builders to be called with destroy with nested one', (done) => {
       let inspectorMiddleware = {
@@ -1338,7 +1338,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).one('bar', 2).destroy().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).one('bar', 2).destroy().then(() => done()).catch((error) => done(error))
     })
 
     it('should Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman!', () => {
