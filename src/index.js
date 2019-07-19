@@ -29,28 +29,28 @@ const Logger = require('./logger')
  *   standards.
  *
  */
-const jsonApiHttpBasicAuthMiddleware = require('./middleware/json-api/req-http-basic-auth')
-const jsonApiPostMiddleware = require('./middleware/json-api/req-post')
-const jsonApiPatchMiddleware = require('./middleware/json-api/req-patch')
-const jsonApiDeleteMiddleware = require('./middleware/json-api/req-delete')
-const jsonApiGetMiddleware = require('./middleware/json-api/req-get')
-const jsonApiHeadersMiddleware = require('./middleware/json-api/req-headers')
-const railsParamsSerializer = require('./middleware/json-api/rails-params-serializer')
-const sendRequestMiddleware = require('./middleware/request')
-const deserializeResponseMiddleware = require('./middleware/json-api/res-deserialize')
-const processErrors = require('./middleware/json-api/res-errors')
+const httpBasicAuthMiddleware = require('./middleware/json-api/req-http-basic-auth')
+const postMiddleware = require('./middleware/json-api/req-post')
+const patchMiddleware = require('./middleware/json-api/req-patch')
+const deleteMiddleware = require('./middleware/json-api/req-delete')
+const getMiddleware = require('./middleware/json-api/req-get')
+const headersMiddleware = require('./middleware/json-api/req-headers')
+const railsParamsSerializerMiddleware = require('./middleware/json-api/req-rails-params-serializer')
+const sendAxiosRequestMiddleware = require('./middleware/req-axios-request')
+const deserializeMiddleware = require('./middleware/json-api/res-deserialize')
+const processErrors = require('./middleware/json-api/res-process-errors')
 
 let jsonApiMiddleware = [
-  jsonApiHttpBasicAuthMiddleware,
-  jsonApiPostMiddleware,
-  jsonApiPatchMiddleware,
-  jsonApiDeleteMiddleware,
-  jsonApiGetMiddleware,
-  jsonApiHeadersMiddleware,
-  railsParamsSerializer,
-  sendRequestMiddleware,
-  processErrors,
-  deserializeResponseMiddleware
+  httpBasicAuthMiddleware,
+  postMiddleware,
+  patchMiddleware,
+  deleteMiddleware,
+  getMiddleware,
+  headersMiddleware,
+  railsParamsSerializerMiddleware,
+  sendAxiosRequestMiddleware,
+  deserializeMiddleware,
+  processErrors
 ]
 
 class JsonApi {

@@ -10,7 +10,7 @@ function isCollection (responseData) {
 }
 
 module.exports = {
-  name: 'response',
+  name: 'DESERIALIZE',
   res: function (payload) {
     /*
      *   Note: The axios ajax response attaches the actual response data to
