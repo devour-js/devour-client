@@ -26,7 +26,7 @@ function errorKey (index, source) {
 }
 
 module.exports = {
-  name: 'errors',
+  name: 'PROCESS_ERRORS',
   error: function (payload) {
     if (payload.response) {
       const response = payload.response

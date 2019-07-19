@@ -1,7 +1,7 @@
 const Qs = require('qs')
 
 module.exports = {
-  name: 'rails-params-serializer',
+  name: 'RAILS_PARAMS_SERIALIZER',
   req: (payload) => {
     if (payload.req.method === 'GET') {
       payload.req.paramsSerializer = function (params) {

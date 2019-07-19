@@ -1,8 +1,8 @@
 /* global describe, context, it, beforeEach, afterEach */
 
 import JsonApi from '../../src/index'
-import jsonApiGetMiddleware from '../../src/middleware/json-api/req-get'
-import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
+import getMiddleware from '../../src/middleware/json-api/req-get'
+import deleteMiddleware from '../../src/middleware/json-api/req-delete'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 import sinon from 'sinon'
@@ -705,7 +705,7 @@ describe('JsonApi', () => {
         }
       }
 
-      jsonApi.middleware = [jsonApiGetMiddleware, inspectorMiddleware]
+      jsonApi.middleware = [getMiddleware, inspectorMiddleware]
 
       jsonApi.one('foo', 1).find().then(() => done()).catch((error) => done(error))
     })
@@ -721,7 +721,7 @@ describe('JsonApi', () => {
         }
       }
 
-      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+      jsonApi.middleware = [deleteMiddleware, inspectorMiddleware]
 
       jsonApi.destroy('foo', 1).then(() => done()).catch((error) => done(error))
     })
@@ -738,7 +738,7 @@ describe('JsonApi', () => {
         }
       }
 
-      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+      jsonApi.middleware = [deleteMiddleware, inspectorMiddleware]
 
       const payload = [
         {type: 'bar', id: 2},
@@ -762,7 +762,7 @@ describe('JsonApi', () => {
         }
       }
 
-      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+      jsonApi.middleware = [deleteMiddleware, inspectorMiddleware]
 
       const payload = [
         {type: 'bar', id: 2},
@@ -788,7 +788,7 @@ describe('JsonApi', () => {
         }
       }
 
-      jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
+      jsonApi.middleware = [deleteMiddleware, inspectorMiddleware]
 
       const payload = [
         {type: 'bar', id: 2},
