@@ -38,20 +38,7 @@ const jsonApiHeadersMiddleware = require('./middleware/json-api/req-headers')
 const railsParamsSerializer = require('./middleware/json-api/rails-params-serializer')
 const sendRequestMiddleware = require('./middleware/request')
 const deserializeResponseMiddleware = require('./middleware/json-api/res-deserialize')
-const processErrors = require('./middleware/json-api/res-errors')
-
-let jsonApiMiddleware = [
-  jsonApiHttpBasicAuthMiddleware,
-  jsonApiPostMiddleware,
-  jsonApiPatchMiddleware,
-  jsonApiDeleteMiddleware,
-  jsonApiGetMiddleware,
-  jsonApiHeadersMiddleware,
-  railsParamsSerializer,
-  sendRequestMiddleware,
-  processErrors,
-  deserializeResponseMiddleware
-]
+const errorsMiddleware = require('./middleware/json-api/res-errors')
 
 class JsonApi {
 
@@ -60,6 +47,20 @@ class JsonApi {
       throw new Error('Invalid argument, initialize Devour with an object.')
     }
 
+    const processErrors = errorsMiddleware.getMiddleware(options)
+
+    let jsonApiMiddleware = [
+      jsonApiHttpBasicAuthMiddleware,
+      jsonApiPostMiddleware,
+      jsonApiPatchMiddleware,
+      jsonApiDeleteMiddleware,
+      jsonApiGetMiddleware,
+      jsonApiHeadersMiddleware,
+      railsParamsSerializer,
+      sendRequestMiddleware,
+      processErrors,
+      deserializeResponseMiddleware
+    ]
     let defaults = {
       middleware: jsonApiMiddleware,
       logger: true,

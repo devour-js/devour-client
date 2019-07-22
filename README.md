@@ -224,10 +224,19 @@ There are also a few options we can set on the `jsonApi` instance directly. For 
 ```js
 // Append headers to every request
 jsonApi.headers['my-auth-token'] = 'xxxxx-xxxxx'
+
 // Replace the default middleware stack with your own
 jsonApi.middleware = [{...}, {...}, {...}]
+
 // Change the apiUrl
 jsonApi.apiUrl = 'http://api.yoursite.com'
+
+// Use custom error builder
+jsonApi.errorBuilder = (error) => {
+    // add 'meta' in addition to title and detail 
+    const { title, detail, meta } = error
+    return { title, detail, meta }
+}
 ```
 
 ### URL Builder
