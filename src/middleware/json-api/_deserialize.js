@@ -34,9 +34,11 @@ const cache = new class {
 }
 
 function collection (items, included, useCache = false) {
-  return items.map(item => {
+  const collection = items.map(item => {
     return resource.call(this, item, included, useCache)
   })
+
+  return collection
 }
 
 function resource (item, included, useCache = false) {
@@ -70,6 +72,7 @@ function resource (item, included, useCache = false) {
 
   _forOwn(item.relationships, (value, rel) => {
     var relConfig = model.attributes[rel]
+    var key = rel
 
     if (_isUndefined(relConfig)) {
       rel = rel.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
@@ -82,7 +85,7 @@ function resource (item, included, useCache = false) {
       Logger.warn(`Resource response for type "${item.type}" contains relationship "${rel}", but it is present on model config as a plain attribute.`)
     } else {
       deserializedModel[rel] =
-        attachRelationsFor.call(this, model, relConfig, item, included, rel)
+        attachRelationsFor.call(this, model, relConfig, item, included, key)
     }
   })
 

@@ -1,14 +1,21 @@
 const Logger = require('../../logger')
 
-function buildErrors (serverErrors) {
-  if (!serverErrors) {
-    Logger.error('Unidentified error')
-    return
-  } else {
-    let errors = {}
+function defaultErrorBuilder (error) {
+  const { title, detail } = error
+  return { title, detail }
+}
+
+function getBuildErrors (options) {
+  return function buildErrors (serverErrors) {
+    if (!serverErrors) {
+      Logger.error('Unidentified error')
+      return
+    }
+    const errorBuilder = (options && options.errorBuilder) || defaultErrorBuilder
+    const errors = {}
     if (serverErrors.errors) {
       for (let [index, error] of serverErrors.errors.entries()) {
-        errors[errorKey(index, error.source)] = {title: error.title, detail: error.detail}
+        errors[errorKey(index, error.source)] = errorBuilder(error)
       }
     }
     if (serverErrors.error) {
@@ -25,21 +32,26 @@ function errorKey (index, source) {
   return source.pointer.split('/').pop()
 }
 
-module.exports = {
-  name: 'errors',
-  error: function (payload) {
-    if (payload.response) {
-      if (payload.response.data) {
-        if (typeof payload.response.data === 'string') {
-          return buildErrors({error: `${payload.response.statusText}: ${payload.response.data}`})
+exports.getMiddleware = function (options) {
+  const buildErrors = getBuildErrors(options)
+  return {
+    name: 'errors',
+    error: function (payload) {
+      if (payload.response) {
+        const response = payload.response
+        if (response.data) {
+          if (typeof response.data === 'string') {
+            const error = response.statusText ? `${response.statusText}: ${response.data}` : response.data
+            return buildErrors({error})
+          }
+          return buildErrors(response.data)
         }
-        return buildErrors(payload.response.data)
+        return buildErrors({error: response.statusText})
       }
-      return buildErrors({error: payload.response.statusText})
+      if (payload instanceof Error) {
+        return payload
+      }
+      return null
     }
-    if (payload instanceof Error) {
-      return payload
-    }
-    return null
   }
 }

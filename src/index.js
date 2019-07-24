@@ -38,20 +38,7 @@ const jsonApiHeadersMiddleware = require('./middleware/json-api/req-headers')
 const railsParamsSerializer = require('./middleware/json-api/rails-params-serializer')
 const sendRequestMiddleware = require('./middleware/request')
 const deserializeResponseMiddleware = require('./middleware/json-api/res-deserialize')
-const processErrors = require('./middleware/json-api/res-errors')
-
-let jsonApiMiddleware = [
-  jsonApiHttpBasicAuthMiddleware,
-  jsonApiPostMiddleware,
-  jsonApiPatchMiddleware,
-  jsonApiDeleteMiddleware,
-  jsonApiGetMiddleware,
-  jsonApiHeadersMiddleware,
-  railsParamsSerializer,
-  sendRequestMiddleware,
-  processErrors,
-  deserializeResponseMiddleware
-]
+const errorsMiddleware = require('./middleware/json-api/res-errors')
 
 class JsonApi {
 
@@ -60,6 +47,20 @@ class JsonApi {
       throw new Error('Invalid argument, initialize Devour with an object.')
     }
 
+    const processErrors = errorsMiddleware.getMiddleware(options)
+
+    let jsonApiMiddleware = [
+      jsonApiHttpBasicAuthMiddleware,
+      jsonApiPostMiddleware,
+      jsonApiPatchMiddleware,
+      jsonApiDeleteMiddleware,
+      jsonApiGetMiddleware,
+      jsonApiHeadersMiddleware,
+      railsParamsSerializer,
+      sendRequestMiddleware,
+      processErrors,
+      deserializeResponseMiddleware
+    ]
     let defaults = {
       middleware: jsonApiMiddleware,
       logger: true,
@@ -123,8 +124,20 @@ class JsonApi {
     return this
   }
 
-  relationships () {
-    this.builderStack.push({path: 'relationships'})
+  relationships (relationshipName) {
+    let lastRequest = _last(this.builderStack)
+    this.builderStack.push({ path: 'relationships' })
+    if (!relationshipName) return this
+
+    let modelName = _get(lastRequest, 'model')
+    if (!modelName) {
+      throw new Error('Relationships must be called with a preceeding model.')
+    }
+
+    let relationship = this.relationshipFor(modelName, relationshipName)
+
+    this.builderStack.push({ path: relationshipName, model: relationship.type })
+
     return this
   }
 
@@ -207,12 +220,16 @@ class JsonApi {
     let req = null
 
     if (arguments.length >= 2) { // destroy (modelName, id, [payload], [meta])
+      const [model, id, data, meta] = [...arguments]
+
+      console.assert(model, 'No model specified')
+      console.assert(id, 'No ID specified')
       req = {
         method: 'DELETE',
-        url: this.urlFor({model: arguments[0], id: arguments[1]}),
-        model: arguments[0],
-        data: arguments.length >= 3 ? arguments[2] : {},
-        meta: arguments.length >= 4 ? arguments[3] : {}
+        url: this.urlFor({model, id}),
+        model: model,
+        data: data || {},
+        meta: meta || {}
       }
     } else { // destroy ([payload])
       // TODO: find a way to pass meta
@@ -368,6 +385,17 @@ class JsonApi {
     }
 
     return this.models[modelName]
+  }
+
+  relationshipFor (modelName, relationshipName) {
+    let model = this.modelFor(modelName)
+    let relationship = model.attributes[relationshipName]
+
+    if (!relationship) {
+      throw new Error(`API resource definition on model "${modelName}" for relationship "${relationshipName}" not found. Available attributes: ${Object.keys(model.attributes)}`)
+    }
+
+    return relationship
   }
 
   collectionPathFor (modelName) {

@@ -16,11 +16,15 @@ While JSON API is amazing, it can be painful to work with if you don't have a go
 
 While there are quite a few [JavaScript client implementations](http://jsonapi.org/implementations/#client-libraries-javascript), none of them appeared to offer the exact feature set we needed with the simplicity we required.
 
+### Installation
+
+```javascript
+$ npm install devour-client
+```
+
 ### Quick Start
 
 ```js
-// npm install devour-client --save
-
 // Import
 import JsonApi from 'devour-client'
 
@@ -115,8 +119,8 @@ let { data, errors, meta, links } = jsonApi.findAll('post', {include: 'comments'
 
 Devour uses a fully middleware based approach. This allows you to easily manipulate any part of the request and response cycle by injecting your own middleware. In fact, it's entirely possible to fully remove our default middleware and write your own. Moving forward we hope to see adapters for different server implementations. If you'd like to take a closer look at the middleware layer, please checkout:
 
-* The [index.js file](https://github.com/twg/devour/blob/master/index.js#L8) where we construct our default middleware stack
-* The middleware folder that contains all our default [JSON API middleware](https://github.com/twg/devour/tree/master/middleware/json-api)
+* The [index.js file](https://github.com/twg/devour/blob/master/src/index.js) where we construct our default middleware stack
+* The middleware folder that contains all our default [JSON API middleware](https://github.com/twg/devour/tree/master/src/middleware/json-api)
 
 ### Your First Middleware
 
@@ -220,10 +224,19 @@ There are also a few options we can set on the `jsonApi` instance directly. For 
 ```js
 // Append headers to every request
 jsonApi.headers['my-auth-token'] = 'xxxxx-xxxxx'
+
 // Replace the default middleware stack with your own
 jsonApi.middleware = [{...}, {...}, {...}]
+
 // Change the apiUrl
 jsonApi.apiUrl = 'http://api.yoursite.com'
+
+// Use custom error builder
+jsonApi.errorBuilder = (error) => {
+    // add 'meta' in addition to title and detail 
+    const { title, detail, meta } = error
+    return { title, detail, meta }
+}
 ```
 
 ### URL Builder
@@ -241,6 +254,22 @@ jsonApi.define('post', {title: ''})
 
 jsonApi.one('author', 1).all('post').get({include: 'books'}) // GET http://api.yoursite.com/authors/1/posts?include=books
 jsonApi.one('author', 1).all('post').post({title:'title'}, {include: 'books'}) // POST http://api.yoursite.com/authors/1/posts?include=books
+```
+
+JSON API Specs also allow the _relationships_ between resources to be created, updated and deleted. For example, `/authors/1/relationships/posts` defines the relationships between an author and its post. You can use `.patch`, `.post` and `.delete` to edit relationships ([read more](http://jsonapi.org/format/#crud-updating-relationships)).
+
+For example:
+
+```js
+let jsonApi = new JsonApi({apiUrl: 'http://api.yoursite.com'})
+jsonApi.define('author', {name: '', articles: { jsonApi: 'hasMany', type: 'post' } })
+jsonApi.define('post', {title: ''})
+
+jsonApi.create('author', { name: 'Joanna Blogs' }) // Create an author
+jsonApi.create('post', { title: 'How to Make Relationships' }) // Create a post
+
+// Create a relationship between the author and the post
+jsonApi.one('author', 1).relationships('articles').patch([{ id: 1 }]) 
 ```
 
 ### Polymorphic Relationships

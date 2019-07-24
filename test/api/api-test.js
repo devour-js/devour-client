@@ -6,6 +6,7 @@ import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
 import mockResponse from '../helpers/mock-response'
 import expect from 'expect.js'
 import sinon from 'sinon'
+import _last from 'lodash/last'
 
 describe('JsonApi', () => {
   var jsonApi = null
@@ -246,6 +247,72 @@ describe('JsonApi', () => {
         expect(jsonApi.one('bar', '1').relationships().all('foo').urlFor()).to.eql('http://myapi.com/bars/1/relationships/foos/')
       })
 
+      context('with relationships which arent named after their type', () => {
+        beforeEach(() => {
+          jsonApi.define('product')
+          jsonApi.define('order', { items: { jsonApi: 'hasMany', type: 'product' } })
+        })
+
+        it('should construct the relationship URL', () => {
+          const url = jsonApi.one('order', 1).relationships('items').urlFor()
+
+          expect(url).to.eql('http://myapi.com/orders/1/relationships/items/')
+        })
+
+        it('should be able to update the relationships', (done) => {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload) => {
+              expect(payload.req.method).to.be.eql('PATCH')
+              expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
+              expect(payload.req.data).to.be.eql([{ id: 2 }])
+              return {}
+            }
+          }
+
+          jsonApi.middleware = [inspectorMiddleware]
+
+          jsonApi.one('order', 1).relationships('items').patch([{ id: 2 }])
+            .then(() => done())
+            .catch((error) => done(error))
+        })
+
+        it('should be able to delete the relationships', (done) => {
+          let inspectorMiddleware = {
+            name: 'inspector-middleware',
+            req: (payload) => {
+              expect(payload.req.method).to.be.eql('DELETE')
+              expect(payload.req.url).to.be.eql('http://myapi.com/orders/1/relationships/items/')
+              expect(payload.req.data).to.be.eql([{ id: 2 }])
+              return {}
+            }
+          }
+          jsonApi.middleware = [inspectorMiddleware]
+
+          jsonApi.one('order', 1).relationships('items').destroy([{ id: 2 }])
+            .then(() => done())
+            .catch((error) => done(error))
+        })
+
+        it('sets the model correctly for serialization', () => {
+          jsonApi.one('order', 1).relationships('items')
+
+          expect(_last(jsonApi.builderStack).model).to.eql('product')
+        })
+
+        it('complains if the relationship is not defined', () => {
+          expect(function (done) {
+            jsonApi.one('order', 1).relationships('baz').patch({}).then(done).catch(done)
+          }).to.throwException(/API resource definition on model "order" for relationship "baz"/)
+        })
+
+        it('complains if relationships is called without a model', () => {
+          expect(function (done) {
+            jsonApi.relationships('baz').patch({}).then(done).catch(done)
+          }).to.throwException(/Relationships must be called with a preceeding model/)
+        })
+      })
+
       it('should construct resource urls with urlFor', () => {
         expect(jsonApi.urlFor({model: 'foo', id: '1'})).to.eql('http://myapi.com/foos/1/')
         expect(jsonApi.one('foo', '1').urlFor()).to.eql('http://myapi.com/foos/1/')
@@ -411,7 +478,7 @@ describe('JsonApi', () => {
       })
 
       jsonApi.create('foo', {title: 'foo'}, {include: 'something'})
-        .then(() => done()).catch(() => done())
+        .then(() => done()).catch((error) => done(error))
     })
 
     it('should make basic update call', (done) => {
@@ -433,7 +500,7 @@ describe('JsonApi', () => {
       })
 
       jsonApi.update('foo', {title: 'foo'}, {include: 'something'})
-        .then(() => done()).catch(() => done())
+        .then(() => done()).catch((error) => done(error))
     })
 
     it('should include meta information on response objects', (done) => {
@@ -640,7 +707,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [jsonApiGetMiddleware, inspectorMiddleware]
 
-      jsonApi.one('foo', 1).find().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).find().then(() => done()).catch((error) => done(error))
     })
 
     it('should have an empty body on DELETE requests', (done) => {
@@ -656,7 +723,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
 
-      jsonApi.destroy('foo', 1).then(() => done()).catch(() => done())
+      jsonApi.destroy('foo', 1).then(() => done()).catch((error) => done(error))
     })
 
     it('should accept a data payload on DELETE requests when provided as a third argument', (done) => {
@@ -666,7 +733,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.data).to.be.an('object')
           expect(payload.req.data.data).to.be.an('array')
-          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           return {}
         }
       }
@@ -678,7 +745,7 @@ describe('JsonApi', () => {
         {type: 'bar', id: 3}
       ]
 
-      jsonApi.destroy('foo', 1, payload).then(() => done()).catch(() => done())
+      jsonApi.destroy('foo', 1, payload).then(() => { done() }).catch((error) => { done(error) })
     })
 
     it('should accept a meta and data payload on DELETE requests when provided as a third and fourth arguments', (done) => {
@@ -688,7 +755,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.data).to.be.an('object')
           expect(payload.req.data.data).to.be.an('array')
-          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/relationships/bars')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           expect(payload.req.meta.totalObjects).to.eql(1)
 
           return {}
@@ -706,7 +773,7 @@ describe('JsonApi', () => {
         totalObjects: 1
       }
 
-      jsonApi.destroy('foo', 1, payload, meta).then(() => done()).catch(() => done())
+      jsonApi.destroy('foo', 1, payload, meta).then(() => done()).catch((error) => done(error))
     })
 
     it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
@@ -728,7 +795,7 @@ describe('JsonApi', () => {
         {type: 'bar', id: 3}
       ]
 
-      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch((error) => done(error))
     })
 
     it.skip('should throw an error while attempting to access undefined model', function (done) {
@@ -1007,7 +1074,7 @@ describe('JsonApi', () => {
 
   describe('Builder pattern for route construction', () => {
     beforeEach(() => {
-      jsonApi.define('foo', {title: ''})
+      jsonApi.define('foo', {title: '', subtitle: ''})
       jsonApi.define('bar', {title: ''})
       jsonApi.define('baz', {title: ''})
     })
@@ -1036,7 +1103,7 @@ describe('JsonApi', () => {
           return jsonApi.all('foo').get()
         })
         .then(() => done())
-        .catch(() => done())
+        .catch((error) => done(error))
 
       expect(jsonApi.buildUrl()).to.eql('http://myapi.com/')
     })
@@ -1067,7 +1134,7 @@ describe('JsonApi', () => {
         jsonApi.middleware = [inspectorMiddleware]
 
         return jsonApi.all('bar').get().then(() => done())
-      }).catch(() => done())
+      }).catch((error) => done(error))
     })
 
     it('should allow builders to be used', () => {
@@ -1132,7 +1199,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get().then(() => done()).catch(() => done())
+      jsonApi.get().then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get with query params', (done) => {
@@ -1148,7 +1215,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get({page: {number: 2}}).then(() => done()).catch(() => done())
+      jsonApi.get({page: {number: 2}}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get on all', (done) => {
@@ -1163,7 +1230,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').get().then(() => done()).catch(() => done())
+      jsonApi.all('foo').get().then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get on one', (done) => {
@@ -1178,7 +1245,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).get().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).get().then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with post', (done) => {
@@ -1194,7 +1261,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').post({title: 'foo'}).then(() => done()).catch(() => done())
+      jsonApi.all('foo').post({title: 'foo'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with post with nested one', (done) => {
@@ -1210,7 +1277,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with patch', (done) => {
@@ -1226,7 +1293,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).patch({title: 'bar'}).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).patch({title: 'bar'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with patch with nested one', (done) => {
@@ -1242,7 +1309,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with destroy', (done) => {
@@ -1257,7 +1324,7 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).destroy().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).destroy().then(() => done()).catch((error) => done(error))
     })
     it('should allow builders to be called with destroy with nested one', (done) => {
       let inspectorMiddleware = {
@@ -1271,13 +1338,62 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).one('bar', 2).destroy().then(() => done()).catch(() => done())
+      jsonApi.one('foo', 1).one('bar', 2).destroy().then(() => done()).catch((error) => done(error))
     })
 
     it('should Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman!', () => {
       jsonApi.one('foo', 1).one('bar', 2).all('foo').one('bar', 3).all('baz').one('baz', 1).one('baz', 2).one('baz', 3)
       expect(jsonApi.pathFor()).to.be.eql('foos/1/bars/2/foos/bars/3/bazs/bazs/1/bazs/2/bazs/3')
       expect(jsonApi.urlFor()).to.be.eql('http://myapi.com/foos/1/bars/2/foos/bars/3/bazs/bazs/1/bazs/2/bazs/3')
+    })
+
+    it('should not serialize empty attributes', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('PATCH')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.data).to.be.eql({
+            data: {
+              type: 'foos'
+              // notice that attributes are not serialized
+            },
+            meta: {}
+          })
+          return {}
+        }
+      }
+
+      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
+      jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
+      jsonApi.one('foo', 1).patch({title: undefined})
+        .then(() => done()).catch((error) => done(error))
+    })
+
+    it('should serialize only specified attributes', (done) => {
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('PATCH')
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.data).to.be.eql({
+            data: {
+              type: 'foos',
+              attributes: {
+                title: 'bar'
+                // notice that subtitle is not serialized
+              }
+            },
+            meta: {}
+          })
+          return {}
+        }
+      }
+
+      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
+      jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
+      jsonApi.one('foo', 1).patch({title: 'bar'})
+        .then(() => done()).catch((error) => done(error))
     })
   })
 })
