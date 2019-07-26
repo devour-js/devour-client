@@ -259,14 +259,16 @@ class JsonApi {
   }
 
   insertMiddleware (middlewareName, direction, newMiddleware) {
-    let middleware = this.middleware.filter(middleware => (middleware.name === middlewareName))
-    if (middleware.length > 0) {
-      let index = this.middleware.indexOf(middleware[0])
-      if (direction === 'after') {
-        index = index + 1
-      }
-      this.middleware.splice(index, 0, newMiddleware)
+    let middleware = this.middleware
+      .filter(middleware => (middleware.name === middlewareName))
+    if (middleware.length === 0) {
+      return
     }
+    let index = this.middleware.indexOf(middleware[0])
+    if (direction === 'after') {
+      index = index + 1
+    }
+    this.middleware.splice(index, 0, newMiddleware)
   }
 
   replaceMiddleware (middlewareName, newMiddleware) {
@@ -285,46 +287,31 @@ class JsonApi {
     this.middleware = this._originalMiddleware.slice(0)
   }
 
-  applyRequestMiddleware (promise) {
-    let requestMiddlewares = this.middleware.filter(middleware => middleware.req)
-    requestMiddlewares.forEach((middleware) => {
-      promise = promise.then(middleware.req)
-    })
-    return promise
-  }
-
-  applyResponseMiddleware (promise) {
-    let responseMiddleware = this.middleware.filter(middleware => middleware.res)
-    responseMiddleware.forEach((middleware) => {
-      promise = promise.then(middleware.res)
-    })
-    return promise
-  }
-
-  applyErrorMiddleware (promise) {
-    let errorsMiddleware = this.middleware.filter(middleware => middleware.error)
-    errorsMiddleware.forEach((middleware) => {
-      promise = promise.then(middleware.error)
-    })
+  applyMiddleware (method, promise) {
+    console.assert(['req', 'res', 'error'].includes(method))
+    this.middleware
+      .filter(middleware => middleware[method])
+      .forEach(middleware => { promise = promise.then(middleware[method]) })
     return promise
   }
 
   runMiddleware (req) {
-    let payload = {req: req, jsonApi: this}
+    let payload = {req, jsonApi: this}
     let requestPromise = Promise.resolve(payload)
-    requestPromise = this.applyRequestMiddleware(requestPromise)
-    return requestPromise
+
+    return this.applyMiddleware('req', requestPromise)
       .then((res) => {
         payload.res = res
         let responsePromise = Promise.resolve(payload)
-        return this.applyResponseMiddleware(responsePromise)
+        return this.applyMiddleware('res', responsePromise)
       })
       .catch((err) => {
         Logger.error(err)
         let errorPromise = Promise.resolve(err)
-        return this.applyErrorMiddleware(errorPromise).then(err => {
-          return Promise.reject(err)
-        })
+        return this.applyMiddleware('error', errorPromise)
+          .then(err => {
+            return Promise.reject(err)
+          })
       })
   }
 
@@ -339,7 +326,7 @@ class JsonApi {
       url: this.urlFor({model: modelName, id: id}),
       model: modelName,
       data: {},
-      params: params
+      params
     }
     return this.runMiddleware(req)
   }
@@ -349,7 +336,7 @@ class JsonApi {
       method: 'GET',
       url: this.urlFor({model: modelName}),
       model: modelName,
-      params: params,
+      params,
       data: {}
     }
     return this.runMiddleware(req)
@@ -360,9 +347,9 @@ class JsonApi {
       method: 'POST',
       url: this.urlFor({model: modelName}),
       model: modelName,
-      params: params,
+      params,
       data: payload,
-      meta: meta
+      meta
     }
     return this.runMiddleware(req)
   }
@@ -373,8 +360,8 @@ class JsonApi {
       url: this.urlFor({model: modelName, id: payload.id}),
       model: modelName,
       data: payload,
-      params: params,
-      meta: meta
+      params,
+      meta
     }
     return this.runMiddleware(req)
   }
