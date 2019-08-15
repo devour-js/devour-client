@@ -102,6 +102,42 @@ describe('JsonApi', () => {
       jsonApi.one('foo', 1).get().then(() => done())
     })
 
+    it('should allow users to add Authorization header (bearer token)', (done) => {
+      jsonApi = new JsonApi({apiUrl: 'http://myapi.com', bearer: 'abc'})
+      jsonApi.define('foo', {title: ''})
+
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.headers.Authorization).to.be.eql('Bearer abc')
+          return {}
+        }
+      }
+      const bearerTokenMiddleware = require('./../../src/middleware/json-api/req-bearer')
+
+      jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
+
+      jsonApi.one('foo', 1).get().then(() => done())
+    })
+
+    it('should not add HTPP Authorization header if not set', (done) => {
+      jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+      jsonApi.define('foo', {title: ''})
+
+      let inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.headers).to.be.eql(undefined)
+          return {}
+        }
+      }
+      const bearerTokenMiddleware = require('./../../src/middleware/json-api/req-bearer')
+
+      jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
+
+      jsonApi.one('foo', 1).get().then(() => done())
+    })
+
     describe('Pluralize options', () => {
       context('no options passed -- default behavior', () => {
         it('should use the pluralize package', () => {
@@ -381,6 +417,42 @@ describe('JsonApi', () => {
       jsonApi.insertMiddlewareAfter('response', afterMiddleware)
       expect(jsonApi.middleware.indexOf(beforeMiddleware)).to.eql(index)
       expect(jsonApi.middleware.indexOf(afterMiddleware)).to.eql(index + 2)
+    })
+
+    it('should not allow users to register the same middleware twice', () => {
+      let responseMiddleware = jsonApi.middleware.filter(middleware => middleware.name === 'response')[0]
+      let catMiddleWare = {
+        name: 'cat-middleware',
+        req: function (req) {
+          return req
+        },
+        res: function (res) {
+          return res
+        }
+      }
+      let index = jsonApi.middleware.indexOf(responseMiddleware)
+      jsonApi.insertMiddlewareBefore('response', catMiddleWare)
+      expect(jsonApi.middleware.indexOf(catMiddleWare)).to.eql(index)
+      jsonApi.insertMiddlewareAfter('response', catMiddleWare)
+      expect(jsonApi.middleware.indexOf(catMiddleWare)).to.not.eql(index + 2)
+      expect(jsonApi.middleware.indexOf(catMiddleWare)).to.eql(index)
+    })
+
+    it('should allow users to remove existing middleware', () => {
+      let catMiddleWare = {
+        name: 'cat-middleware',
+        req: function (req) {
+          return req
+        },
+        res: function (res) {
+          return res
+        }
+      }
+      jsonApi.insertMiddlewareBefore('response', catMiddleWare)
+      const middlewareLength = jsonApi.middleware.length
+      jsonApi.removeMiddleware('cat-middleware')
+      expect(jsonApi.middleware.length).to.eql(middlewareLength - 1)
+      expect(jsonApi.middleware.findIndex(middleware => middleware.name === 'cat-middleware')).to.eql(-1)
     })
   })
 
