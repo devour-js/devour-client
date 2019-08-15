@@ -106,7 +106,7 @@ describe('JsonApi', () => {
       jsonApi = new JsonApi({apiUrl: 'http://myapi.com', bearer: 'abc'})
       jsonApi.define('foo', {title: ''})
 
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.headers.Authorization).to.be.eql('Bearer abc')
@@ -120,11 +120,11 @@ describe('JsonApi', () => {
       jsonApi.one('foo', 1).get().then(() => done())
     })
 
-    it('should not add HTPP Authorization header if not set', (done) => {
+    it('should not add HTPP Authorization header if not set and from the moment when set it should be added', (done) => {
       jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
       jsonApi.define('foo', {title: ''})
 
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.headers).to.be.eql(undefined)
@@ -135,7 +135,20 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
 
-      jsonApi.one('foo', 1).get().then(() => done())
+      const inspectorMiddlewareBearer = {
+        name: 'inspector-middleware-bearer',
+        req: (payload) => {
+          expect(payload.req.headers.Authorization).to.be.eql('Bearer abc')
+          return {}
+        }
+      }
+
+      jsonApi.one('foo', 1).get().then(() => {
+        jsonApi.bearer = 'abc'
+        jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddlewareBearer]
+
+        jsonApi.one('foo', 2).get().then(() => done())
+      })
     })
 
     describe('Pluralize options', () => {
