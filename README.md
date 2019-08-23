@@ -91,6 +91,8 @@ Devour takes an object as the initializer. The following options are available:
 
 **auth**: An object with username and password, used to pass in HTTP Basic Authentication Headers, `new JsonApi({apiUrl: 'http://your-api-here.com', auth: {username: 'secret', password: 'cheesecake'})`
 
+**bearer**: A string containing the bearer token, used to add a HTTP Authorization Header `new JsonApi({apiUrl: 'http://your-api-here.com', bearer: 'your-token-here'})
+
 **trailingSlash**: An optional object to use trailing slashes on resource and/or collection urls (defaults to false), `new JsonApi({apiUrl: 'http://your-api-here.com', trailingSlash: {resource: false, collection: true})`
 
 ### Relationships
@@ -155,6 +157,7 @@ let errorMiddleware = {
 jsonApi.insertMiddlewareBefore('axios-request', requestMiddleware)
 jsonApi.insertMiddlewareAfter('response', responseMiddleware)
 jsonApi.replaceMiddleware('errors', errorMiddleware)
+jsonApi.removeMiddleware('response')
 ```
 
 #### The payload object
