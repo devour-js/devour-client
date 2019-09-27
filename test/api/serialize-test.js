@@ -300,4 +300,36 @@ describe('serialize', () => {
     expect(serializedItem.relationships.payables.data[1].id).to.eql(4)
     expect(serializedItem.relationships.payables.data[1].type).to.eql('tax')
   })
+
+  it('should serialize meta on hasOne relationship if present', () => {
+    jsonApi.define('product', {
+      title: '',
+      category: {
+        jsonApi: 'hasOne',
+        type: 'categories'
+      }
+    })
+    let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello', category: {
+      id: 4,
+      type: 'categories',
+      meta: {customStuff: 'More custom stuff'}
+    }})
+    expect(serializedItem.relationships.category.data.meta.customStuff).to.eql('More custom stuff')
+  })
+
+  it('should serialize meta on hasMany relationship if present', () => {
+    jsonApi.define('product', {
+      title: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      }
+    })
+    let serializedItem = serialize.resource.call(jsonApi, 'product', {id: '5', title: 'Hello', tags: [{
+      id: 4,
+      type: 'tags',
+      meta: {customStuff: 'More custom stuff'}}
+    ]})
+    expect(serializedItem.relationships.tags.data[0].meta.customStuff).to.eql('More custom stuff')
+  })
 })
