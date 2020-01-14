@@ -300,4 +300,32 @@ describe('serialize', () => {
     expect(serializedItem.relationships.payables.data[1].id).to.eql(4)
     expect(serializedItem.relationships.payables.data[1].type).to.eql('tax')
   })
+
+  it('should not serialize collection of items if model is not present', () => {
+    const data = {
+      id: '5',
+      title: 'Hello'
+    }
+    let serializedItem = serialize.collection.call(
+      jsonApi,
+      undefined,
+      data
+    )
+
+    expect(serializedItem).to.eql(data)
+  })
+
+  it('should not serialize resource if model is not present', () => {
+    const data = {
+      id: '5',
+      title: 'Hello'
+    }
+    let serializedItem = serialize.resource.call(
+      jsonApi,
+      undefined,
+      data
+    )
+
+    expect(serializedItem).to.eql(data)
+  })
 })
