@@ -279,8 +279,13 @@ class JsonApi {
   }
 
   replaceMiddleware (middlewareName, newMiddleware) {
-    if (!this.middlewareExists(newMiddleware.name)) {
-      Logger.error('The middleware ' + newMiddleware.name + ' does not exists')
+    if (!this.middlewareExists(middlewareName)) {
+      Logger.error('The middleware ' + middlewareName + ' does not exist')
+      return
+    }
+
+    if (this.middlewareExists(newMiddleware.name)) {
+      Logger.error('The middleware ' + newMiddleware.name + ' already exists')
       return
     }
 
@@ -290,7 +295,7 @@ class JsonApi {
 
   removeMiddleware (middlewareName) {
     if (!this.middlewareExists(middlewareName)) {
-      Logger.error('The middleware ' + middlewareName + ' does not exists')
+      Logger.error('The middleware ' + middlewareName + ' does not exist')
       return
     }
 

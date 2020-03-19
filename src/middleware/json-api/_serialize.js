@@ -4,12 +4,20 @@ const _map = require('lodash/map')
 const _forOwn = require('lodash/forOwn')
 
 function collection (modelName, items) {
+  if (!modelName) {
+    return items
+  }
+
   return items.map(item => {
     return resource.call(this, modelName, item)
   })
 }
 
 function resource (modelName, item) {
+  if (!modelName) {
+    return item
+  }
+
   let model = this.modelFor(modelName)
   let options = model.options || {}
   let readOnly = options.readOnly || []
