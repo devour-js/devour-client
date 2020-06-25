@@ -1309,6 +1309,7 @@ describe('JsonApi', () => {
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }
@@ -1324,6 +1325,7 @@ describe('JsonApi', () => {
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }

@@ -168,9 +168,12 @@ class JsonApi {
   }
 
   get (params = {}) {
+    let lastRequest = _last(this.builderStack)
+
     let req = {
       method: 'GET',
       url: this.urlFor(),
+      model: _get(lastRequest, 'model'),
       data: {},
       params
     }
