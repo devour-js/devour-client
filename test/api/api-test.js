@@ -1309,6 +1309,7 @@ describe('JsonApi', () => {
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }
@@ -1324,6 +1325,7 @@ describe('JsonApi', () => {
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }
@@ -1340,6 +1342,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
           expect(payload.req.data).to.be.eql({title: 'foo'})
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }
@@ -1356,6 +1359,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
           expect(payload.req.data).to.be.eql({title: 'foo'})
+          expect(payload.req.model).to.be.eql('bar')
           return {}
         }
       }
@@ -1372,6 +1376,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
           expect(payload.req.data).to.be.eql({title: 'bar'})
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }
@@ -1388,6 +1393,7 @@ describe('JsonApi', () => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
           expect(payload.req.data).to.be.eql({title: 'bar'})
+          expect(payload.req.model).to.be.eql('bar')
           return {}
         }
       }
@@ -1403,6 +1409,7 @@ describe('JsonApi', () => {
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
+          expect(payload.req.model).to.be.eql('foo')
           return {}
         }
       }
@@ -1417,6 +1424,7 @@ describe('JsonApi', () => {
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars/2')
+          expect(payload.req.model).to.be.eql('bar')
           return {}
         }
       }
