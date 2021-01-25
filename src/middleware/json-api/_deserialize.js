@@ -120,9 +120,9 @@ function attachHasOneFor (model, attribute, item, included, key) {
     return resource.call(this, relatedItems[0], included, true)
   }
 
-  const relatedId = _get(item.relationships, [key, 'data', 'id'], false)
-  if (relatedId) {
-    return relatedId
+  const relationshipData = _get(item.relationships, [key, 'data'], false)
+  if (relationshipData) {
+    return relationshipData
   }
   return null
 }
@@ -131,14 +131,15 @@ function attachHasManyFor (model, attribute, item, included, key) {
   if (!item.relationships) {
     return null
   }
+
   let relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems.length > 0) {
     return collection.call(this, relatedItems, included, true)
   }
 
-  const relatedIds = _get(item.relationships, [key, 'data'], false)
-  if (relatedIds) {
-    return _map(relatedIds, relatedItem => relatedItem.id)
+  const relationshipData = _get(item.relationships, [key, 'data'], false)
+  if (relationshipData) {
+    return relationshipData
   }
 
   return []
