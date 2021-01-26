@@ -374,7 +374,7 @@ describe('deserialize', () => {
     expect(product.tags[1].name).to.eql('two')
   })
 
-  it('should deserialize ids of related resources that are not included', () => {
+  it('should deserialize types and ids of related resources that are not included', () => {
     jsonApi.define('product', {
       title: '',
       tags: {
@@ -406,7 +406,14 @@ describe('deserialize', () => {
     expect(product.id).to.eql('1')
     expect(product.title).to.eql('hello')
     expect(product.tags).to.be.an('array')
-    expect(product.tags[0]).to.eql('5')
-    expect(product.tags[1]).to.eql('6')
+    expect(product.tags.length).to.be(2)
+
+    expect(product.tags[0]).to.be.an('object')
+    expect(product.tags[0].id).to.eql('5')
+    expect(product.tags[0].type).to.eql('tags')
+
+    expect(product.tags[1]).to.be.an('object')
+    expect(product.tags[1].id).to.eql('6')
+    expect(product.tags[1].type).to.eql('tags')
   })
 })
