@@ -126,7 +126,7 @@ Devour uses a fully middleware based approach. This allows you to easily manipul
 
 ### Your First Middleware
 
-Adding your own middleware is easy. It's just a simple JavaScript object that has a `name`, `req`, and/or `res` property. The `req` or `res` property is a function that receives a `payload`, which houses all the details of the request cycle _(see documentation below)_. For async operations, your `req` or `res` methods can return a promise, which will need to resolve before the middleware chain continues. Otherwise, you may just manipulate the `payload` as needed and return it immediately.
+Adding your own middleware is easy. It's just a simple JavaScript object that has a `name`, `req`, and/or `res` property. The `name` property must be the unique name of your middleware. The `req` or `res` property is a function that receives a `payload`, which houses all the details of the request cycle _(see documentation below)_. For async operations, your `req` or `res` methods can return a promise, which will need to resolve before the middleware chain continues. Otherwise, you may just manipulate the `payload` as needed and return it immediately.
 
 ```js
 let requestMiddleware = {
