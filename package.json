@@ -14,7 +14,7 @@
     "compile:windows": "rd /s /q \"lib/\" && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
-    "test": "standard && mocha --recursive --require @babel/register"
+    "test": "standard && mocha"
   },
   "repository": {
     "type": "git",
@@ -39,6 +39,10 @@
     "presets": [
       "@babel/preset-env"
     ]
+  },
+  "mocha": {
+    "recursive": true,
+    "require": "@babel/register"
   },
   "homepage": "https://github.com/twg/devour#readme",
   "devDependencies": {
