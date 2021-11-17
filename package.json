@@ -14,7 +14,7 @@
     "compile:windows": "rd /s /q \"lib/\" && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
-    "test": "standard && mocha"
+    "test": "standard && mocha --recursive --require @babel/register"
   },
   "repository": {
     "type": "git",
