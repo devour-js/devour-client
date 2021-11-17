@@ -1,5 +1,5 @@
 export default function (jsonApi, res = {}) {
-  let mockResponse = {
+  const mockResponse = {
     name: 'mock-response',
     req: (payload) => {
       payload.req.adapter = function () {

@@ -17,14 +17,14 @@ module.exports = {
      *         `res.data`. JSON API Resources also passes back the response with
      *         a `data` attribute. This means we have `res.data.data`.
      */
-    let jsonApi = payload.jsonApi
-    let status = payload.res.status
-    let req = payload.req
-    let res = payload.res.data
-    let errors = res.errors
-    let meta = res.meta
-    let links = res.links
-    let included = res.included
+    const jsonApi = payload.jsonApi
+    const status = payload.res.status
+    const req = payload.req
+    const res = payload.res.data
+    const errors = res.errors
+    const meta = res.meta
+    const links = res.links
+    const included = res.included
 
     let data = null
 
@@ -38,7 +38,7 @@ module.exports = {
     }
 
     if (res.data && data) {
-      var params = ['meta', 'links']
+      const params = ['meta', 'links']
       params.forEach(function (param) {
         if (res.data[param]) {
           data[param] = res.data[param]

@@ -1,4 +1,5 @@
 /* global describe, context, it, beforeEach, afterEach */
+/* eslint-disable no-unused-expressions */
 
 import JsonApi from '../../src/index'
 import jsonApiGetMiddleware from '../../src/middleware/json-api/req-get'
@@ -9,9 +10,9 @@ import sinon from 'sinon'
 import _last from 'lodash/last'
 
 describe('JsonApi', () => {
-  var jsonApi = null
+  let jsonApi = null
   beforeEach(() => {
-    jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+    jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
   })
 
   afterEach(() => {
@@ -25,17 +26,17 @@ describe('JsonApi', () => {
       expect(jsonApi).to.be.a(JsonApi)
       jsonApi = new JsonApi('http://myapi.com', [])
       expect(jsonApi).to.be.a(JsonApi)
-      jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+      jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
       expect(jsonApi).to.be.a(JsonApi)
     })
 
     it('should allow apiUrl to be set via the initializer object', () => {
-      let jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+      const jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
       expect(jsonApi.apiUrl).to.eql('http://myapi.com')
     })
 
     it('should allow middleware to be set via the initializer object', () => {
-      let middleware = [
+      const middleware = [
         {
           name: 'm1',
           req: function (req) {
@@ -56,7 +57,7 @@ describe('JsonApi', () => {
         }
       ]
 
-      let jsonApi = new JsonApi({apiUrl: 'http://myapi.com', middleware: middleware})
+      const jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', middleware: middleware })
       expect(jsonApi.middleware).to.eql(middleware)
       expect(jsonApi.apiUrl).to.eql('http://myapi.com')
     })
@@ -83,14 +84,14 @@ describe('JsonApi', () => {
     })
 
     it('should allow users to add HTTP Basic Auth options', (done) => {
-      jsonApi = new JsonApi({apiUrl: 'http://myapi.com', auth: {username: 'admin', password: 'cheesecake'}})
+      jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', auth: { username: 'admin', password: 'cheesecake' } })
 
-      jsonApi.define('foo', {title: ''})
+      jsonApi.define('foo', { title: '' })
 
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
-          expect(payload.req.auth).to.be.eql({username: 'admin', password: 'cheesecake'})
+          expect(payload.req.auth).to.be.eql({ username: 'admin', password: 'cheesecake' })
           return {}
         }
       }
@@ -103,8 +104,8 @@ describe('JsonApi', () => {
     })
 
     it('should allow users to add Authorization header (bearer token)', (done) => {
-      jsonApi = new JsonApi({apiUrl: 'http://myapi.com', bearer: 'abc'})
-      jsonApi.define('foo', {title: ''})
+      jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', bearer: 'abc' })
+      jsonApi.define('foo', { title: '' })
 
       const inspectorMiddleware = {
         name: 'inspector-middleware',
@@ -121,8 +122,8 @@ describe('JsonApi', () => {
     })
 
     it('should not add HTPP Authorization header if not set and from the moment when set it should be added', (done) => {
-      jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
-      jsonApi.define('foo', {title: ''})
+      jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
+      jsonApi.define('foo', { title: '' })
 
       const inspectorMiddleware = {
         name: 'inspector-middleware',
@@ -154,14 +155,14 @@ describe('JsonApi', () => {
     describe('Pluralize options', () => {
       context('no options passed -- default behavior', () => {
         it('should use the pluralize package', () => {
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
           expect(jsonApi.pluralize).to.eql(require('pluralize'))
         })
       })
 
       context('false -- no pluralization', () => {
         it('should not pluralize text', () => {
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', pluralize: false})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', pluralize: false })
           expect(jsonApi.pluralize('model')).to.eql('model')
           expect(jsonApi.pluralize.singular('models')).to.eql('models')
         })
@@ -171,7 +172,7 @@ describe('JsonApi', () => {
         it('should pluralize as requested', () => {
           const pluralizer = s => 'Q' + s
           pluralizer.singular = s => s.replace(/^Q/, '')
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', pluralize: pluralizer})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', pluralize: pluralizer })
           expect(jsonApi.pluralize('model')).to.eql('Qmodel')
           expect(jsonApi.pluralize.singular('Qmodel')).to.eql('model')
         })
@@ -181,29 +182,29 @@ describe('JsonApi', () => {
     describe('Trailing Slash options', () => {
       context('no options passed -- default behavior', () => {
         it('should use the default of no slashes for either url type', () => {
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
-          expect(jsonApi.trailingSlash).to.eql({collection: false, resource: false})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
+          expect(jsonApi.trailingSlash).to.eql({ collection: false, resource: false })
         })
       })
 
       context('option to add slashes to all urls', () => {
         it('should use slashes for both url types', () => {
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: true})
-          expect(jsonApi.trailingSlash).to.eql({collection: true, resource: true})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', trailingSlash: true })
+          expect(jsonApi.trailingSlash).to.eql({ collection: true, resource: true })
         })
       })
 
       context('option to add slashes to only collection urls', () => {
         it('should only use slashes for collection urls', () => {
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: { collection: true }})
-          expect(jsonApi.trailingSlash).to.eql({collection: true, resource: false})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', trailingSlash: { collection: true } })
+          expect(jsonApi.trailingSlash).to.eql({ collection: true, resource: false })
         })
       })
 
       context('option to add slashes to only resource urls', () => {
         it('should only use slashes for resource urls', () => {
-          jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: { resource: true }})
-          expect(jsonApi.trailingSlash).to.eql({collection: false, resource: true})
+          jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', trailingSlash: { resource: true } })
+          expect(jsonApi.trailingSlash).to.eql({ collection: false, resource: true })
         })
       })
     })
@@ -223,7 +224,7 @@ describe('JsonApi', () => {
       })
 
       it('should allow overrides for collection paths', () => {
-        jsonApi.define('product', {}, {collectionPath: 'my-products'})
+        jsonApi.define('product', {}, { collectionPath: 'my-products' })
         expect(jsonApi.collectionPathFor('product')).to.eql('my-products')
       })
 
@@ -247,16 +248,16 @@ describe('JsonApi', () => {
       })
 
       it('should allow urlFor to be called with various options', () => {
-        expect(jsonApi.urlFor({model: 'foo', id: 1})).to.eql('http://myapi.com/foos/1')
-        expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos')
+        expect(jsonApi.urlFor({ model: 'foo', id: 1 })).to.eql('http://myapi.com/foos/1')
+        expect(jsonApi.urlFor({ model: 'foo' })).to.eql('http://myapi.com/foos')
         expect(jsonApi.urlFor({})).to.eql('http://myapi.com/')
         expect(jsonApi.urlFor()).to.eql('http://myapi.com/')
         expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos')
       })
 
       it('should allow pathFor to be called with various options', () => {
-        expect(jsonApi.pathFor({model: 'foo', id: 1})).to.eql('foos/1')
-        expect(jsonApi.pathFor({model: 'foo'})).to.eql('foos')
+        expect(jsonApi.pathFor({ model: 'foo', id: 1 })).to.eql('foos/1')
+        expect(jsonApi.pathFor({ model: 'foo' })).to.eql('foos')
         expect(jsonApi.pathFor({})).to.eql('')
         expect(jsonApi.pathFor()).to.eql('')
         expect(jsonApi.all('foo').pathFor()).to.eql('foos')
@@ -265,7 +266,7 @@ describe('JsonApi', () => {
 
     context('with collection and resource trailing slashes', () => {
       beforeEach(() => {
-        jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: {collection: true, resource: true}})
+        jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', trailingSlash: { collection: true, resource: true } })
       })
 
       afterEach(() => {
@@ -283,12 +284,12 @@ describe('JsonApi', () => {
       })
 
       it('should construct collection urls with urlFor', () => {
-        expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos/')
+        expect(jsonApi.urlFor({ model: 'foo' })).to.eql('http://myapi.com/foos/')
         expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos/')
       })
 
       it('should construct complex collection urls with urlFor', () => {
-        expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos/')
+        expect(jsonApi.urlFor({ model: 'foo' })).to.eql('http://myapi.com/foos/')
         expect(jsonApi.one('bar', '1').all('foo').urlFor()).to.eql('http://myapi.com/bars/1/foos/')
       })
 
@@ -309,7 +310,7 @@ describe('JsonApi', () => {
         })
 
         it('should be able to update the relationships', (done) => {
-          let inspectorMiddleware = {
+          const inspectorMiddleware = {
             name: 'inspector-middleware',
             req: (payload) => {
               expect(payload.req.method).to.be.eql('PATCH')
@@ -327,7 +328,7 @@ describe('JsonApi', () => {
         })
 
         it('should be able to delete the relationships', (done) => {
-          let inspectorMiddleware = {
+          const inspectorMiddleware = {
             name: 'inspector-middleware',
             req: (payload) => {
               expect(payload.req.method).to.be.eql('DELETE')
@@ -363,7 +364,7 @@ describe('JsonApi', () => {
       })
 
       it('should construct resource urls with urlFor', () => {
-        expect(jsonApi.urlFor({model: 'foo', id: '1'})).to.eql('http://myapi.com/foos/1/')
+        expect(jsonApi.urlFor({ model: 'foo', id: '1' })).to.eql('http://myapi.com/foos/1/')
         expect(jsonApi.one('foo', '1').urlFor()).to.eql('http://myapi.com/foos/1/')
       })
       it('should construct complex resource urls with urlFor', () => {
@@ -373,7 +374,7 @@ describe('JsonApi', () => {
 
     context('with only collection trailing slashes', () => {
       beforeEach(() => {
-        jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: {collection: true, resource: false}})
+        jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', trailingSlash: { collection: true, resource: false } })
       })
 
       afterEach(() => {
@@ -381,14 +382,14 @@ describe('JsonApi', () => {
       })
 
       it('should construct resource urls with urlFor without trailing slashes', () => {
-        expect(jsonApi.urlFor({model: 'foo', id: '1'})).to.eql('http://myapi.com/foos/1')
+        expect(jsonApi.urlFor({ model: 'foo', id: '1' })).to.eql('http://myapi.com/foos/1')
         expect(jsonApi.one('foo', '1').urlFor()).to.eql('http://myapi.com/foos/1')
       })
     })
 
     context('with only resource trailing slashes', () => {
       beforeEach(() => {
-        jsonApi = new JsonApi({apiUrl: 'http://myapi.com', trailingSlash: {collection: false, resource: true}})
+        jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', trailingSlash: { collection: false, resource: true } })
       })
 
       afterEach(() => {
@@ -396,7 +397,7 @@ describe('JsonApi', () => {
       })
 
       it('should construct collection urls with urlFor without trailing slashes', () => {
-        expect(jsonApi.urlFor({model: 'foo'})).to.eql('http://myapi.com/foos')
+        expect(jsonApi.urlFor({ model: 'foo' })).to.eql('http://myapi.com/foos')
         expect(jsonApi.all('foo').urlFor()).to.eql('http://myapi.com/foos')
       })
     })
@@ -404,7 +405,7 @@ describe('JsonApi', () => {
 
   describe('Middleware', () => {
     it('should allow users to register middleware', () => {
-      let catMiddleWare = {
+      const catMiddleWare = {
         name: 'cat-middleware',
         req: function (req) {
           return req
@@ -418,14 +419,14 @@ describe('JsonApi', () => {
     })
 
     it('should allow users to register middleware before or after existing middleware', () => {
-      let responseMiddleware = jsonApi.middleware.filter(middleware => middleware.name === 'response')[0]
-      let beforeMiddleware = {
+      const responseMiddleware = jsonApi.middleware.filter(middleware => middleware.name === 'response')[0]
+      const beforeMiddleware = {
         name: 'before'
       }
-      let afterMiddleware = {
+      const afterMiddleware = {
         name: 'after'
       }
-      let index = jsonApi.middleware.indexOf(responseMiddleware)
+      const index = jsonApi.middleware.indexOf(responseMiddleware)
       jsonApi.insertMiddlewareBefore('response', beforeMiddleware)
       jsonApi.insertMiddlewareAfter('response', afterMiddleware)
       expect(jsonApi.middleware.indexOf(beforeMiddleware)).to.eql(index)
@@ -433,8 +434,8 @@ describe('JsonApi', () => {
     })
 
     it('should not allow users to register the same middleware twice', () => {
-      let responseMiddleware = jsonApi.middleware.filter(middleware => middleware.name === 'response')[0]
-      let catMiddleWare = {
+      const responseMiddleware = jsonApi.middleware.filter(middleware => middleware.name === 'response')[0]
+      const catMiddleWare = {
         name: 'cat-middleware',
         req: function (req) {
           return req
@@ -443,7 +444,7 @@ describe('JsonApi', () => {
           return res
         }
       }
-      let index = jsonApi.middleware.indexOf(responseMiddleware)
+      const index = jsonApi.middleware.indexOf(responseMiddleware)
       jsonApi.insertMiddlewareBefore('response', catMiddleWare)
       expect(jsonApi.middleware.indexOf(catMiddleWare)).to.eql(index)
       jsonApi.insertMiddlewareAfter('response', catMiddleWare)
@@ -452,7 +453,7 @@ describe('JsonApi', () => {
     })
 
     it('should allow users to remove existing middleware', () => {
-      let catMiddleWare = {
+      const catMiddleWare = {
         name: 'cat-middleware',
         req: function (req) {
           return req
@@ -482,9 +483,9 @@ describe('JsonApi', () => {
         id: '',
         title: ''
       })
-      expect(jsonApi.models['product']).to.be.an('object')
-      expect(jsonApi.models['product']['attributes']).to.have.key('id')
-      expect(jsonApi.models['product']['attributes']).to.have.key('title')
+      expect(jsonApi.models.product).to.be.an('object')
+      expect(jsonApi.models.product.attributes).to.have.key('id')
+      expect(jsonApi.models.product.attributes).to.have.key('title')
     })
   })
 
@@ -545,13 +546,13 @@ describe('JsonApi', () => {
     })
 
     it('should make basic create call', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
-          expect(payload.req.data).to.be.eql({title: 'foo'})
-          expect(payload.req.params).to.be.eql({include: 'something'})
+          expect(payload.req.data).to.be.eql({ title: 'foo' })
+          expect(payload.req.params).to.be.eql({ include: 'something' })
           return {}
         }
       }
@@ -562,18 +563,18 @@ describe('JsonApi', () => {
         title: ''
       })
 
-      jsonApi.create('foo', {title: 'foo'}, {include: 'something'})
+      jsonApi.create('foo', { title: 'foo' }, { include: 'something' })
         .then(() => done()).catch((error) => done(error))
     })
 
     it('should make basic update call', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
-          expect(payload.req.data).to.be.eql({title: 'foo'})
-          expect(payload.req.params).to.be.eql({include: 'something'})
+          expect(payload.req.data).to.be.eql({ title: 'foo' })
+          expect(payload.req.params).to.be.eql({ include: 'something' })
           return {}
         }
       }
@@ -584,7 +585,7 @@ describe('JsonApi', () => {
         title: ''
       })
 
-      jsonApi.update('foo', {title: 'foo'}, {include: 'something'})
+      jsonApi.update('foo', { title: 'foo' }, { include: 'something' })
         .then(() => done()).catch((error) => done(error))
     })
 
@@ -780,7 +781,7 @@ describe('JsonApi', () => {
     })
 
     it('should have an empty body on GET requests', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
@@ -796,7 +797,7 @@ describe('JsonApi', () => {
     })
 
     it('should have an empty body on DELETE requests', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
@@ -812,7 +813,7 @@ describe('JsonApi', () => {
     })
 
     it('should accept a data payload on DELETE requests when provided as a third argument', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
@@ -826,15 +827,15 @@ describe('JsonApi', () => {
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
 
       const payload = [
-        {type: 'bar', id: 2},
-        {type: 'bar', id: 3}
+        { type: 'bar', id: 2 },
+        { type: 'bar', id: 3 }
       ]
 
       jsonApi.destroy('foo', 1, payload).then(() => { done() }).catch((error) => { done(error) })
     })
 
     it('should accept a meta and data payload on DELETE requests when provided as a third and fourth arguments', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
@@ -850,8 +851,8 @@ describe('JsonApi', () => {
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
 
       const payload = [
-        {type: 'bar', id: 2},
-        {type: 'bar', id: 3}
+        { type: 'bar', id: 2 },
+        { type: 'bar', id: 3 }
       ]
 
       const meta = {
@@ -862,7 +863,7 @@ describe('JsonApi', () => {
     })
 
     it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
@@ -876,8 +877,8 @@ describe('JsonApi', () => {
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware]
 
       const payload = [
-        {type: 'bar', id: 2},
-        {type: 'bar', id: 3}
+        { type: 'bar', id: 2 },
+        { type: 'bar', id: 3 }
       ]
 
       jsonApi.one('foo', 1).relationships().all('bar').destroy(payload).then(() => done()).catch((error) => done(error))
@@ -1159,13 +1160,13 @@ describe('JsonApi', () => {
 
   describe('Builder pattern for route construction', () => {
     beforeEach(() => {
-      jsonApi.define('foo', {title: '', subtitle: ''})
-      jsonApi.define('bar', {title: ''})
-      jsonApi.define('baz', {title: ''})
+      jsonApi.define('foo', { title: '', subtitle: '' })
+      jsonApi.define('bar', { title: '' })
+      jsonApi.define('baz', { title: '' })
     })
 
     it('should respect resetBuilderOnCall', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
@@ -1176,7 +1177,7 @@ describe('JsonApi', () => {
       jsonApi.middleware = [inspectorMiddleware]
       jsonApi.get()
         .then(() => {
-          let inspectorMiddleware = {
+          const inspectorMiddleware = {
             name: 'inspector-middleware',
             req: (payload) => {
               expect(payload.req.method).to.be.eql('GET')
@@ -1194,8 +1195,8 @@ describe('JsonApi', () => {
     })
 
     it('should respect resetBuilderOnCall when it is disabled', (done) => {
-      jsonApi = new JsonApi({apiUrl: 'http://myapi.com', resetBuilderOnCall: false})
-      let inspectorMiddleware = {
+      jsonApi = new JsonApi({ apiUrl: 'http://myapi.com', resetBuilderOnCall: false })
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
@@ -1207,7 +1208,7 @@ describe('JsonApi', () => {
       jsonApi.middleware = [inspectorMiddleware]
 
       jsonApi.one('foo', 1).get().then(() => {
-        let inspectorMiddleware = {
+        const inspectorMiddleware = {
           name: 'inspector-middleware',
           req: (payload) => {
             expect(payload.req.method).to.be.eql('GET')
@@ -1273,7 +1274,7 @@ describe('JsonApi', () => {
     })
 
     it('should allow builders to be called with get', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
@@ -1288,23 +1289,23 @@ describe('JsonApi', () => {
     })
 
     it('should allow builders to be called with get with query params', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
           expect(payload.req.url).to.be.eql('http://myapi.com/')
-          expect(payload.req.params).to.be.eql({page: {number: 2}})
+          expect(payload.req.params).to.be.eql({ page: { number: 2 } })
           return {}
         }
       }
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.get({page: {number: 2}}).then(() => done()).catch((error) => done(error))
+      jsonApi.get({ page: { number: 2 } }).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with get on all', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
@@ -1320,7 +1321,7 @@ describe('JsonApi', () => {
     })
 
     it('should allow builders to be called with get on one', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('GET')
@@ -1336,12 +1337,12 @@ describe('JsonApi', () => {
     })
 
     it('should allow builders to be called with post', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos')
-          expect(payload.req.data).to.be.eql({title: 'foo'})
+          expect(payload.req.data).to.be.eql({ title: 'foo' })
           expect(payload.req.model).to.be.eql('foo')
           return {}
         }
@@ -1349,16 +1350,16 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.all('foo').post({title: 'foo'}).then(() => done()).catch((error) => done(error))
+      jsonApi.all('foo').post({ title: 'foo' }).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with post with nested one', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('POST')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
-          expect(payload.req.data).to.be.eql({title: 'foo'})
+          expect(payload.req.data).to.be.eql({ title: 'foo' })
           expect(payload.req.model).to.be.eql('bar')
           return {}
         }
@@ -1366,16 +1367,16 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').post({title: 'foo'}).then(() => done()).catch((error) => done(error))
+      jsonApi.one('foo', 1).all('bar').post({ title: 'foo' }).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with patch', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1')
-          expect(payload.req.data).to.be.eql({title: 'bar'})
+          expect(payload.req.data).to.be.eql({ title: 'bar' })
           expect(payload.req.model).to.be.eql('foo')
           return {}
         }
@@ -1383,16 +1384,16 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).patch({title: 'bar'}).then(() => done()).catch((error) => done(error))
+      jsonApi.one('foo', 1).patch({ title: 'bar' }).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with patch with nested one', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
           expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars')
-          expect(payload.req.data).to.be.eql({title: 'bar'})
+          expect(payload.req.data).to.be.eql({ title: 'bar' })
           expect(payload.req.model).to.be.eql('bar')
           return {}
         }
@@ -1400,11 +1401,11 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware]
 
-      jsonApi.one('foo', 1).all('bar').patch({title: 'bar'}).then(() => done()).catch((error) => done(error))
+      jsonApi.one('foo', 1).all('bar').patch({ title: 'bar' }).then(() => done()).catch((error) => done(error))
     })
 
     it('should allow builders to be called with destroy', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
@@ -1419,7 +1420,7 @@ describe('JsonApi', () => {
       jsonApi.one('foo', 1).destroy().then(() => done()).catch((error) => done(error))
     })
     it('should allow builders to be called with destroy with nested one', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('DELETE')
@@ -1441,7 +1442,7 @@ describe('JsonApi', () => {
     })
 
     it('should not serialize empty attributes', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
@@ -1459,12 +1460,12 @@ describe('JsonApi', () => {
 
       const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
       jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
-      jsonApi.one('foo', 1).patch({title: undefined})
+      jsonApi.one('foo', 1).patch({ title: undefined })
         .then(() => done()).catch((error) => done(error))
     })
 
     it('should serialize only specified attributes', (done) => {
-      let inspectorMiddleware = {
+      const inspectorMiddleware = {
         name: 'inspector-middleware',
         req: (payload) => {
           expect(payload.req.method).to.be.eql('PATCH')
@@ -1485,7 +1486,7 @@ describe('JsonApi', () => {
 
       const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
       jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
-      jsonApi.one('foo', 1).patch({title: 'bar'})
+      jsonApi.one('foo', 1).patch({ title: 'bar' })
         .then(() => done()).catch((error) => done(error))
     })
   })
