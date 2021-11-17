@@ -31,7 +31,7 @@ const cache = new class {
   clear () {
     this._cache = []
   }
-}
+}()
 
 function collection (items, included, useCache = false) {
   const collection = items.map(item => {
@@ -47,13 +47,13 @@ function resource (item, included, useCache = false) {
     if (cachedItem) return cachedItem
   }
 
-  let model = this.modelFor(this.pluralize.singular(item.type))
+  const model = this.modelFor(this.pluralize.singular(item.type))
   if (model.options.deserializer) return model.options.deserializer.call(this, item, included)
 
-  let deserializedModel = { id: item.id, type: item.type }
+  const deserializedModel = { id: item.id, type: item.type }
 
   _forOwn(item.attributes, (value, attr) => {
-    var attrConfig = model.attributes[attr]
+    let attrConfig = model.attributes[attr]
 
     if (_isUndefined(attrConfig) && attr !== 'id') {
       attr = attr.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
@@ -71,8 +71,8 @@ function resource (item, included, useCache = false) {
   cache.set(item.type, item.id, deserializedModel)
 
   _forOwn(item.relationships, (value, rel) => {
-    var relConfig = model.attributes[rel]
-    var key = rel
+    let relConfig = model.attributes[rel]
+    const key = rel
 
     if (_isUndefined(relConfig)) {
       rel = rel.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase() })
@@ -89,7 +89,7 @@ function resource (item, included, useCache = false) {
     }
   })
 
-  var params = ['meta', 'links']
+  const params = ['meta', 'links']
   params.forEach(function (param) {
     if (item[param]) {
       deserializedModel[param] = item[param]
@@ -115,7 +115,7 @@ function attachHasOneFor (model, attribute, item, included, key) {
     return null
   }
 
-  let relatedItems = relatedItemsFor(model, attribute, item, included, key)
+  const relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems[0]) {
     return resource.call(this, relatedItems[0], included, true)
   }
@@ -132,7 +132,7 @@ function attachHasManyFor (model, attribute, item, included, key) {
     return null
   }
 
-  let relatedItems = relatedItemsFor(model, attribute, item, included, key)
+  const relatedItems = relatedItemsFor(model, attribute, item, included, key)
   if (relatedItems && relatedItems.length > 0) {
     return collection.call(this, relatedItems, included, true)
   }
@@ -154,7 +154,7 @@ function isRelationship (attribute) {
  *   Returns unserialized related items.
  */
 function relatedItemsFor (model, attribute, item, included, key) {
-  let relationMap = _get(item.relationships, [key, 'data'], false)
+  const relationMap = _get(item.relationships, [key, 'data'], false)
   if (!relationMap) {
     return []
   }

@@ -42,7 +42,6 @@ const deserializeResponseMiddleware = require('./middleware/json-api/res-deseria
 const errorsMiddleware = require('./middleware/json-api/res-errors')
 
 class JsonApi {
-
   constructor (options = {}) {
     if (!(arguments.length === 2 && _isString(arguments[0]) && _isArray(arguments[1])) && !(arguments.length === 1 && (_isPlainObject(arguments[0]) || _isString(arguments[0])))) {
       throw new Error('Invalid argument, initialize Devour with an object.')
@@ -50,7 +49,7 @@ class JsonApi {
 
     const processErrors = errorsMiddleware.getMiddleware(options)
 
-    let jsonApiMiddleware = [
+    const jsonApiMiddleware = [
       jsonApiHttpBasicAuthMiddleware,
       jsonApiPostMiddleware,
       jsonApiPatchMiddleware,
@@ -63,16 +62,16 @@ class JsonApi {
       processErrors,
       deserializeResponseMiddleware
     ]
-    let defaults = {
+    const defaults = {
       middleware: jsonApiMiddleware,
       logger: true,
       resetBuilderOnCall: true,
       auth: {},
       bearer: null,
-      trailingSlash: {collection: false, resource: false}
+      trailingSlash: { collection: false, resource: false }
     }
 
-    let deprecatedConstructors = (args) => {
+    const deprecatedConstructors = (args) => {
       return (args.length === 2 || (args.length === 1 && _isString(args[0])))
     }
 
@@ -84,7 +83,7 @@ class JsonApi {
     }
 
     options = _defaultsDeep(options, defaults)
-    let middleware = options.middleware
+    const middleware = options.middleware
 
     this._originalMiddleware = middleware.slice(0)
     this.middleware = middleware.slice(0)
@@ -119,26 +118,26 @@ class JsonApi {
   }
 
   one (model, id) {
-    this.builderStack.push({model: model, id: id, path: this.resourcePathFor(model, id)})
+    this.builderStack.push({ model: model, id: id, path: this.resourcePathFor(model, id) })
     return this
   }
 
   all (model) {
-    this.builderStack.push({model: model, path: this.collectionPathFor(model)})
+    this.builderStack.push({ model: model, path: this.collectionPathFor(model) })
     return this
   }
 
   relationships (relationshipName) {
-    let lastRequest = _last(this.builderStack)
+    const lastRequest = _last(this.builderStack)
     this.builderStack.push({ path: 'relationships' })
     if (!relationshipName) return this
 
-    let modelName = _get(lastRequest, 'model')
+    const modelName = _get(lastRequest, 'model')
     if (!modelName) {
       throw new Error('Relationships must be called with a preceeding model.')
     }
 
-    let relationship = this.relationshipFor(modelName, relationshipName)
+    const relationship = this.relationshipFor(modelName, relationshipName)
 
     this.builderStack.push({ path: relationshipName, model: relationship.type })
 
@@ -162,15 +161,15 @@ class JsonApi {
   }
 
   buildUrl () {
-    let path = this.buildPath()
-    let slash = path !== '' && this.addSlash() ? '/' : ''
+    const path = this.buildPath()
+    const slash = path !== '' && this.addSlash() ? '/' : ''
     return `${this.apiUrl}/${path}${slash}`
   }
 
   get (params = {}) {
-    let lastRequest = _last(this.builderStack)
+    const lastRequest = _last(this.builderStack)
 
-    let req = {
+    const req = {
       method: 'GET',
       url: this.urlFor(),
       model: _get(lastRequest, 'model'),
@@ -186,9 +185,9 @@ class JsonApi {
   }
 
   post (payload, params = {}, meta = {}) {
-    let lastRequest = _last(this.builderStack)
+    const lastRequest = _last(this.builderStack)
 
-    let req = {
+    const req = {
       method: 'POST',
       url: this.urlFor(),
       model: _get(lastRequest, 'model'),
@@ -205,9 +204,9 @@ class JsonApi {
   }
 
   patch (payload, params = {}, meta = {}) {
-    let lastRequest = _last(this.builderStack)
+    const lastRequest = _last(this.builderStack)
 
-    let req = {
+    const req = {
       method: 'PATCH',
       url: this.urlFor(),
       model: _get(lastRequest, 'model'),
@@ -233,7 +232,7 @@ class JsonApi {
       console.assert(id, 'No ID specified')
       req = {
         method: 'DELETE',
-        url: this.urlFor({model, id}),
+        url: this.urlFor({ model, id }),
         model: model,
         data: data || {},
         meta: meta || {}
@@ -271,7 +270,7 @@ class JsonApi {
       return
     }
 
-    let middleware = this.middleware.filter(middleware => (middleware.name === middlewareName))
+    const middleware = this.middleware.filter(middleware => (middleware.name === middlewareName))
     if (middleware.length > 0) {
       let index = this.middleware.indexOf(middleware[0])
       if (direction === 'after') {
@@ -292,7 +291,7 @@ class JsonApi {
       return
     }
 
-    let index = _findIndex(this.middleware, ['name', middlewareName])
+    const index = _findIndex(this.middleware, ['name', middlewareName])
     this.middleware[index] = newMiddleware
   }
 
@@ -302,7 +301,7 @@ class JsonApi {
       return
     }
 
-    let index = _findIndex(this.middleware, ['name', middlewareName])
+    const index = _findIndex(this.middleware, ['name', middlewareName])
     this.middleware.splice(index, 1)
   }
 
@@ -322,7 +321,7 @@ class JsonApi {
   }
 
   applyRequestMiddleware (promise) {
-    let requestMiddlewares = this.middleware.filter(middleware => middleware.req)
+    const requestMiddlewares = this.middleware.filter(middleware => middleware.req)
     requestMiddlewares.forEach((middleware) => {
       promise = promise.then(middleware.req)
     })
@@ -330,7 +329,7 @@ class JsonApi {
   }
 
   applyResponseMiddleware (promise) {
-    let responseMiddleware = this.middleware.filter(middleware => middleware.res)
+    const responseMiddleware = this.middleware.filter(middleware => middleware.res)
     responseMiddleware.forEach((middleware) => {
       promise = promise.then(middleware.res)
     })
@@ -338,7 +337,7 @@ class JsonApi {
   }
 
   applyErrorMiddleware (promise) {
-    let errorsMiddleware = this.middleware.filter(middleware => middleware.error)
+    const errorsMiddleware = this.middleware.filter(middleware => middleware.error)
     errorsMiddleware.forEach((middleware) => {
       promise = promise.then(middleware.error)
     })
@@ -346,18 +345,18 @@ class JsonApi {
   }
 
   runMiddleware (req) {
-    let payload = {req: req, jsonApi: this}
+    const payload = { req: req, jsonApi: this }
     let requestPromise = Promise.resolve(payload)
     requestPromise = this.applyRequestMiddleware(requestPromise)
     return requestPromise
       .then((res) => {
         payload.res = res
-        let responsePromise = Promise.resolve(payload)
+        const responsePromise = Promise.resolve(payload)
         return this.applyResponseMiddleware(responsePromise)
       })
       .catch((err) => {
         Logger.error(err)
-        let errorPromise = Promise.resolve(err)
+        const errorPromise = Promise.resolve(err)
         return this.applyErrorMiddleware(errorPromise).then(err => {
           return Promise.reject(err)
         })
@@ -365,14 +364,14 @@ class JsonApi {
   }
 
   request (url, method = 'GET', params = {}, data = {}) {
-    let req = { url, method, params, data }
+    const req = { url, method, params, data }
     return this.runMiddleware(req)
   }
 
   find (modelName, id, params = {}) {
-    let req = {
+    const req = {
       method: 'GET',
-      url: this.urlFor({model: modelName, id: id}),
+      url: this.urlFor({ model: modelName, id: id }),
       model: modelName,
       data: {},
       params: params
@@ -381,9 +380,9 @@ class JsonApi {
   }
 
   findAll (modelName, params = {}) {
-    let req = {
+    const req = {
       method: 'GET',
-      url: this.urlFor({model: modelName}),
+      url: this.urlFor({ model: modelName }),
       model: modelName,
       params: params,
       data: {}
@@ -392,9 +391,9 @@ class JsonApi {
   }
 
   create (modelName, payload, params = {}, meta = {}) {
-    let req = {
+    const req = {
       method: 'POST',
-      url: this.urlFor({model: modelName}),
+      url: this.urlFor({ model: modelName }),
       model: modelName,
       params: params,
       data: payload,
@@ -404,9 +403,9 @@ class JsonApi {
   }
 
   update (modelName, payload, params = {}, meta = {}) {
-    let req = {
+    const req = {
       method: 'PATCH',
-      url: this.urlFor({model: modelName, id: payload.id}),
+      url: this.urlFor({ model: modelName, id: payload.id }),
       model: modelName,
       data: payload,
       params: params,
@@ -424,8 +423,8 @@ class JsonApi {
   }
 
   relationshipFor (modelName, relationshipName) {
-    let model = this.modelFor(modelName)
-    let relationship = model.attributes[relationshipName]
+    const model = this.modelFor(modelName)
+    const relationship = model.attributes[relationshipName]
 
     if (!relationship) {
       throw new Error(`API resource definition on model "${modelName}" for relationship "${relationshipName}" not found. Available attributes: ${Object.keys(model.attributes)}`)
@@ -435,24 +434,24 @@ class JsonApi {
   }
 
   collectionPathFor (modelName) {
-    let collectionPath = _get(this.models[modelName], 'options.collectionPath') || this.pluralize(modelName)
+    const collectionPath = _get(this.models[modelName], 'options.collectionPath') || this.pluralize(modelName)
     return `${collectionPath}`
   }
 
   resourcePathFor (modelName, id) {
-    let collectionPath = this.collectionPathFor(modelName)
+    const collectionPath = this.collectionPathFor(modelName)
     return `${collectionPath}/${encodeURIComponent(id)}`
   }
 
   collectionUrlFor (modelName) {
-    let collectionPath = this.collectionPathFor(modelName)
-    let trailingSlash = this.trailingSlash['collection'] ? '/' : ''
+    const collectionPath = this.collectionPathFor(modelName)
+    const trailingSlash = this.trailingSlash.collection ? '/' : ''
     return `${this.apiUrl}/${collectionPath}${trailingSlash}`
   }
 
   resourceUrlFor (modelName, id) {
-    let resourcePath = this.resourcePathFor(modelName, id)
-    let trailingSlash = this.trailingSlash['resource'] ? '/' : ''
+    const resourcePath = this.resourcePathFor(modelName, id)
+    const trailingSlash = this.trailingSlash.resource ? '/' : ''
     return `${this.apiUrl}/${resourcePath}${trailingSlash}`
   }
 

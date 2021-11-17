@@ -18,13 +18,13 @@ function resource (modelName, item) {
     return item
   }
 
-  let model = this.modelFor(modelName)
-  let options = model.options || {}
-  let readOnly = options.readOnly || []
-  let typeName = options.type || this.pluralize(modelName)
-  let serializedAttributes = {}
-  let serializedRelationships = {}
-  let serializedResource = {}
+  const model = this.modelFor(modelName)
+  const options = model.options || {}
+  const readOnly = options.readOnly || []
+  const typeName = options.type || this.pluralize(modelName)
+  const serializedAttributes = {}
+  const serializedRelationships = {}
+  const serializedResource = {}
   if (options.serializer) {
     return options.serializer.call(this, item)
   }
@@ -83,17 +83,17 @@ function serializeRelationship (relationshipName, relationship, relationshipType
 function serializeHasMany (relationships, type) {
   return {
     data: _map(relationships, (item) => {
-      return {id: item.id, type: type || item.type, meta: item.meta}
+      return { id: item.id, type: type || item.type, meta: item.meta }
     })
   }
 }
 
 function serializeHasOne (relationship, type) {
   if (relationship === null) {
-    return {data: null}
+    return { data: null }
   }
   return {
-    data: {id: relationship.id, type: type || relationship.type, meta: relationship.meta}
+    data: { id: relationship.id, type: type || relationship.type, meta: relationship.meta }
   }
 }
 

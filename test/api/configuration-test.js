@@ -1,16 +1,16 @@
 /* global describe, it, beforeEach, afterEach */
-
+/* eslint-disable no-unused-expressions */
 import JsonApi from '../../src/index'
 import mockError from '../helpers/mock-error'
 import expect from 'expect.js'
 
 describe('Custom Error Builder', () => {
-  var jsonApi = null
+  let jsonApi = null
   beforeEach(() => {
     jsonApi = new JsonApi({
       apiUrl: 'http://myapi.com',
       errorBuilder: (error) => {
-        const {title, detail, meta} = error
+        const { title, detail, meta } = error
         return {
           customTitle: `Custom title: ${title}`,
           customDetail: `Custom detail: ${detail}`,
@@ -31,18 +31,18 @@ describe('Custom Error Builder', () => {
         }]
       }
     },
-      [
-        {
-          status: 422,
-          source: {pointer: '/data/attributes/first-name'},
-          title: 'Invalid Attribute',
-          detail: 'First name must contain at least three characters.',
-          meta: {
-            created: '2019-07-15T13:23:21.177Z',
-            author: 'user@example.com'
-          }
+    [
+      {
+        status: 422,
+        source: { pointer: '/data/attributes/first-name' },
+        title: 'Invalid Attribute',
+        detail: 'First name must contain at least three characters.',
+        meta: {
+          created: '2019-07-15T13:23:21.177Z',
+          author: 'user@example.com'
         }
-      ])
+      }
+    ])
 
     // define model
     jsonApi.define('product', {

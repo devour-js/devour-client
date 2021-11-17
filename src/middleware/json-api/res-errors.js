@@ -14,12 +14,12 @@ function getBuildErrors (options) {
     const errorBuilder = (options && options.errorBuilder) || defaultErrorBuilder
     const errors = {}
     if (serverErrors.errors) {
-      for (let [index, error] of serverErrors.errors.entries()) {
+      for (const [index, error] of serverErrors.errors.entries()) {
         errors[errorKey(index, error.source)] = errorBuilder(error)
       }
     }
     if (serverErrors.error) {
-      errors['data'] = {title: serverErrors.error}
+      errors.data = { title: serverErrors.error }
     }
     return errors
   }
@@ -42,11 +42,11 @@ exports.getMiddleware = function (options) {
         if (response.data) {
           if (typeof response.data === 'string') {
             const error = response.statusText ? `${response.statusText}: ${response.data}` : response.data
-            return buildErrors({error})
+            return buildErrors({ error })
           }
           return buildErrors(response.data)
         }
-        return buildErrors({error: response.statusText})
+        return buildErrors({ error: response.statusText })
       }
       if (payload instanceof Error) {
         return payload

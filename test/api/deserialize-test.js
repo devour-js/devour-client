@@ -1,13 +1,14 @@
 /* global describe, it, before */
+/* eslint-disable no-unused-expressions */
 
 import JsonApi from '../../src/index'
 import deserialize from '../../src/middleware/json-api/_deserialize'
 import expect from 'expect.js'
 
 describe('deserialize', () => {
-  var jsonApi = null
+  let jsonApi = null
   before(() => {
-    jsonApi = new JsonApi({apiUrl: 'http://myapi.com'})
+    jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
   })
 
   it('should deserialize single resource items', () => {
@@ -16,13 +17,13 @@ describe('deserialize', () => {
       about: '',
       kebabCaseDescription: ''
     })
-    let mockResponse = {
+    const mockResponse = {
       data: {
         id: '1',
         type: 'products',
         attributes: {
-          'title': 'Some Title',
-          'about': 'Some about',
+          title: 'Some Title',
+          about: 'Some about',
           'kebab-case-description': 'Lorem ipsum'
         },
         meta: {
@@ -33,7 +34,7 @@ describe('deserialize', () => {
         }
       }
     }
-    let product = deserialize.resource.call(jsonApi, mockResponse.data)
+    const product = deserialize.resource.call(jsonApi, mockResponse.data)
     expect(product.id).to.eql('1')
     expect(product.type).to.eql('products')
     expect(product.title).to.eql('Some Title')
@@ -54,7 +55,7 @@ describe('deserialize', () => {
     jsonApi.define('tag', {
       name: ''
     })
-    let mockResponse = {
+    const mockResponse = {
       data: {
         id: '1',
         type: 'products',
@@ -64,18 +65,18 @@ describe('deserialize', () => {
         relationships: {
           tags: {
             data: [
-              {id: '5', type: 'tags'},
-              {id: '6', type: 'tags'}
+              { id: '5', type: 'tags' },
+              { id: '6', type: 'tags' }
             ]
           }
         }
       },
       included: [
-        {id: '5', type: 'tags', attributes: {name: 'one'}},
-        {id: '6', type: 'tags', attributes: {name: 'two'}}
+        { id: '5', type: 'tags', attributes: { name: 'one' } },
+        { id: '6', type: 'tags', attributes: { name: 'two' } }
       ]
     }
-    let product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    const product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
     expect(product.id).to.eql('1')
     expect(product.type).to.eql('products')
     expect(product.title).to.eql('hello')
@@ -119,7 +120,7 @@ describe('deserialize', () => {
       }
     })
 
-    let mockResponse = {
+    const mockResponse = {
       data: {
         id: '1',
         type: 'courses',
@@ -148,7 +149,10 @@ describe('deserialize', () => {
         }
       },
       included: [
-        { id: '42', type: 'lessons', attributes: {title: 'sp-one'},
+        {
+          id: '42',
+          type: 'lessons',
+          attributes: { title: 'sp-one' },
           relationships: {
             course: {
               data: {
@@ -164,7 +168,10 @@ describe('deserialize', () => {
             }
           }
         },
-        {id: '43', type: 'lessons', attributes: {title: 'sp-two'},
+        {
+          id: '43',
+          type: 'lessons',
+          attributes: { title: 'sp-two' },
           relationships: {
             course: {
               data: {
@@ -180,7 +187,10 @@ describe('deserialize', () => {
             }
           }
         },
-        {id: '5', type: 'instructors', attributes: {name: 'instructor one'},
+        {
+          id: '5',
+          type: 'instructors',
+          attributes: { name: 'instructor one' },
           relationships: {
             lessons: {
               data: [
@@ -198,7 +208,7 @@ describe('deserialize', () => {
         }
       ]
     }
-    let course = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    const course = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
     expect(course.id).to.eql('1')
     expect(course.instructor.type).to.eql('instructors')
     expect(course.instructor.lessons).to.be.an('array')
@@ -218,7 +228,7 @@ describe('deserialize', () => {
       title: '',
       about: ''
     })
-    let mockResponse = {
+    const mockResponse = {
       data: [
         {
           id: '1',
@@ -238,7 +248,7 @@ describe('deserialize', () => {
         }
       ]
     }
-    let products = deserialize.collection.call(jsonApi, mockResponse.data)
+    const products = deserialize.collection.call(jsonApi, mockResponse.data)
     expect(products[0].id).to.eql('1')
     expect(products[0].type).to.eql('products')
     expect(products[0].title).to.eql('Some Title')
@@ -250,14 +260,14 @@ describe('deserialize', () => {
   })
 
   it('should allow for custom deserialization if present on the resource definition', () => {
-    jsonApi.define('product', {title: ''}, {
+    jsonApi.define('product', { title: '' }, {
       deserializer: (rawItem) => {
         return {
           custom: true
         }
       }
     })
-    let mockResponse = {
+    const mockResponse = {
       data: {
         id: '1',
         type: 'products',
@@ -267,19 +277,19 @@ describe('deserialize', () => {
         }
       }
     }
-    let product = deserialize.resource.call(jsonApi, mockResponse.data)
+    const product = deserialize.resource.call(jsonApi, mockResponse.data)
     expect(product.custom).to.eql(true)
   })
 
   it('uses custom deserialization for each resource in a collection', () => {
-    jsonApi.define('product', {title: ''}, {
+    jsonApi.define('product', { title: '' }, {
       deserializer: () => {
         return {
           custom: true
         }
       }
     })
-    let mockResponse = {
+    const mockResponse = {
       data: [
         {
           id: '1',
@@ -299,7 +309,7 @@ describe('deserialize', () => {
         }
       ]
     }
-    let products = deserialize.collection.call(jsonApi, mockResponse.data)
+    const products = deserialize.collection.call(jsonApi, mockResponse.data)
     expect(products[0].custom).to.eql(true)
     expect(products[1].custom).to.eql(true)
   })
@@ -309,7 +319,7 @@ describe('deserialize', () => {
       title: '',
       about: ''
     })
-    let mockResponse = {
+    const mockResponse = {
       data: [
         {
           id: '1',
@@ -325,7 +335,7 @@ describe('deserialize', () => {
         }
       ]
     }
-    let products = deserialize.collection.call(jsonApi, mockResponse.data)
+    const products = deserialize.collection.call(jsonApi, mockResponse.data)
     expect(products[0].title).to.be.undefined
     expect(products[0].about).to.be.undefined
     expect(products[1].title).to.be.eql('Another Title')
@@ -343,7 +353,7 @@ describe('deserialize', () => {
     jsonApi.define('tag', {
       name: ''
     })
-    let mockResponse = {
+    const mockResponse = {
       data: {
         id: '1',
         type: 'products',
@@ -364,7 +374,7 @@ describe('deserialize', () => {
         { id: '6', type: 'tags', attributes: { name: 'two' } }
       ]
     }
-    let product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    const product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
     expect(product.id).to.eql('1')
     expect(product.title).to.eql('hello')
     expect(product.tags).to.be.an('array')
@@ -385,7 +395,7 @@ describe('deserialize', () => {
     jsonApi.define('tag', {
       name: ''
     })
-    let mockResponse = {
+    const mockResponse = {
       data: {
         id: '1',
         type: 'products',
@@ -402,7 +412,7 @@ describe('deserialize', () => {
         }
       }
     }
-    let product = deserialize.resource.call(jsonApi, mockResponse.data)
+    const product = deserialize.resource.call(jsonApi, mockResponse.data)
     expect(product.id).to.eql('1')
     expect(product.title).to.eql('hello')
     expect(product.tags).to.be.an('array')
