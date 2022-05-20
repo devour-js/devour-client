@@ -46,6 +46,6 @@ module.exports = {
       })
     }
 
-    return { data, errors, meta, links }
+    return { data, errors, meta, links, document: res }
   }
 }
