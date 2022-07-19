@@ -247,7 +247,7 @@ describe('JsonApi', () => {
         expect(jsonApi.resourceUrlFor('product', 1)).to.eql('http://myapi.com/products/1')
       })
 
-      it('should refuse to constuct single resource urls for models containing `null`', () => {
+      it('should refuse to construct single resource urls for models containing `null`', () => {
         jsonApi.define('product', {})
         expect(function () {
           jsonApi.resourceUrlFor('product', null)
@@ -259,7 +259,7 @@ describe('JsonApi', () => {
         expect(jsonApi.resourceUrlFor('product', 'null')).to.eql('http://myapi.com/products/null')
       })
 
-      it('should refuse to constuct single resource urls for models containing `undefined`', () => {
+      it('should refuse to construct single resource urls for models containing `undefined`', () => {
         jsonApi.define('product', {})
         expect(function () {
           jsonApi.resourceUrlFor('product', undefined)
