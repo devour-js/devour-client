@@ -2,6 +2,7 @@ const axios = require('axios')
 const pluralize = require('pluralize')
 // Import only what we use from lodash.
 const _isUndefined = require('lodash/isUndefined')
+const _isNil = require('lodash/isNil')
 const _isString = require('lodash/isString')
 const _isPlainObject = require('lodash/isPlainObject')
 const _isArray = require('lodash/isArray')
@@ -439,6 +440,9 @@ class JsonApi {
   }
 
   resourcePathFor (modelName, id) {
+    if (_isNil(id)) {
+      throw new Error(`No ID specified; id is '${id}'`)
+    }
     const collectionPath = this.collectionPathFor(modelName)
     return `${collectionPath}/${encodeURIComponent(id)}`
   }
