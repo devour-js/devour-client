@@ -247,6 +247,30 @@ describe('JsonApi', () => {
         expect(jsonApi.resourceUrlFor('product', 1)).to.eql('http://myapi.com/products/1')
       })
 
+      it('should refuse to construct single resource urls for models containing `null`', () => {
+        jsonApi.define('product', {})
+        expect(function () {
+          jsonApi.resourceUrlFor('product', null)
+        }).to.throwException(/^No ID specified/)
+      })
+
+      it('should construct single resource urls for models with the string "null"', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.resourceUrlFor('product', 'null')).to.eql('http://myapi.com/products/null')
+      })
+
+      it('should refuse to construct single resource urls for models containing `undefined`', () => {
+        jsonApi.define('product', {})
+        expect(function () {
+          jsonApi.resourceUrlFor('product', undefined)
+        }).to.throwException(/^No ID specified/)
+      })
+
+      it('should construct single resource urls for models with the string "undefined"', () => {
+        jsonApi.define('product', {})
+        expect(jsonApi.resourceUrlFor('product', 'undefined')).to.eql('http://myapi.com/products/undefined')
+      })
+
       it('should allow urlFor to be called with various options', () => {
         expect(jsonApi.urlFor({ model: 'foo', id: 1 })).to.eql('http://myapi.com/foos/1')
         expect(jsonApi.urlFor({ model: 'foo' })).to.eql('http://myapi.com/foos')
