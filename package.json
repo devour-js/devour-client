@@ -1,6 +1,6 @@
 {
   "name": "devour-client",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
   "main": "lib/",
   "scripts": {
