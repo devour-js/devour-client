@@ -1,17 +1,18 @@
 {
   "name": "devour-client-ts",
-  "version": "3.1.5",
+  "version": "1.0.0",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
   "main": "lib/",
   "scripts": {
     "prepublish": "npm run compile",
-    "prepublish-windows": "npm run compile:windows",
+    "prepublish-powershell": "npm run compile:powershell",
     "publish": "git push origin && git push origin --tags",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "compile:linux": "rm -rf lib/ && tsc",
-    "compile": "rd /s /q \"lib/\" ; tsc",
+    "compile:powershell": "rd /s /q \"lib/\" ; tsc",
+    "compile": "tsc",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
     "test": "standard && mocha"
