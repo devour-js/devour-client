@@ -1,6 +1,6 @@
 /* global describe, it, beforeEach, afterEach */
 /* eslint-disable no-unused-expressions */
-import JsonApi from '../../src/index'
+import { JsonApi } from '../../src/index'
 import mockError from '../helpers/mock-error'
 import expect from 'expect.js'
 
@@ -56,7 +56,7 @@ describe('Custom Error Builder', () => {
 
   it('should fail by mocked errors', (done) => {
     try {
-      expect(jsonApi.findAll).withArgs('product').to.throwException()
+      expect(jsonApi.findAll('product')).to.throwException()
     } finally {
       done()
     }

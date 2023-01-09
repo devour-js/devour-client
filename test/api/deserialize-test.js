@@ -1,8 +1,8 @@
 /* global describe, it, before */
 /* eslint-disable no-unused-expressions */
 
-import JsonApi from '../../src/index'
-import deserialize from '../../src/middleware/json-api/_deserialize'
+import { JsonApi } from '../../src/index'
+import * as deserialize from '../../src/middleware/json-api/_deserialize'
 import expect from 'expect.js'
 
 describe('deserialize', () => {
@@ -261,7 +261,7 @@ describe('deserialize', () => {
 
   it('should allow for custom deserialization if present on the resource definition', () => {
     jsonApi.define('product', { title: '' }, {
-      deserializer: (rawItem) => {
+      deserializer: (_rawItem) => {
         return {
           custom: true
         }

@@ -1,5 +1,5 @@
 {
-  "name": "devour-client",
+  "name": "devour-client-ts",
   "version": "3.1.5",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
   "main": "lib/",
@@ -10,30 +10,27 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "compile": "rm -rf lib/ && babel -d lib/ src/",
-    "compile:windows": "rd /s /q \"lib/\" && babel -d lib/ src/",
+    "compile:linux": "rm -rf lib/ && tsc",
+    "compile": "rd /s /q \"lib/\" ; tsc",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
     "test": "standard && mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/twg/devour.git"
+    "url": "git+https://github.com/christianramcke/devour-client-ts.git"
   },
   "keywords": [
     "Devour",
     "JSON-API",
     "API",
-    "API",
-    "Client"
+    "Client",
+    "Typescript"
   ],
-  "author": [
-    "Emerson Lackey",
-    "Josh Zucker"
-  ],
+  "author": "Emerson Lackey, Josh Zucker, Eike-Christian Ramcke",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/twg/devour/issues"
+    "url": "https://github.com/christianramcke/devour-client-ts/issues"
   },
   "babel": {
     "presets": [
@@ -44,24 +41,31 @@
     "recursive": true,
     "require": "@babel/register"
   },
-  "homepage": "https://github.com/twg/devour#readme",
+  "homepage": "https://github.com/christianramcke/devour-client-ts#readme",
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.13",
+    "@babel/preset-env": "^7.18.10",
     "@babel/preset-es2015": "^7.0.0-beta.53",
-    "@babel/register": "^7.4.4",
+    "@babel/preset-typescript": "^7.18.6",
+    "@babel/register": "^7.18.9",
+    "@types/es6-promise": "^3.3.0",
     "expect.js": "^0.3.1",
-    "istanbul": "1.0.0-alpha.2",
-    "mocha": "^9.1.3",
+    "istanbul": "1.1.0-alpha.1",
+    "mocha": "^10.2.0",
+    "prettier": "^2.8.2",
     "sinon": "^1.17.4",
-    "standard": "^16.0.4"
+    "standard": "^16.0.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
-    "axios": "^1.1.3",
+    "@types/lodash": "^4.14.191",
+    "@types/pluralize": "0.0.29",
+    "axios": "^1.2.2",
     "es6-promise": ">=3.1.2 <5.0.0",
     "lodash": "^4.17.15",
-    "minilog": "^3.0.0",
+    "minilog": "^3.0.1",
     "pluralize": "^1.2.1",
     "qs": "^6.1.0"
   }

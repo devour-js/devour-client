@@ -4,10 +4,6 @@
 
 -------------------------------------------------
 
-[![Build Status](https://travis-ci.org/twg/devour.svg?branch=master)](https://travis-ci.org/twg/devour)
-[![Known Vulnerabilities](https://snyk.io/test/github/twg/devour/badge.svg)](https://snyk.io/test/github/twg/devour)
-
-
 The [JSON API specification](http://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
 
 While JSON API is amazing, it can be painful to work with if you don't have a good consumer library. It turns out that serializing and deserializing JSON API resources manually is quite painful. Enter Devour...
@@ -18,8 +14,8 @@ While there are quite a few [JavaScript client implementations](http://jsonapi.o
 
 ### Installation
 
-```javascript
-$ npm install devour-client
+```
+$ npm install devour-client-ts
 ```
 
 ### Quick Start
@@ -208,7 +204,7 @@ When declaring a model you may pass in a few extra options. We will likely expan
 ```js
 jsonApi.define('product', {
   title: '',
-  description: ''
+  description: '',
   price: ''
 }, {
   readOnly: ['price'],
@@ -304,33 +300,4 @@ let { data, errors, meta, links } = jsonApi.all('order').post({ name: 'first', p
     }
   }
 } */
-```
-
-### Migrating from Devour v1.x
-
-For convenience, Devour v1.x would simply return the deserialized data as the response.
-
-```js
-jsonApi.define('post', {
-  title: '',
-  content: ''
-})
-
-let post = jsonApi.findAll('post')
-// => post.title will be populated with the title returned by your API
-```
-
-Devour v2.x focuses on meeting the requirements of the JSON API specification which introduces a bit more complexity out of necessity. In addition to the deserialized collection or resource data, the response contains document level errors, meta, and links information as well.
-
-```js
-jsonApi.define('post', {
-  title: '',
-  content: ''
-})
-
-let { data, errors, meta, links } = jsonApi.findAll('post')
-// => data.title will be populated with the title returned by your API
-// => errors will be populated with any errors returned by your API
-// => meta will be populated with any meta data returned by your API
-// => links will be populated with any document level links returned by your API
 ```

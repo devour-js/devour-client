@@ -1,12 +1,16 @@
 /* global describe, context, it, beforeEach, afterEach */
 /* eslint-disable no-unused-expressions */
 
-import JsonApi from '../../src/index'
+import { JsonApi } from '../../src/index'
+import sinon from 'sinon'
+import expect from 'expect.js'
+import * as pluralize from 'pluralize'
+import jsonApiHttpBasicAuthMiddleware from '../../src/middleware/json-api/req-http-basic-auth'
+import bearerTokenMiddleware from '../../src/middleware/json-api/req-bearer'
 import jsonApiGetMiddleware from '../../src/middleware/json-api/req-get'
 import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
+import jsonApiPatchMiddleware from '../../src/middleware/json-api/req-patch'
 import mockResponse from '../helpers/mock-response'
-import expect from 'expect.js'
-import sinon from 'sinon'
 import _last from 'lodash/last'
 
 describe('JsonApi', () => {
@@ -96,8 +100,6 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiHttpBasicAuthMiddleware = require('./../../src/middleware/json-api/req-http-basic-auth')
-
       jsonApi.middleware = [jsonApiHttpBasicAuthMiddleware, inspectorMiddleware]
 
       jsonApi.one('foo', 1).get().then(() => done())
@@ -114,7 +116,6 @@ describe('JsonApi', () => {
           return {}
         }
       }
-      const bearerTokenMiddleware = require('./../../src/middleware/json-api/req-bearer')
 
       jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
 
@@ -132,7 +133,6 @@ describe('JsonApi', () => {
           return {}
         }
       }
-      const bearerTokenMiddleware = require('./../../src/middleware/json-api/req-bearer')
 
       jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
 
@@ -156,7 +156,7 @@ describe('JsonApi', () => {
       context('no options passed -- default behavior', () => {
         it('should use the pluralize package', () => {
           jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
-          expect(jsonApi.pluralize).to.eql(require('pluralize'))
+          expect(jsonApi.pluralize).to.eql(pluralize.default)
         })
       })
 
@@ -383,7 +383,7 @@ describe('JsonApi', () => {
         it('complains if relationships is called without a model', () => {
           expect(function (done) {
             jsonApi.relationships('baz').patch({}).then(done).catch(done)
-          }).to.throwException(/Relationships must be called with a preceeding model/)
+          }).to.throwException(/Relationships must be called with a preceding model/)
         })
       })
 
@@ -560,7 +560,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, _links }) => {
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
         expect(data[1].id).to.eql('2')
@@ -631,7 +631,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, meta, _links }) => {
         expect(meta.totalObjects).to.eql(1)
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
@@ -660,7 +660,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, _links }) => {
         expect(data[0].meta.totalAttributes).to.eql(1)
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
@@ -693,7 +693,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, links }) => {
         expect(links.self).to.eql('http://example.com/products?page[number]=3&page[size]=1')
         expect(links.first).to.eql('http://example.com/products?page[number]=1&page[size]=1')
         expect(links.prev).to.eql('http://example.com/products?page[number]=2&page[size]=1')
@@ -733,7 +733,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, _links }) => {
         expect(data[0].links.self).to.eql('http://example.com/products/1')
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
@@ -764,7 +764,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, errors, _meta, _links }) => {
         expect(errors[0].status).to.eql('422')
         expect(errors[0].source.pointer).to.eql('/data/attributes/first-name')
         expect(errors[0].title).to.eql('Invalid Attribute')
@@ -1093,7 +1093,7 @@ describe('JsonApi', () => {
         name: ''
       })
 
-      jsonApi.findAll('clan', { include: 'memberships' }).then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('clan', { include: 'memberships' }).then(({ data, _errors, _meta, _links }) => {
         // console.log('request 1', clans);
         // console.log('memberships', clans[0].memberships);
         expect(data[0].memberships.length).to.eql(2)
@@ -1121,53 +1121,53 @@ describe('JsonApi', () => {
               }
             },
             included:
-            [{
-              type: 'clanMembership',
-              id: '15',
-              relationships: {
-                clan: {
-                  data: {
-                    type: 'clan',
-                    id: '42'
-                  }
-                },
-                player: {
-                  data: {
-                    type: 'player',
-                    id: '5'
-                  }
-                }
-              }
-            }, {
-              type: 'clanMembership',
-              id: '16',
-              relationships: {
-                clan: {
-                  data: {
-                    type: 'clan',
-                    id: '42'
-                  }
-                },
-                player: {
-                  data: {
-                    type: 'player',
-                    id: '6'
+              [{
+                type: 'clanMembership',
+                id: '15',
+                relationships: {
+                  clan: {
+                    data: {
+                      type: 'clan',
+                      id: '42'
+                    }
+                  },
+                  player: {
+                    data: {
+                      type: 'player',
+                      id: '5'
+                    }
                   }
                 }
-              }
-            }, {
-              type: 'player',
-              id: '5',
-              attributes: {
-                name: 'Dragonfire'
-              }
-            }, {
-              type: 'player',
-              id: '6',
-              attributes: {
-                name: 'nicooga'
-              }
-            }]
+              }, {
+                type: 'clanMembership',
+                id: '16',
+                relationships: {
+                  clan: {
+                    data: {
+                      type: 'clan',
+                      id: '42'
+                    }
+                  },
+                  player: {
+                    data: {
+                      type: 'player',
+                      id: '6'
+                    }
+                  }
+                }
+              }, {
+                type: 'player',
+                id: '5',
+                attributes: {
+                  name: 'Dragonfire'
+                }
+              }, {
+                type: 'player',
+                id: '6',
+                attributes: {
+                  name: 'nicooga'
+                }
+              }]
           }
         })
         jsonApi.find('clan', 42, { include: 'memberships,memberships.player' }).then(({ data, errors, meta, links }) => {
@@ -1482,7 +1482,6 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
       jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
       jsonApi.one('foo', 1).patch({ title: undefined })
         .then(() => done()).catch((error) => done(error))
@@ -1508,7 +1507,6 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
       jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
       jsonApi.one('foo', 1).patch({ title: 'bar' })
         .then(() => done()).catch((error) => done(error))
