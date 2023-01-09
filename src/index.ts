@@ -1,5 +1,4 @@
 import { polyfill, Promise } from 'es6-promise';
-import axios, { AxiosStatic } from 'axios';
 import { Logger } from './logger';
 import * as pluralize from 'pluralize';
 import * as serialize from './middleware/json-api/_serialize';
@@ -44,11 +43,16 @@ import * as errorsMiddleware from './middleware/json-api/res-errors';
 
 polyfill();
 
+interface Payload {
+  req: any;
+  jsonApi: JsonApi;
+  res?: any;
+}
+
 export class JsonApi {
   private _originalMiddleware: any;
   private middleware: any;
   private headers: {};
-  private axios: AxiosStatic;
   private auth: {};
   private readonly apiUrl: undefined;
   private bearer: undefined;
@@ -116,7 +120,6 @@ export class JsonApi {
     this._originalMiddleware = middleware.slice(0);
     this.middleware = middleware.slice(0);
     this.headers = {};
-    this.axios = axios;
     this.auth = options.auth;
     this.apiUrl = options.apiUrl;
     this.bearer = options.bearer;
@@ -404,10 +407,10 @@ export class JsonApi {
   }
 
   runMiddleware(req) {
-    const payload = {
+    const jsonApi = this;
+    const payload: Payload = {
       req: req,
-      jsonApi: this,
-      res: undefined
+      jsonApi: jsonApi
     };
     let requestPromise = Promise.resolve(payload);
     requestPromise = this.applyRequestMiddleware(requestPromise);
@@ -445,7 +448,7 @@ export class JsonApi {
   findAll(modelName, params = {}) {
     const req = {
       method: 'GET',
-      url: this.urlFor({ model: modelName, id: null }),
+      url: this.urlFor({ model: modelName }),
       model: modelName,
       params: params,
       data: {}
@@ -456,7 +459,7 @@ export class JsonApi {
   create(modelName, payload, params = {}, meta = {}) {
     const req = {
       method: 'POST',
-      url: this.urlFor({ model: modelName, id: null }),
+      url: this.urlFor({ model: modelName }),
       model: modelName,
       params: params,
       data: payload,

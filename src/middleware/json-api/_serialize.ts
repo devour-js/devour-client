@@ -21,14 +21,7 @@ export function resource(modelName, item) {
   const typeName = options.type || this.pluralize(modelName);
   const serializedAttributes = {};
   const serializedRelationships = {};
-  const serializedResource = {
-    type: undefined,
-    attributes: undefined,
-    relationships: undefined,
-    id: undefined,
-    meta: undefined,
-    links: undefined
-  };
+  const serializedResource: { [key: string]: any } = {};
   if (options.serializer) {
     return options.serializer.call(this, item);
   }

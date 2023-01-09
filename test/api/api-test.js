@@ -383,7 +383,7 @@ describe('JsonApi', () => {
         it('complains if relationships is called without a model', () => {
           expect(function (done) {
             jsonApi.relationships('baz').patch({}).then(done).catch(done)
-          }).to.throwException(/Relationships must be called with a preceeding model/)
+          }).to.throwException(/Relationships must be called with a preceding model/)
         })
       })
 
@@ -560,7 +560,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, _links }) => {
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
         expect(data[1].id).to.eql('2')
@@ -631,7 +631,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, meta, _links }) => {
         expect(meta.totalObjects).to.eql(1)
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
@@ -660,7 +660,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, _links }) => {
         expect(data[0].meta.totalAttributes).to.eql(1)
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
@@ -693,7 +693,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, links }) => {
         expect(links.self).to.eql('http://example.com/products?page[number]=3&page[size]=1')
         expect(links.first).to.eql('http://example.com/products?page[number]=1&page[size]=1')
         expect(links.prev).to.eql('http://example.com/products?page[number]=2&page[size]=1')
@@ -733,7 +733,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, _errors, _meta, _links }) => {
         expect(data[0].links.self).to.eql('http://example.com/products/1')
         expect(data[0].id).to.eql('1')
         expect(data[0].title).to.eql('Some Title')
@@ -764,7 +764,7 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       })
-      jsonApi.findAll('product').then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('product').then(({ data, errors, _meta, _links }) => {
         expect(errors[0].status).to.eql('422')
         expect(errors[0].source.pointer).to.eql('/data/attributes/first-name')
         expect(errors[0].title).to.eql('Invalid Attribute')
@@ -1093,7 +1093,7 @@ describe('JsonApi', () => {
         name: ''
       })
 
-      jsonApi.findAll('clan', { include: 'memberships' }).then(({ data, errors, meta, links }) => {
+      jsonApi.findAll('clan', { include: 'memberships' }).then(({ data, _errors, _meta, _links }) => {
         // console.log('request 1', clans);
         // console.log('memberships', clans[0].memberships);
         expect(data[0].memberships.length).to.eql(2)
