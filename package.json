@@ -1,5 +1,5 @@
 {
-  "name": "devour-client",
+  "name": "devour-client-ts",
   "version": "3.1.5",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
   "main": "lib/",
@@ -10,8 +10,8 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "compile": "rm -rf lib/ && babel -d lib/ src/",
-    "compile:windows": "rd /s /q \"lib/\" && babel -d lib/ src/",
+    "compile:linux": "rm -rf lib/ && tsc",
+    "compile": "rd /s /q \"lib/\" ; tsc",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
     "test": "standard && mocha"
@@ -24,12 +24,13 @@
     "Devour",
     "JSON-API",
     "API",
-    "API",
-    "Client"
+    "Client",
+    "Typescript"
   ],
   "author": [
     "Emerson Lackey",
-    "Josh Zucker"
+    "Josh Zucker",
+    "Eike-Christian Ramcke"
   ],
   "license": "ISC",
   "bugs": {
@@ -50,18 +51,25 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-es2015": "^7.0.0-beta.53",
+    "@babel/preset-typescript": "^7.18.6",
     "@babel/register": "^7.4.4",
+    "@types/es6-promise": "^3.3.0",
     "expect.js": "^0.3.1",
     "istanbul": "1.0.0-alpha.2",
     "mocha": "^9.1.3",
+    "prettier": "^2.8.2",
     "sinon": "^1.17.4",
-    "standard": "^16.0.4"
+    "standard": "^16.0.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/pluralize": "0.0.29",
     "axios": "^1.1.3",
     "es6-promise": ">=3.1.2 <5.0.0",
     "lodash": "^4.17.15",
-    "minilog": "^3.0.0",
+    "minilog": "^3.0.1",
     "pluralize": "^1.2.1",
     "qs": "^6.1.0"
   }

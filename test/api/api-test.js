@@ -1,12 +1,16 @@
 /* global describe, context, it, beforeEach, afterEach */
 /* eslint-disable no-unused-expressions */
 
-import JsonApi from '../../src/index'
+import { JsonApi } from '../../src/index'
+import sinon from 'sinon'
+import expect from 'expect.js'
+import * as pluralize from 'pluralize'
+import jsonApiHttpBasicAuthMiddleware from '../../src/middleware/json-api/req-http-basic-auth'
+import bearerTokenMiddleware from '../../src/middleware/json-api/req-bearer'
 import jsonApiGetMiddleware from '../../src/middleware/json-api/req-get'
 import jsonApiDeleteMiddleware from '../../src/middleware/json-api/req-delete'
+import jsonApiPatchMiddleware from '../../src/middleware/json-api/req-patch'
 import mockResponse from '../helpers/mock-response'
-import expect from 'expect.js'
-import sinon from 'sinon'
 import _last from 'lodash/last'
 
 describe('JsonApi', () => {
@@ -96,8 +100,6 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiHttpBasicAuthMiddleware = require('./../../src/middleware/json-api/req-http-basic-auth')
-
       jsonApi.middleware = [jsonApiHttpBasicAuthMiddleware, inspectorMiddleware]
 
       jsonApi.one('foo', 1).get().then(() => done())
@@ -114,7 +116,6 @@ describe('JsonApi', () => {
           return {}
         }
       }
-      const bearerTokenMiddleware = require('./../../src/middleware/json-api/req-bearer')
 
       jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
 
@@ -132,7 +133,6 @@ describe('JsonApi', () => {
           return {}
         }
       }
-      const bearerTokenMiddleware = require('./../../src/middleware/json-api/req-bearer')
 
       jsonApi.middleware = [bearerTokenMiddleware, inspectorMiddleware]
 
@@ -156,7 +156,7 @@ describe('JsonApi', () => {
       context('no options passed -- default behavior', () => {
         it('should use the pluralize package', () => {
           jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' })
-          expect(jsonApi.pluralize).to.eql(require('pluralize'))
+          expect(jsonApi.pluralize).to.eql(pluralize.default)
         })
       })
 
@@ -1121,53 +1121,53 @@ describe('JsonApi', () => {
               }
             },
             included:
-            [{
-              type: 'clanMembership',
-              id: '15',
-              relationships: {
-                clan: {
-                  data: {
-                    type: 'clan',
-                    id: '42'
-                  }
-                },
-                player: {
-                  data: {
-                    type: 'player',
-                    id: '5'
-                  }
-                }
-              }
-            }, {
-              type: 'clanMembership',
-              id: '16',
-              relationships: {
-                clan: {
-                  data: {
-                    type: 'clan',
-                    id: '42'
-                  }
-                },
-                player: {
-                  data: {
-                    type: 'player',
-                    id: '6'
+              [{
+                type: 'clanMembership',
+                id: '15',
+                relationships: {
+                  clan: {
+                    data: {
+                      type: 'clan',
+                      id: '42'
+                    }
+                  },
+                  player: {
+                    data: {
+                      type: 'player',
+                      id: '5'
+                    }
                   }
                 }
-              }
-            }, {
-              type: 'player',
-              id: '5',
-              attributes: {
-                name: 'Dragonfire'
-              }
-            }, {
-              type: 'player',
-              id: '6',
-              attributes: {
-                name: 'nicooga'
-              }
-            }]
+              }, {
+                type: 'clanMembership',
+                id: '16',
+                relationships: {
+                  clan: {
+                    data: {
+                      type: 'clan',
+                      id: '42'
+                    }
+                  },
+                  player: {
+                    data: {
+                      type: 'player',
+                      id: '6'
+                    }
+                  }
+                }
+              }, {
+                type: 'player',
+                id: '5',
+                attributes: {
+                  name: 'Dragonfire'
+                }
+              }, {
+                type: 'player',
+                id: '6',
+                attributes: {
+                  name: 'nicooga'
+                }
+              }]
           }
         })
         jsonApi.find('clan', 42, { include: 'memberships,memberships.player' }).then(({ data, errors, meta, links }) => {
@@ -1482,7 +1482,6 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
       jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
       jsonApi.one('foo', 1).patch({ title: undefined })
         .then(() => done()).catch((error) => done(error))
@@ -1508,7 +1507,6 @@ describe('JsonApi', () => {
         }
       }
 
-      const jsonApiPatchMiddleware = require('./../../src/middleware/json-api/req-patch')
       jsonApi.middleware = [jsonApiPatchMiddleware, inspectorMiddleware]
       jsonApi.one('foo', 1).patch({ title: 'bar' })
         .then(() => done()).catch((error) => done(error))
