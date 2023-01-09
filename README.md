@@ -22,7 +22,7 @@ $ npm install devour-client-ts
 
 ```js
 // Import
-import JsonApi from 'devour-client'
+import JsonApi from 'devour-client-ts'
 
 // Bootstrap
 const jsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})
