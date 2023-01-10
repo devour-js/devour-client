@@ -361,7 +361,11 @@ export class JsonApi {
     );
   }
 
-  define(modelName, attributes, options: { [key: string]: any } = {}) {
+  define(
+    modelName: string,
+    attributes: { [key: string]: any },
+    options: { [key: string]: any } = {}
+  ) {
     this.models[modelName] = {
       attributes: attributes,
       options: options
