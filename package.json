@@ -13,7 +13,7 @@
     "version:major": "npm version major",
     "compile:linux": "rm -rf lib/ && tsc",
     "compile:powershell": "rd /s /q \"lib/\" ; tsc",
-    "watch": "babel --watch -d lib/ src/",
+    "watch": "tsc --watch",
     "autofix": "standard --fix",
     "test": "mocha"
   },

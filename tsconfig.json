@@ -8,5 +8,8 @@
     "moduleResolution": "node",
     "declaration": true,
     "sourceMap": true,
+  },
+  "watchOptions": {
+    "excludeDirectories": ["node_modules", "lib", "test"]
   }
 }
