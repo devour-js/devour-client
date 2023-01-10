@@ -8,8 +8,5 @@
     "moduleResolution": "node",
     "declaration": true,
     "sourceMap": true,
-  },
-  "exclude": [
-    "node_modules"
-  ]
+  }
 }

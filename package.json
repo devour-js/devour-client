@@ -50,6 +50,10 @@
     "@babel/preset-es2015": "^7.0.0-beta.53",
     "@babel/preset-typescript": "^7.18.6",
     "@babel/register": "^7.18.9",
+    "@types/es6-promise": "^3.3.0",
+    "@types/lodash": "^4.14.191",
+    "@types/pluralize": "0.0.29",
+    "@types/qs": "^6.9.7",
     "expect.js": "^0.3.1",
     "istanbul": "1.1.0-alpha.1",
     "mocha": "^10.2.0",
@@ -60,9 +64,6 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.191",
-    "@types/pluralize": "0.0.29",
-    "@types/es6-promise": "^3.3.0",
     "axios": "^1.2.2",
     "es6-promise": ">=3.1.2 <5.0.0",
     "lodash": "^4.17.15",

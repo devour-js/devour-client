@@ -1,4 +1,4 @@
-import Qs from 'qs';
+import { stringify } from 'qs';
 
 export default {
   name: 'rails-params-serializer',
@@ -6,7 +6,7 @@ export default {
     if (payload.req.method === 'GET') {
       payload.req.paramsSerializer = {
         serialize: function (params) {
-          return Qs.stringify(params, {
+          return stringify(params, {
             arrayFormat: 'brackets',
             encodeValuesOnly: true
           });
