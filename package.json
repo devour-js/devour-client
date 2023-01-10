@@ -2,7 +2,8 @@
   "name": "devour-client-ts",
   "version": "1.0.1",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
-  "main": "lib/",
+  "main": "lib/index.js",
+  "types": "build/src/index.d.ts",
   "scripts": {
     "prepublish": "npm run compile",
     "prepublish-powershell": "npm run compile:powershell",

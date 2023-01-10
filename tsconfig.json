@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "module": "commonjs",
     "target": "es6",
-    "sourceMap": true,
-    // Ensure that .d.ts files are created by tsc, but not .js files
+    "lib": ["es2015", "dom"],
+    "rootDirs": ["src"],
+    "outDir": "./lib",
+    "moduleResolution": "node",
     "declaration": true,
-    "emitDeclarationOnly": true,
-    // Ensure that Babel can safely transpile files in the TypeScript project
-    "isolatedModules": true
+    "sourceMap": true,
   },
   "exclude": [
     "node_modules"
