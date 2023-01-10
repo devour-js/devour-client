@@ -7,9 +7,10 @@
     "outDir": "./lib",
     "moduleResolution": "node",
     "declaration": true,
-    "sourceMap": true,
+    "sourceMap": true
   },
   "watchOptions": {
     "excludeDirectories": ["node_modules", "lib", "test"]
-  }
+  },
+  "exclude": ["lib", "node_modules", "test"]
 }
