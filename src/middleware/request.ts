@@ -1,8 +1,13 @@
 import axios from 'axios';
+import { Middleware } from './interfaces/middleware';
+import { Payload } from './interfaces/payload';
 
-export default {
-  name: 'axios-request',
-  req: function (payload) {
+class AxiosRequestMiddleware implements Middleware {
+  name: 'axios-request';
+
+  req(payload: Payload): Promise<Payload> {
     return axios(payload.req);
   }
-};
+}
+
+export const sendRequestMiddleware = new AxiosRequestMiddleware();

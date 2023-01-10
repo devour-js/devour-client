@@ -37,7 +37,7 @@ import { jsonApiGetMiddleware } from './middleware/json-api/req-get';
 import { jsonApiHeadersMiddleware } from './middleware/json-api/req-headers';
 import { railsParamsSerializer } from './middleware/json-api/rails-params-serializer';
 import { bearerTokenMiddleware } from './middleware/json-api/req-bearer';
-import sendRequestMiddleware from './middleware/request';
+import { sendRequestMiddleware } from './middleware/request';
 import deserializeResponseMiddleware from './middleware/json-api/res-deserialize';
 import * as errorsMiddleware from './middleware/json-api/res-errors';
 import { Payload } from './middleware/interfaces/payload';
