@@ -29,34 +29,30 @@ import {
  *   standards.
  *
  */
-import jsonApiHttpBasicAuthMiddleware from './middleware/json-api/req-http-basic-auth';
-import jsonApiPostMiddleware from './middleware/json-api/req-post';
-import jsonApiPatchMiddleware from './middleware/json-api/req-patch';
-import jsonApiDeleteMiddleware from './middleware/json-api/req-delete';
-import jsonApiGetMiddleware from './middleware/json-api/req-get';
-import jsonApiHeadersMiddleware from './middleware/json-api/req-headers';
-import railsParamsSerializer from './middleware/json-api/rails-params-serializer';
-import bearerTokenMiddleware from './middleware/json-api/req-bearer';
+import { jsonApiHttpBasicAuthMiddleware } from './middleware/json-api/req-http-basic-auth';
+import { jsonApiPostMiddleware } from './middleware/json-api/req-post';
+import { jsonApiPatchMiddleware } from './middleware/json-api/req-patch';
+import { jsonApiDeleteMiddleware } from './middleware/json-api/req-delete';
+import { jsonApiGetMiddleware } from './middleware/json-api/req-get';
+import { jsonApiHeadersMiddleware } from './middleware/json-api/req-headers';
+import { railsParamsSerializer } from './middleware/json-api/rails-params-serializer';
+import { bearerTokenMiddleware } from './middleware/json-api/req-bearer';
 import sendRequestMiddleware from './middleware/request';
 import deserializeResponseMiddleware from './middleware/json-api/res-deserialize';
 import * as errorsMiddleware from './middleware/json-api/res-errors';
+import { Payload } from './middleware/interfaces/payload';
+import { ApiRequest } from './middleware/interfaces/api-request';
 
 polyfill();
-
-interface Payload {
-  req: any;
-  jsonApi: JsonApi;
-  res?: any;
-}
 
 export class JsonApi {
   private _originalMiddleware: any;
   private middleware: any;
-  private headers: {};
-  private auth: {};
-  private readonly apiUrl: undefined;
-  private bearer: undefined;
-  private readonly models: {};
+  public headers: { [key: string]: string };
+  public auth: { [key: string]: string };
+  private readonly apiUrl: string;
+  public bearer: string;
+  private readonly models: { [key: string]: any };
   private deserialize: any;
   private serialize: any;
   private builderStack: any[];
@@ -406,7 +402,7 @@ export class JsonApi {
     return promise;
   }
 
-  runMiddleware(req) {
+  runMiddleware(req: ApiRequest) {
     const jsonApi = this;
     const payload: Payload = {
       req: req,
@@ -430,7 +426,7 @@ export class JsonApi {
   }
 
   request(url, method = 'GET', params = {}, data = {}) {
-    const req = { url, method, params, data };
+    const req: ApiRequest = { url, method, params, data };
     return this.runMiddleware(req);
   }
 

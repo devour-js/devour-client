@@ -1,6 +1,10 @@
-export default {
-  name: 'GET',
-  req: (payload) => {
+import { Middleware } from '../interfaces/middleware';
+import { Payload } from '../interfaces/payload';
+
+class GetMiddleware implements Middleware {
+  name: 'GET';
+
+  req(payload: Payload): Payload {
     if (payload.req.method === 'GET') {
       payload.req.headers = {
         'Content-Type': 'application/vnd.api+json',
@@ -11,4 +15,6 @@ export default {
 
     return payload;
   }
-};
+}
+
+export const jsonApiGetMiddleware = new GetMiddleware();

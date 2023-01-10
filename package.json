@@ -7,7 +7,7 @@
   "scripts": {
     "prepublish-linux": "npm run compile",
     "prepublish-powershell": "npm run compile:powershell",
-    "publish": "npm publish --access public",
+    "publish": "npm publish",
     "version:patch": "npm version patch",
     "version:minor": "npm version minor",
     "version:major": "npm version major",
@@ -15,7 +15,7 @@
     "compile:powershell": "rd /s /q \"lib/\" ; tsc",
     "watch": "babel --watch -d lib/ src/",
     "autofix": "standard --fix",
-    "test": "standard && mocha"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -33,34 +33,24 @@
   "bugs": {
     "url": "https://github.com/christianramcke/devour-client-ts/issues"
   },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
-  },
   "mocha": {
     "recursive": true,
-    "require": "@babel/register"
+    "require": "ts-node/register"
   },
   "homepage": "https://github.com/christianramcke/devour-client-ts#readme",
   "devDependencies": {
-    "@babel/cli": "^7.18.10",
-    "@babel/core": "^7.18.13",
-    "@babel/preset-env": "^7.18.10",
-    "@babel/preset-es2015": "^7.0.0-beta.53",
-    "@babel/preset-typescript": "^7.18.6",
-    "@babel/register": "^7.18.9",
+    "@types/chai": "^4.3.4",
     "@types/es6-promise": "^3.3.0",
     "@types/lodash": "^4.14.191",
+    "@types/mocha": "^10.0.1",
     "@types/pluralize": "0.0.29",
     "@types/qs": "^6.9.7",
-    "expect.js": "^0.3.1",
+    "chai": "^4.3.7",
     "istanbul": "1.1.0-alpha.1",
     "mocha": "^10.2.0",
     "prettier": "^2.8.2",
-    "sinon": "^1.17.4",
-    "standard": "^16.0.4",
     "ts-node": "^10.9.1",
+    "ts-sinon": "^2.0.2",
     "typescript": "^4.9.4"
   },
   "dependencies": {

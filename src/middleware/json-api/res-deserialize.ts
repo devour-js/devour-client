@@ -1,5 +1,6 @@
 import * as deserialize from './_deserialize';
 import { isArray } from 'lodash';
+import { ApiResponse } from '../interfaces/api-response';
 
 function needsDeserialization(method) {
   return ['GET', 'PATCH', 'POST'].indexOf(method) !== -1;
@@ -11,7 +12,7 @@ function isCollection(responseData) {
 
 export default {
   name: 'response',
-  res: function (payload) {
+  res: function (payload): ApiResponse {
     /*
      *   Note: The axios ajax response attaches the actual response data to
      *         `res.data`. JSON API Resources also passes back the response with
@@ -46,6 +47,6 @@ export default {
       });
     }
 
-    return { data, errors, meta, links, document: res };
+    return { data, errors, meta, links, document: res } as ApiResponse;
   }
 };
