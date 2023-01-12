@@ -5,7 +5,7 @@ function defaultErrorBuilder(error) {
   return { title, detail };
 }
 
-function getBuildErrors(options) {
+function getBuildErrors(options: { [key: string]: any }) {
   return function buildErrors(serverErrors) {
     if (!serverErrors) {
       Logger.error('Unidentified error');
@@ -33,7 +33,7 @@ function errorKey(index, source) {
   return source.pointer.split('/').pop();
 }
 
-export function getMiddleware(options) {
+export function getMiddleware(options: { [key: string]: any }) {
   const buildErrors = getBuildErrors(options);
   return {
     name: 'errors',
