@@ -2,3 +2,5 @@ test/
 src/
 .github/
 .idea/
+.mocharc.json
+.prettierrc
