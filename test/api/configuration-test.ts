@@ -74,13 +74,13 @@ describe('Custom Error Builder', () => {
         done(new Error('Expected method to reject'));
       })
       .catch((error) => {
-        expect(error).to.be.not.undefined;
+        expect(error).to.be.exist;
         expect(error).to.be.an('object');
         error = error['first-name'];
-        expect(error).to.be.not.undefined;
+        expect(error).to.be.exist;
         expect(error).to.be.an('object');
-        expect(error.title).not.to.be.not.undefined;
-        expect(error.details).not.to.be.not.undefined;
+        expect(error.title).not.to.be.exist;
+        expect(error.details).not.to.be.exist;
         expect(error.customTitle).to.be.a('string');
         expect(error.customTitle).to.equal('Custom title: Invalid Attribute');
         expect(error.customDetail).to.be.a('string');
