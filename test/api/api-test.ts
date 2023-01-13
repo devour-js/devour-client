@@ -137,6 +137,19 @@ describe('JsonApi', () => {
         .then(() => done());
     });
 
+    it('should allow users to enable/disable logger', () => {
+      const jsonApiWithLogger = new JsonApi({
+        apiUrl: 'http://myapi.com',
+        logger: true
+      });
+      expect(jsonApiWithLogger['logger']).to.be.true;
+      const jsonApiWithoutLogger = new JsonApi({
+        apiUrl: 'http://myapi.com',
+        logger: false
+      });
+      expect(jsonApiWithoutLogger['logger']).to.be.false;
+    });
+
     it('should not add HTPP Authorization header if not set and from the moment when set it should be added', (done) => {
       jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' });
       jsonApi.define('foo', { title: '' });
@@ -653,7 +666,7 @@ describe('JsonApi', () => {
       });
       jsonApi
         .find('product', 1)
-        .then(({ data, errors, meta, links }) => {
+        .then(({ data, _errors, _meta, _links }) => {
           expect(data.id).to.eql('1');
           expect(data.title).to.eql('Some Title');
           done();
@@ -971,7 +984,7 @@ describe('JsonApi', () => {
       });
       jsonApi
         .find('product', 1)
-        .then(({ data, errors, meta, links }) => {
+        .then(({ data, _errors, _meta, _links }) => {
           expect(data).to.eql(null);
           done();
         })
@@ -1190,7 +1203,7 @@ describe('JsonApi', () => {
       });
       jsonApi
         .find('product', 42, { include: 'company,company.products' })
-        .then(({ data, errors, meta, links }) => {
+        .then(({ data, _errors, _meta, _links }) => {
           expect(data.id).to.eql('1');
           expect(data.title).to.eql('Some Title');
           expect(data.company.id).to.eql('42');
@@ -1395,7 +1408,7 @@ describe('JsonApi', () => {
           });
           jsonApi
             .find('clan', 42, { include: 'memberships,memberships.player' })
-            .then(({ data, errors, meta, links }) => {
+            .then(({ data, _errors, _meta, _links }) => {
               // console.log('request 2: ', clan);
               expect(data.memberships[0].player.name).to.eql('Dragonfire');
               // expect(clan.memberships[0].clan.id).to.eql('42')
@@ -1542,7 +1555,7 @@ describe('JsonApi', () => {
 
       jsonApi
         .get()
-        .then(({ data, errors, meta, links }) => {
+        .then(({ data, _errors, _meta, _links }) => {
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('foo 1');
           done();

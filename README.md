@@ -23,9 +23,10 @@ $ npm install devour-client-ts
 ```js
 // Import
 import { JsonApi } from 'devour-client-ts'
+import { LogLevel } from 'devour-client-ts/lib/logger'
 
 // Bootstrap
-const jsonApi: JsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})
+const jsonApi: JsonApi = new JsonApi({apiUrl:'http://your-api-here.com', loglevel: LogLevel.WARN})
 
 // Define Model
 jsonApi.define('post', {
@@ -80,6 +81,8 @@ Devour takes an object as the initializer. The following options are available:
 **middleware**: An array of middleware to use. See below
 
 **logger**: A boolean to enable or disable the logger. (Default: true)
+
+**loglevel**: The log level to use. (Default: LogLevel.INFO)
 
 **pluralize**: A function like [pluralize](https://www.npmjs.com/package/pluralize), or `false` to disable pluralization. (Default: `require('pluralize')`)
 

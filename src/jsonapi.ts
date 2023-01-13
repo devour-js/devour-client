@@ -1,5 +1,5 @@
 import { polyfill, Promise } from 'es6-promise';
-import { Logger } from './logger';
+import { Logger, LogLevel } from './logger';
 import * as pluralize from 'pluralize';
 import * as serialize from './middleware/json-api/_serialize';
 import * as deserialize from './middleware/json-api/_deserialize';
@@ -52,6 +52,8 @@ export class JsonApi {
   public auth: { [key: string]: string };
   private readonly apiUrl: string;
   public bearer: string;
+  private logger: boolean;
+  private loglevel: LogLevel;
   private readonly models: { [key: string]: any };
   private deserialize: any;
   private serialize: any;
@@ -93,6 +95,7 @@ export class JsonApi {
     const defaults: { [key: string]: any } = {
       middleware: jsonApiMiddleware,
       logger: true,
+      loglevel: LogLevel.INFO,
       resetBuilderOnCall: true,
       auth: {},
       bearer: null,
@@ -119,6 +122,8 @@ export class JsonApi {
     this.auth = options.auth;
     this.apiUrl = options.apiUrl;
     this.bearer = options.bearer;
+    this.logger = options.logger;
+    this.loglevel = options.loglevel;
     this.models = {};
     this.deserialize = deserialize;
     this.serialize = serialize;
@@ -138,7 +143,12 @@ export class JsonApi {
             set(o, k, true);
           })
         : options.trailingSlash;
-    options.logger ? Logger.enable() : Logger.disable();
+
+    if (this.logger) {
+      Logger.setLogLevel(this.loglevel);
+    } else {
+      Logger.disable();
+    }
 
     if (deprecatedConstructors(arguments)) {
       Logger.warn(
