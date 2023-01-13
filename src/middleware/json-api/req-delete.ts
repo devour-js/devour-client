@@ -1,6 +1,10 @@
-export default {
-  name: 'DELETE',
-  req: (payload) => {
+import { Middleware } from '../interfaces/middleware';
+import { Payload } from '../interfaces/payload';
+
+class DeleteMiddleware implements Middleware {
+  name: 'DELETE';
+
+  req(payload: Payload): Payload {
     if (payload.req.method === 'DELETE') {
       payload.req.headers = {
         'Content-Type': 'application/vnd.api+json',
@@ -19,4 +23,6 @@ export default {
 
     return payload;
   }
-};
+}
+
+export const jsonApiDeleteMiddleware = new DeleteMiddleware();

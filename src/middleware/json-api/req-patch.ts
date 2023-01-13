@@ -1,8 +1,11 @@
 import * as serialize from './_serialize';
+import { Middleware } from '../interfaces/middleware';
+import { Payload } from '../interfaces/payload';
 
-export default {
-  name: 'PATCH',
-  req: (payload) => {
+class PatchMiddleware implements Middleware {
+  name: 'PATCH';
+
+  req(payload: Payload): Payload {
     const jsonApi = payload.jsonApi;
 
     if (payload.req.method === 'PATCH') {
@@ -37,4 +40,6 @@ export default {
     }
     return payload;
   }
-};
+}
+
+export const jsonApiPatchMiddleware = new PatchMiddleware();

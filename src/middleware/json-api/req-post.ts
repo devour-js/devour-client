@@ -1,8 +1,11 @@
 import * as serialize from './_serialize';
+import { Middleware } from '../interfaces/middleware';
+import { Payload } from '../interfaces/payload';
 
-export default {
-  name: 'POST',
-  req: (payload) => {
+class PostMiddleware implements Middleware {
+  name: 'POST';
+
+  req(payload: Payload): Payload {
     const jsonApi = payload.jsonApi;
 
     if (payload.req.method === 'POST') {
@@ -33,4 +36,6 @@ export default {
 
     return payload;
   }
-};
+}
+
+export const jsonApiPostMiddleware = new PostMiddleware();

@@ -1,8 +1,11 @@
 import { assign, isEmpty } from 'lodash';
+import { Middleware } from '../interfaces/middleware';
+import { Payload } from '../interfaces/payload';
 
-export default {
-  name: 'HEADER',
-  req: (payload) => {
+class HeaderMiddleware implements Middleware {
+  name: 'HEADER';
+
+  req(payload: Payload): Payload {
     if (!isEmpty(payload.jsonApi.headers)) {
       payload.req.headers = assign(
         {},
@@ -12,4 +15,6 @@ export default {
     }
     return payload;
   }
-};
+}
+
+export const jsonApiHeadersMiddleware = new HeaderMiddleware();

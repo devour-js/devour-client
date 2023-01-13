@@ -1,4 +1,6 @@
 test/
 src/
 .github/
-.travis.yml
+.idea/
+.mocharc.json
+.prettierrc

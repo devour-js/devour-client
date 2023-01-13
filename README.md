@@ -1,16 +1,16 @@
 # Devour JSON-API Client
 
-– _"Don't just consume your [JSON-API](http://jsonapi.org/), Devour it"_
+– _"Don't just consume your [JSON-API](https://jsonapi.org/), Devour it"_
 
 -------------------------------------------------
 
-The [JSON API specification](http://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
+The [JSON API specification](https://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
 
 While JSON API is amazing, it can be painful to work with if you don't have a good consumer library. It turns out that serializing and deserializing JSON API resources manually is quite painful. Enter Devour...
 
 ### Another Implementation?
 
-While there are quite a few [JavaScript client implementations](http://jsonapi.org/implementations/#client-libraries-javascript), none of them appeared to offer the exact feature set we needed with the simplicity we required.
+While there are quite a few [TypeScript client implementations](https://jsonapi.org/implementations/#client-libraries-typescript), none of them appeared to offer the exact feature set we needed with the simplicity we required.
 
 ### Installation
 
@@ -22,10 +22,10 @@ $ npm install devour-client-ts
 
 ```js
 // Import
-import JsonApi from 'devour-client'
+import { JsonApi } from 'devour-client-ts'
 
 // Bootstrap
-const jsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})
+const jsonApi: JsonApi = new JsonApi({apiUrl:'http://your-api-here.com'})
 
 // Define Model
 jsonApi.define('post', {
@@ -71,7 +71,7 @@ jsonApi.request('https://example.com', 'GET', { a_query_param: 3 }, { some_paylo
 
 ### Initializer
 
-`const jsonApi = new JsonApi({apiUrl: 'http://your-api-here.com'})`
+`const jsonApi: JsonApi = new JsonApi({apiUrl: 'http://your-api-here.com'})`
 
 Devour takes an object as the initializer. The following options are available:
 
@@ -117,8 +117,8 @@ let { data, errors, meta, links } = jsonApi.findAll('post', {include: 'comments'
 
 Devour uses a fully middleware based approach. This allows you to easily manipulate any part of the request and response cycle by injecting your own middleware. In fact, it's entirely possible to fully remove our default middleware and write your own. Moving forward we hope to see adapters for different server implementations. If you'd like to take a closer look at the middleware layer, please checkout:
 
-* The [index.js file](https://github.com/twg/devour/blob/master/src/index.js) where we construct our default middleware stack
-* The middleware folder that contains all our default [JSON API middleware](https://github.com/twg/devour/tree/master/src/middleware/json-api)
+* The [jsonapi.ts file](https://github.com/christianramcke/devour-client-ts/blob/v1.0.6/src/jsonapi.ts) where we construct our default middleware stack
+* The middleware folder that contains all our default [JSON API middleware](https://github.com/christianramcke/devour-client-ts/tree/v1.0.6/src/middleware/json-api)
 
 ### Your First Middleware
 
