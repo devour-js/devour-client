@@ -168,7 +168,7 @@ function attachHasManyFor(model, attribute, item, included, key) {
 
   const relatedItems = relatedItemsFor(model, attribute, item, included, key);
   if (relatedItems && relatedItems.length > 0) {
-    return collection.call(this, relatedItems, included, true);
+    return collection.call(this, relatedItems, included, false);
   }
 
   const relationshipData = get(item.relationships, [key, 'data'], false);

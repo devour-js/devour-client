@@ -268,12 +268,19 @@ export class JsonApi {
     return this.runMiddleware(req);
   }
 
-  destroy() {
+  /**
+   * destroy (modelName, id, [payload], [meta])
+   * or
+   * destroy ([payload])
+   * [] = optional
+   * @param args
+   */
+  destroy(...args) {
     let req;
 
-    if (arguments.length >= 2) {
+    if (args.length >= 2) {
       // destroy (modelName, id, [payload], [meta])
-      const [model, id, data, meta] = [...Array.from(arguments)];
+      const [model, id, data, meta] = [...Array.from(args)];
 
       console.assert(model, 'No model specified');
       console.assert(id, 'No ID specified');
@@ -293,7 +300,7 @@ export class JsonApi {
         method: 'DELETE',
         url: this.urlFor(),
         model: get(lastRequest, 'model'),
-        data: arguments.length === 1 ? arguments[0] : {}
+        data: args.length === 1 ? args[0] : {}
       };
 
       if (this.resetBuilderOnCall) {

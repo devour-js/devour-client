@@ -65,32 +65,32 @@ describe('deserialize', () => {
         relationships: {
           tags: {
             data: [
-              { id: '5', type: 'tags' },
-              { id: '6', type: 'tags' }
+              { id: '10', type: 'tags' },
+              { id: '11', type: 'tags' }
             ]
           }
         }
       },
       included: [
-        { id: '5', type: 'tags', attributes: { name: 'one' } },
-        { id: '6', type: 'tags', attributes: { name: 'two' } }
+        { id: '10', type: 'tags', attributes: { name: 'one' } },
+        { id: '11', type: 'tags', attributes: { name: 'two' } }
       ]
     };
-    const product = deserialize.resource.call(
+    const productWithTags = deserialize.resource.call(
       jsonApi,
       mockResponse.data,
       mockResponse.included
     );
-    expect(product.id).to.eql('1');
-    expect(product.type).to.eql('products');
-    expect(product.title).to.eql('hello');
-    expect(product.tags).to.be.an('array');
-    expect(product.tags[0].id).to.eql('5');
-    expect(product.tags[0].type).to.eql('tags');
-    expect(product.tags[0].name).to.eql('one');
-    expect(product.tags[1].id).to.eql('6');
-    expect(product.tags[1].type).to.eql('tags');
-    expect(product.tags[1].name).to.eql('two');
+    expect(productWithTags.id).to.eql('1');
+    expect(productWithTags.type).to.eql('products');
+    expect(productWithTags.title).to.eql('hello');
+    expect(productWithTags.tags).to.be.an('array');
+    expect(productWithTags.tags[0].id).to.eql('10');
+    expect(productWithTags.tags[0].type).to.eql('tags');
+    expect(productWithTags.tags[0].name).to.eql('one');
+    expect(productWithTags.tags[1].id).to.eql('11');
+    expect(productWithTags.tags[1].type).to.eql('tags');
+    expect(productWithTags.tags[1].name).to.eql('two');
   });
 
   it('should deserialize complex relations without going into an infinite loop', () => {
@@ -371,23 +371,27 @@ describe('deserialize', () => {
     });
     const mockResponse = {
       data: {
-        id: '1',
+        id: '2',
         type: 'products',
         attributes: {
-          title: 'hello'
+          title: 'hello world'
         },
         relationships: {
           tags: {
             data: [
               { id: '5', type: 'tags' },
-              { id: '6', type: 'tags' }
+              { id: '6', type: 'tags' },
+              { id: '7', type: 'tags' },
+              { id: '10', type: 'tags' }
             ]
           }
         }
       },
       included: [
         { id: '5', type: 'tags' },
-        { id: '6', type: 'tags', attributes: { name: 'two' } }
+        { id: '6', type: 'tags', attributes: { name: 'four' } },
+        { id: '7', type: 'tags' },
+        { id: '10', type: 'tags', attributes: { name: 'five' } }
       ]
     };
     const product = deserialize.resource.call(
@@ -395,13 +399,17 @@ describe('deserialize', () => {
       mockResponse.data,
       mockResponse.included
     );
-    expect(product.id).to.eql('1');
-    expect(product.title).to.eql('hello');
+    expect(product.id).to.eql('2');
+    expect(product.title).to.eql('hello world');
     expect(product.tags).to.be.an('array');
     expect(product.tags[0].id).to.eql('5');
     expect(product.tags[0].name).to.be.undefined;
     expect(product.tags[1].id).to.eql('6');
-    expect(product.tags[1].name).to.eql('two');
+    expect(product.tags[1].name).to.eql('four');
+    expect(product.tags[2].id).to.eql('7');
+    expect(product.tags[2].name).to.be.undefined;
+    expect(product.tags[3].id).to.eql('10');
+    expect(product.tags[3].name).to.eql('five');
   });
 
   it('should deserialize types and ids of related resources that are not included', () => {
