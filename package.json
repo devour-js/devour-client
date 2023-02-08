@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/twg/devour.git"
+    "url": "git+https://github.com/devour-js/devour-client.git"
   },
   "keywords": [
     "Devour",
@@ -33,7 +33,7 @@
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/twg/devour/issues"
+    "url": "https://github.com/devour-js/devour-client/issues"
   },
   "babel": {
     "presets": [
@@ -44,7 +44,7 @@
     "recursive": true,
     "require": "@babel/register"
   },
-  "homepage": "https://github.com/twg/devour#readme",
+  "homepage": "https://github.com/devour-js/devour-client#readme",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",

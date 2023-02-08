@@ -4,8 +4,8 @@
 
 -------------------------------------------------
 
-[![Build Status](https://travis-ci.org/twg/devour.svg?branch=master)](https://travis-ci.org/twg/devour)
-[![Known Vulnerabilities](https://snyk.io/test/github/twg/devour/badge.svg)](https://snyk.io/test/github/twg/devour)
+[![Build Status](https://travis-ci.org/devour-js/devour-client.svg?branch=master)](https://travis-ci.org/devour-js/devour-client)
+[![Known Vulnerabilities](https://snyk.io/test/github/devour-js/devour-client/badge.svg)](https://snyk.io/test/github/devour-js/devour-client)
 
 
 The [JSON API specification](http://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
@@ -121,8 +121,8 @@ let { data, errors, meta, links } = jsonApi.findAll('post', {include: 'comments'
 
 Devour uses a fully middleware based approach. This allows you to easily manipulate any part of the request and response cycle by injecting your own middleware. In fact, it's entirely possible to fully remove our default middleware and write your own. Moving forward we hope to see adapters for different server implementations. If you'd like to take a closer look at the middleware layer, please checkout:
 
-* The [index.js file](https://github.com/twg/devour/blob/master/src/index.js) where we construct our default middleware stack
-* The middleware folder that contains all our default [JSON API middleware](https://github.com/twg/devour/tree/master/src/middleware/json-api)
+* The [index.js file](https://github.com/devour-js/devour-client/blob/master/src/index.js) where we construct our default middleware stack
+* The middleware folder that contains all our default [JSON API middleware](https://github.com/devour-js/devour-client/tree/master/src/middleware/json-api)
 
 ### Your First Middleware
 
