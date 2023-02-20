@@ -52,8 +52,8 @@ export class JsonApi {
   public auth: { [key: string]: string };
   private readonly apiUrl: string;
   public bearer: string;
-  private logger: boolean;
-  private loglevel: LogLevel;
+  private readonly logger: boolean;
+  private readonly loglevel: LogLevel;
   private readonly models: { [key: string]: any };
   private deserialize: any;
   private serialize: any;
@@ -149,6 +149,13 @@ export class JsonApi {
     } else {
       Logger.disable();
     }
+
+    /*
+        Logger.debug('debug');
+        Logger.info('info');
+        Logger.warn('warn');
+        Logger.error('error');
+        */
 
     if (deprecatedConstructors(arguments)) {
       Logger.warn(

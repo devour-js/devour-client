@@ -150,7 +150,7 @@ describe('JsonApi', () => {
       expect(jsonApiWithoutLogger['logger']).to.be.false;
     });
 
-    it('should not add HTPP Authorization header if not set and from the moment when set it should be added', (done) => {
+    it('should not add HTTP Authorization header if not set and from the moment when set it should be added', (done) => {
       jsonApi = new JsonApi({ apiUrl: 'http://myapi.com' });
       jsonApi.define('foo', { title: '' });
 
