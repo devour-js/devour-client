@@ -158,12 +158,10 @@ export class JsonApi {
       Logger.disable();
     }
 
-    /*
-                                                                                                                                                                                                                                            Logger.debug('debug');
-                                                                                                                                                                                                                                            Logger.info('info');
-                                                                                                                                                                                                                                            Logger.warn('warn');
-                                                                                                                                                                                                                                            Logger.error('error');
-                                                                                                                                                                                                                                            */
+    // Logger.debug('debug');
+    // Logger.info('info');
+    // Logger.warn('warn');
+    // Logger.error('error');
 
     if (deprecatedConstructors(arguments)) {
       Logger.warn(

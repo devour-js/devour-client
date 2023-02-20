@@ -1,6 +1,6 @@
 {
   "name": "devour-client-ts",
-  "version": "1.0.10",
+  "version": "1.1.0-beta.0",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
   "main": "lib/jsonapi.js",
   "types": "lib/jsonapi.d.ts",
@@ -44,7 +44,7 @@
     "@types/lodash": "^4.14.191",
     "@types/minilog": "^2.0.29",
     "@types/mocha": "^10.0.1",
-    "@types/pluralize": "0.0.29",
+    "@types/pluralize": "^0.0.29",
     "@types/qs": "^6.9.7",
     "chai": "^4.3.7",
     "istanbul": "1.1.0-alpha.1",
@@ -61,6 +61,6 @@
     "minilog": "^3.1.0",
     "pluralize": "^1.2.1",
     "qs": "^6.1.0",
-    "rxjs": "^7.8.0"
+    "rxjs": "~7.4.0"
   }
 }
