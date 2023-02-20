@@ -669,10 +669,10 @@ describe('JsonApi', () => {
         title: ''
       });
       jsonApi.find('product', 1).subscribe({
-        next: (res: { data; _errors; _meta; _links }) => {
-          console.log('subscribe', res);
-          //expect(res.data.id).to.eql('1');
-          //expect(res.data.title).to.eql('Some Title');
+        next: ({ data, _errors, _meta, _links }) => {
+          expect(data.id).to.eql('1');
+          expect(data.title).to.eql('Some Title');
+          done();
         },
         error: (err) => console.log(err)
       });
@@ -702,16 +702,16 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .findAll('product')
-        .then(({ data, _errors, _meta, _links }) => {
+      jsonApi.findAll('product').subscribe({
+        next: ({ data, _errors, _meta, _links }) => {
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('Some Title');
           expect(data[1].id).to.eql('2');
           expect(data[1].title).to.eql('Another Title');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should make basic create call', (done) => {

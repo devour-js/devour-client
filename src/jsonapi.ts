@@ -41,8 +41,9 @@ import deserializeResponseMiddleware from './middleware/json-api/res-deserialize
 import * as errorsMiddleware from './middleware/json-api/res-errors';
 import { Payload } from './middleware/interfaces/payload';
 import { ApiRequest } from './middleware/interfaces/api-request';
-import { catchError, mergeMap, Observable, of } from 'rxjs';
+import {catchError, combineLatest, from, map, mergeMap, Observable, of, switchMap} from 'rxjs';
 import { Middleware } from './middleware/interfaces/middleware';
+import {ApiResponse} from "./middleware/interfaces/api-response";
 
 export class JsonApi {
   private _originalMiddleware: any;
@@ -399,54 +400,74 @@ export class JsonApi {
     this.middleware = this._originalMiddleware.slice(0);
   }
 
-  applyRequestMiddleware(payload$: Observable<Payload>): Observable<Payload> {
+  applyRequestMiddleware(payload: Payload): Observable<Payload> {
     const requestMiddlewares = this.middleware.filter(
       (middleware) => middleware.req
     );
-
+    const newPayloads: Observable<any>[] = [];
     requestMiddlewares.forEach((middleware: Middleware) => {
-      payload$.pipe(
-        mergeMap((payload: Payload) => of(middleware.req(payload)))
-      );
+      const newPayload = middleware.req(payload);
+      if (newPayload instanceof Promise)  {
+        newPayloads.push(from(newPayload));
+      }
+      else{
+        newPayloads.push(of(middleware.req(payload)));
+      }
     });
-    return payload$;
+    const resultObs = combineLatest(newPayloads).pipe(map((newPayloads: Payload[]) => {
+      return newPayloads.reduce((acc, newPayload) => {
+        return {...acc, ...newPayload}
+      })}));
+    resultObs.subscribe((newPayload) => {
+      console.log('newPayload', newPayload)
+    });
+    return resultObs;
   }
 
-  applyResponseMiddleware(payload$: Observable<Payload>): Observable<Payload> {
+  applyResponseMiddleware(payload: Payload): Observable<ApiResponse> {
     const responseMiddlewares = this.middleware.filter(
       (middleware) => middleware.res
     );
+    let response: ApiResponse;
     responseMiddlewares.forEach((middleware: Middleware) => {
-      payload$.pipe(
-        mergeMap((payload: Payload) => of(middleware.res(payload)))
-      );
+      response = middleware.res(payload)
     });
-    return payload$;
+    console.log('response', response);
+    return of(response);
   }
 
-  applyErrorMiddleware(promise): Observable<Middleware> {
+  applyErrorMiddleware(payload): Observable<Payload> {
     const errorsMiddleware = this.middleware.filter(
-      (middleware) => middleware.error
+      (middleware: Middleware) => middleware.error
     );
-    errorsMiddleware.forEach((middleware) => {
-      promise = promise.then(middleware.error);
+    let newPayload: Payload;
+    errorsMiddleware.forEach((middleware: Middleware) => {
+      newPayload = middleware.error(payload);
     });
-    return of(promise);
+    return of(newPayload);
   }
 
   runMiddleware(req: ApiRequest): Observable<any> {
     const jsonApi = this;
-    const payload: Observable<Payload> = of({
+    const payload$: Observable<Payload> = of({
       req: req,
       jsonApi: jsonApi
     });
-    return this.applyRequestMiddleware(payload).pipe(
-      mergeMap((payload) => this.applyResponseMiddleware(of(payload))),
-      catchError((err) => {
-        Logger.error(err);
-        return this.applyErrorMiddleware(err);
-      })
-    );
+    //payload$.pipe(switchMap -> applyRequest).pipe(switchMap -> applyResponse)
+    return payload$.pipe(
+        switchMap((payload)=>this.applyRequestMiddleware(payload)),
+        map((payload: Payload) => {
+          return {...payload, ...{res: payload }}}),
+        switchMap((payload)=>this.applyResponseMiddleware(payload)),
+        catchError((err) => {Logger.error(err);
+               return this.applyErrorMiddleware(err);}));
+    // this.applyRequestMiddleware(payload$).pipe(
+    //   mergeMap((payload) => this.applyResponseMiddleware(of(payload))),
+    //   catchError((err) => {
+    //     Logger.error(err);
+    //     return this.applyErrorMiddleware(err);
+    //   })
+    // );
   }
 
   request(url, method = 'GET', params = {}, data = {}) {
