@@ -1,4 +1,3 @@
-import { polyfill, Promise } from 'es6-promise';
 import { Logger, LogLevel } from './logger';
 import * as pluralize from 'pluralize';
 import * as serialize from './middleware/json-api/_serialize';
@@ -16,7 +15,7 @@ import {
   isString,
   isUndefined,
   last,
-  map,
+  map as mapArray,
   set
 } from 'lodash';
 
@@ -42,8 +41,8 @@ import deserializeResponseMiddleware from './middleware/json-api/res-deserialize
 import * as errorsMiddleware from './middleware/json-api/res-errors';
 import { Payload } from './middleware/interfaces/payload';
 import { ApiRequest } from './middleware/interfaces/api-request';
-
-polyfill();
+import { catchError, mergeMap, Observable, of } from 'rxjs';
+import { Middleware } from './middleware/interfaces/middleware';
 
 export class JsonApi {
   private _originalMiddleware: any;
@@ -151,11 +150,11 @@ export class JsonApi {
     }
 
     /*
-        Logger.debug('debug');
-        Logger.info('info');
-        Logger.warn('warn');
-        Logger.error('error');
-        */
+                                                                                                                                                                                                                            Logger.debug('debug');
+                                                                                                                                                                                                                            Logger.info('info');
+                                                                                                                                                                                                                            Logger.warn('warn');
+                                                                                                                                                                                                                            Logger.error('error');
+                                                                                                                                                                                                                            */
 
     if (deprecatedConstructors(arguments)) {
       Logger.warn(
@@ -220,7 +219,7 @@ export class JsonApi {
   }
 
   buildPath() {
-    return map(this.builderStack, 'path').join('/');
+    return mapArray(this.builderStack, 'path').join('/');
   }
 
   buildUrl() {
@@ -400,57 +399,54 @@ export class JsonApi {
     this.middleware = this._originalMiddleware.slice(0);
   }
 
-  applyRequestMiddleware(promise) {
+  applyRequestMiddleware(payload$: Observable<Payload>): Observable<Payload> {
     const requestMiddlewares = this.middleware.filter(
       (middleware) => middleware.req
     );
-    requestMiddlewares.forEach((middleware) => {
-      promise = promise.then(middleware.req);
+
+    requestMiddlewares.forEach((middleware: Middleware) => {
+      payload$.pipe(
+        mergeMap((payload: Payload) => of(middleware.req(payload)))
+      );
     });
-    return promise;
+    return payload$;
   }
 
-  applyResponseMiddleware(promise) {
-    const responseMiddleware = this.middleware.filter(
+  applyResponseMiddleware(payload$: Observable<Payload>): Observable<Payload> {
+    const responseMiddlewares = this.middleware.filter(
       (middleware) => middleware.res
     );
-    responseMiddleware.forEach((middleware) => {
-      promise = promise.then(middleware.res);
+    responseMiddlewares.forEach((middleware: Middleware) => {
+      payload$.pipe(
+        mergeMap((payload: Payload) => of(middleware.res(payload)))
+      );
     });
-    return promise;
+    return payload$;
   }
 
-  applyErrorMiddleware(promise) {
+  applyErrorMiddleware(promise): Observable<Middleware> {
     const errorsMiddleware = this.middleware.filter(
       (middleware) => middleware.error
     );
     errorsMiddleware.forEach((middleware) => {
       promise = promise.then(middleware.error);
     });
-    return promise;
+    return of(promise);
   }
 
-  runMiddleware(req: ApiRequest) {
+  runMiddleware(req: ApiRequest): Observable<any> {
     const jsonApi = this;
-    const payload: Payload = {
+    const payload: Observable<Payload> = of({
       req: req,
       jsonApi: jsonApi
-    };
-    let requestPromise = Promise.resolve(payload);
-    requestPromise = this.applyRequestMiddleware(requestPromise);
-    return requestPromise
-      .then((res) => {
-        payload.res = res;
-        const responsePromise = Promise.resolve(payload);
-        return this.applyResponseMiddleware(responsePromise);
-      })
-      .catch((err) => {
+    });
+    return this.applyRequestMiddleware(payload).pipe(
+      mergeMap((payload) => this.applyResponseMiddleware(of(payload))),
+      catchError((err) => {
         Logger.error(err);
-        const errorPromise = Promise.resolve(err);
-        return this.applyErrorMiddleware(errorPromise).then((err) => {
-          return Promise.reject(err);
-        });
-      });
+        return this.applyErrorMiddleware(err);
+      })
+    );
   }
 
   request(url, method = 'GET', params = {}, data = {}) {
@@ -470,7 +466,7 @@ export class JsonApi {
   }
 
   findAll(modelName, params = {}) {
-    const req = {
+    const req: ApiRequest = {
       method: 'GET',
       url: this.urlFor({ model: modelName }),
       model: modelName,
