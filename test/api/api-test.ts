@@ -14,6 +14,7 @@ import mockResponse from '../helpers/mock-response';
 import { last } from 'lodash';
 import { Middleware } from '../../src/middleware/interfaces/middleware';
 import { Payload } from '../../src/middleware/interfaces/payload';
+import { mergeMap } from 'rxjs';
 
 describe('JsonApi', () => {
   let jsonApi = null;
@@ -487,8 +488,10 @@ describe('JsonApi', () => {
               .one('order', 1)
               .relationships('baz')
               .patch({})
-              .then(done)
-              .catch(done);
+              .subscribe({
+                next: () => done(),
+                error: () => done()
+              });
           }).to.throws(
             /API resource definition on model "order" for relationship "baz"/
           );
@@ -734,8 +737,12 @@ describe('JsonApi', () => {
 
       jsonApi
         .create('foo', { title: 'foo' }, { include: 'something' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => {
+            done();
+          },
+          error: (error) => done(error)
+        });
     });
 
     it('should make basic update call', (done) => {
@@ -758,8 +765,12 @@ describe('JsonApi', () => {
 
       jsonApi
         .update('foo', { title: 'foo' }, { include: 'something' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => {
+            done();
+          },
+          error: (error) => done(error)
+        });
     });
 
     it('should include meta information on response objects', (done) => {
@@ -782,15 +793,15 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .findAll('product')
-        .then(({ data, _errors, meta, _links }) => {
+      jsonApi.findAll('product').subscribe({
+        next: ({ data, _errors, meta, _links }) => {
           expect(meta.totalObjects).to.eql(1);
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('Some Title');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should include meta information on response data objects', (done) => {
@@ -816,15 +827,15 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .findAll('product')
-        .then(({ data, _errors, _meta, _links }) => {
+      jsonApi.findAll('product').subscribe({
+        next: ({ data, _errors, _meta, _links }) => {
           expect(data[0].meta.totalAttributes).to.eql(1);
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('Some Title');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should include links information on response objects', (done) => {
@@ -854,9 +865,8 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .findAll('product')
-        .then(({ data, _errors, _meta, links }) => {
+      jsonApi.findAll('product').subscribe({
+        next: ({ data, _errors, _meta, links }) => {
           expect(links.self).to.eql(
             'http://example.com/products?page[number]=3&page[size]=1'
           );
@@ -875,8 +885,9 @@ describe('JsonApi', () => {
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('Some Title');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should include links information on response data objects', (done) => {
@@ -909,15 +920,15 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .findAll('product')
-        .then(({ data, _errors, _meta, _links }) => {
+      jsonApi.findAll('product').subscribe({
+        next: ({ data, _errors, _meta, _links }) => {
           expect(data[0].links.self).to.eql('http://example.com/products/1');
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('Some Title');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should include errors information on response objects', (done) => {
@@ -945,9 +956,8 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .findAll('product')
-        .then(({ data, errors, _meta, _links }) => {
+      jsonApi.findAll('product').subscribe({
+        next: ({ data, errors, _meta, _links }) => {
           expect(errors[0].status).to.eql(422);
           expect(errors[0].source.pointer).to.eql(
             '/data/attributes/first-name'
@@ -959,8 +969,9 @@ describe('JsonApi', () => {
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('Some Title');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should expose a method for arbitrary HTTP calls', () => {
@@ -986,13 +997,13 @@ describe('JsonApi', () => {
       jsonApi.define('product', {
         title: ''
       });
-      jsonApi
-        .find('product', 1)
-        .then(({ data, _errors, _meta, _links }) => {
+      jsonApi.find('product', 1).subscribe({
+        next: ({ data, _errors, _meta, _links }) => {
           expect(data).to.eql(null);
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should have an empty body on GET requests', (done) => {
@@ -1011,8 +1022,10 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .find()
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should have an empty body on DELETE requests', (done) => {
@@ -1028,10 +1041,10 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [jsonApiDeleteMiddleware, inspectorMiddleware];
 
-      jsonApi
-        .destroy('foo', 1)
-        .then(() => done())
-        .catch((error) => done(error));
+      jsonApi.destroy('foo', 1).subscribe({
+        next: () => done(),
+        error: (error) => done(error)
+      });
     });
 
     it('should accept a data payload on DELETE requests when provided as a third argument', (done) => {
@@ -1053,14 +1066,10 @@ describe('JsonApi', () => {
         { type: 'bar', id: 3 }
       ];
 
-      jsonApi
-        .destroy('foo', 1, payload)
-        .then(() => {
-          done();
-        })
-        .catch((error) => {
-          done(error);
-        });
+      jsonApi.destroy('foo', 1, payload).subscribe({
+        next: () => done(),
+        error: (error) => done(error)
+      });
     });
 
     it('should accept a meta and data payload on DELETE requests when provided as a third and fourth arguments', (done) => {
@@ -1088,10 +1097,10 @@ describe('JsonApi', () => {
         totalObjects: 1
       };
 
-      jsonApi
-        .destroy('foo', 1, payload, meta)
-        .then(() => done())
-        .catch((error) => done(error));
+      jsonApi.destroy('foo', 1, payload, meta).subscribe({
+        next: () => done(),
+        error: (error) => done(error)
+      });
     });
 
     it('should accept a data payload on DELETE requests when provided as a single argument', (done) => {
@@ -1120,8 +1129,10 @@ describe('JsonApi', () => {
         .relationships()
         .all('bar')
         .destroy(payload)
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it.skip('should throw an error while attempting to access undefined model', function (done) {
@@ -1207,16 +1218,18 @@ describe('JsonApi', () => {
       });
       jsonApi
         .find('product', 42, { include: 'company,company.products' })
-        .then(({ data, _errors, _meta, _links }) => {
-          expect(data.id).to.eql('1');
-          expect(data.title).to.eql('Some Title');
-          expect(data.company.id).to.eql('42');
-          expect(data.company.brand).to.eql('Cool Company');
-          expect(data.company.products[0].id).to.eql('1');
-          expect(data.company.products[0].title).to.eql('Some Title');
-          done();
-        })
-        .catch((err) => console.log(err));
+        .subscribe({
+          next: ({ data, _errors, _meta, _links }) => {
+            expect(data.id).to.eql('1');
+            expect(data.title).to.eql('Some Title');
+            expect(data.company.id).to.eql('42');
+            expect(data.company.brand).to.eql('Cool Company');
+            expect(data.company.products[0].id).to.eql('1');
+            expect(data.company.products[0].title).to.eql('Some Title');
+            done();
+          },
+          error: (err) => console.log(err)
+        });
     });
 
     it('should not cache the second request', (done) => {
@@ -1324,9 +1337,8 @@ describe('JsonApi', () => {
         name: ''
       });
 
-      jsonApi
-        .findAll('clan', { include: 'memberships' })
-        .then(({ data, _errors, _meta, _links }) => {
+      jsonApi.findAll('clan', { include: 'memberships' }).subscribe({
+        next: ({ data, _errors, _meta, _links }) => {
           // console.log('request 1', clans);
           // console.log('memberships', clans[0].memberships);
           expect(data[0].memberships.length).to.eql(2);
@@ -1412,17 +1424,20 @@ describe('JsonApi', () => {
           });
           jsonApi
             .find('clan', 42, { include: 'memberships,memberships.player' })
-            .then(({ data, _errors, _meta, _links }) => {
-              // console.log('request 2: ', clan);
-              expect(data.memberships[0].player.name).to.eql('Dragonfire');
-              // expect(clan.memberships[0].clan.id).to.eql('42')
-              expect(data.memberships[1].player.name).to.eql('nicooga');
-              // expect(clan.memberships[1].clan.id).to.eql('42')
-              done();
-            })
-            .catch((err) => console.log(err));
-        })
-        .catch((err) => console.log(err));
+            .subscribe({
+              next: ({ data, _errors, _meta, _links }) => {
+                // console.log('request 2: ', clan);
+                expect(data.memberships[0].player.name).to.eql('Dragonfire');
+                // expect(clan.memberships[0].clan.id).to.eql('42')
+                expect(data.memberships[1].player.name).to.eql('nicooga');
+                // expect(clan.memberships[1].clan.id).to.eql('42')
+                done();
+              },
+              error: (err) => console.log(err)
+            });
+        },
+        error: (err) => console.log(err)
+      });
     });
   });
 
@@ -1445,20 +1460,26 @@ describe('JsonApi', () => {
       jsonApi.middleware = [inspectorMiddleware];
       jsonApi
         .get()
-        .then(() => {
-          const inspectorMiddleware = {
-            name: 'inspector-middleware',
-            req: (payload) => {
-              expect(payload.req.method).to.be.eql('GET');
-              expect(payload.req.url).to.be.eql('http://myapi.com/foos');
-              return {};
-            }
-          };
-          jsonApi.middleware = [inspectorMiddleware];
-          return jsonApi.all('foo').get();
-        })
-        .then(() => done())
-        .catch((error) => done(error));
+        .pipe(
+          mergeMap(() => {
+            const inspectorMiddleware = {
+              name: 'inspector-middleware',
+              req: (payload) => {
+                expect(payload.req.method).to.be.eql('GET');
+                expect(payload.req.url).to.be.eql('http://myapi.com/foos');
+                return {};
+              }
+            };
+            jsonApi.middleware = [inspectorMiddleware];
+            return jsonApi.all('foo').get();
+          })
+        )
+        .subscribe({
+          next: () => {
+            done();
+          },
+          error: (error) => done(error)
+        });
 
       expect(jsonApi.buildUrl()).to.eql('http://myapi.com/');
     });
@@ -1482,24 +1503,28 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .get()
-        .then(() => {
-          const inspectorMiddleware = {
-            name: 'inspector-middleware',
-            req: (payload) => {
-              expect(payload.req.method).to.be.eql('GET');
-              expect(payload.req.url).to.be.eql('http://myapi.com/foos/1/bars');
-              return {};
-            }
-          };
+        .subscribe({
+          next: () => {
+            const inspectorMiddleware = {
+              name: 'inspector-middleware',
+              req: (payload) => {
+                expect(payload.req.method).to.be.eql('GET');
+                expect(payload.req.url).to.be.eql(
+                  'http://myapi.com/foos/1/bars'
+                );
+                return {};
+              }
+            };
 
-          jsonApi.middleware = [inspectorMiddleware];
+            jsonApi.middleware = [inspectorMiddleware];
 
-          return jsonApi
-            .all('bar')
-            .get()
-            .then(() => done());
-        })
-        .catch((error) => done(error));
+            return jsonApi
+              .all('bar')
+              .get()
+              .subscribe(() => done());
+          },
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be used', () => {
@@ -1557,14 +1582,14 @@ describe('JsonApi', () => {
         }
       });
 
-      jsonApi
-        .get()
-        .then(({ data, _errors, _meta, _links }) => {
+      jsonApi.get().subscribe({
+        next: ({ data, _errors, _meta, _links }) => {
           expect(data[0].id).to.eql('1');
           expect(data[0].title).to.eql('foo 1');
           done();
-        })
-        .catch((err) => console.log(err));
+        },
+        error: (err) => console.log(err)
+      });
     });
 
     it('should allow builders to be called with get', (done) => {
@@ -1579,10 +1604,10 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware];
 
-      jsonApi
-        .get()
-        .then(() => done())
-        .catch((error) => done(error));
+      jsonApi.get().subscribe({
+        next: () => done(),
+        error: (error) => done(error)
+      });
     });
 
     it('should allow builders to be called with get with query params', (done) => {
@@ -1598,10 +1623,10 @@ describe('JsonApi', () => {
 
       jsonApi.middleware = [inspectorMiddleware];
 
-      jsonApi
-        .get({ page: { number: 2 } })
-        .then(() => done())
-        .catch((error) => done(error));
+      jsonApi.get({ page: { number: 2 } }).subscribe({
+        next: () => done(),
+        error: (error) => done(error)
+      });
     });
 
     it('should allow builders to be called with get on all', (done) => {
@@ -1620,8 +1645,10 @@ describe('JsonApi', () => {
       jsonApi
         .all('foo')
         .get()
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be called with get on one', (done) => {
@@ -1640,8 +1667,10 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .get()
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be called with post', (done) => {
@@ -1661,8 +1690,10 @@ describe('JsonApi', () => {
       jsonApi
         .all('foo')
         .post({ title: 'foo' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be called with post with nested one', (done) => {
@@ -1683,8 +1714,10 @@ describe('JsonApi', () => {
         .one('foo', 1)
         .all('bar')
         .post({ title: 'foo' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be called with patch', (done) => {
@@ -1704,8 +1737,10 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .patch({ title: 'bar' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be called with patch with nested one', (done) => {
@@ -1726,8 +1761,10 @@ describe('JsonApi', () => {
         .one('foo', 1)
         .all('bar')
         .patch({ title: 'bar' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should allow builders to be called with destroy', (done) => {
@@ -1746,8 +1783,10 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .destroy()
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
     it('should allow builders to be called with destroy with nested one', (done) => {
       const inspectorMiddleware = {
@@ -1766,8 +1805,10 @@ describe('JsonApi', () => {
         .one('foo', 1)
         .one('bar', 2)
         .destroy()
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman! Wacky Waving Inflatable Arm-Flailing Tubeman!', () => {
@@ -1809,8 +1850,10 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .patch({ title: undefined })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
 
     it('should serialize only specified attributes', (done) => {
@@ -1837,8 +1880,10 @@ describe('JsonApi', () => {
       jsonApi
         .one('foo', 1)
         .patch({ title: 'bar' })
-        .then(() => done())
-        .catch((error) => done(error));
+        .subscribe({
+          next: () => done(),
+          error: (error) => done(error)
+        });
     });
   });
 });

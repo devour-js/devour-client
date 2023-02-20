@@ -41,9 +41,17 @@ import deserializeResponseMiddleware from './middleware/json-api/res-deserialize
 import * as errorsMiddleware from './middleware/json-api/res-errors';
 import { Payload } from './middleware/interfaces/payload';
 import { ApiRequest } from './middleware/interfaces/api-request';
-import {catchError, combineLatest, from, map, mergeMap, Observable, of, switchMap} from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap
+} from 'rxjs';
 import { Middleware } from './middleware/interfaces/middleware';
-import {ApiResponse} from "./middleware/interfaces/api-response";
+import { ApiResponse } from './middleware/interfaces/api-response';
 
 export class JsonApi {
   private _originalMiddleware: any;
@@ -151,11 +159,11 @@ export class JsonApi {
     }
 
     /*
-                                                                                                                                                                                                                            Logger.debug('debug');
-                                                                                                                                                                                                                            Logger.info('info');
-                                                                                                                                                                                                                            Logger.warn('warn');
-                                                                                                                                                                                                                            Logger.error('error');
-                                                                                                                                                                                                                            */
+                                                                                                                                                                                                                                            Logger.debug('debug');
+                                                                                                                                                                                                                                            Logger.info('info');
+                                                                                                                                                                                                                                            Logger.warn('warn');
+                                                                                                                                                                                                                                            Logger.error('error');
+                                                                                                                                                                                                                                            */
 
     if (deprecatedConstructors(arguments)) {
       Logger.warn(
@@ -407,21 +415,19 @@ export class JsonApi {
     const newPayloads: Observable<any>[] = [];
     requestMiddlewares.forEach((middleware: Middleware) => {
       const newPayload = middleware.req(payload);
-      if (newPayload instanceof Promise)  {
+      if (newPayload instanceof Promise) {
         newPayloads.push(from(newPayload));
-      }
-      else{
+      } else {
         newPayloads.push(of(middleware.req(payload)));
       }
     });
-    const resultObs = combineLatest(newPayloads).pipe(map((newPayloads: Payload[]) => {
-      return newPayloads.reduce((acc, newPayload) => {
-        return {...acc, ...newPayload}
-      })}));
-    resultObs.subscribe((newPayload) => {
-      console.log('newPayload', newPayload)
-    });
-    return resultObs;
+    return combineLatest(newPayloads).pipe(
+      map((newPayloads: Payload[]) => {
+        return newPayloads.reduce((acc, newPayload) => {
+          return { ...acc, ...newPayload };
+        });
+      })
+    );
   }
 
   applyResponseMiddleware(payload: Payload): Observable<ApiResponse> {
@@ -430,13 +436,12 @@ export class JsonApi {
     );
     let response: ApiResponse;
     responseMiddlewares.forEach((middleware: Middleware) => {
-      response = middleware.res(payload)
+      response = middleware.res(payload);
     });
-    console.log('response', response);
     return of(response);
   }
 
-  applyErrorMiddleware(payload): Observable<Payload> {
+  applyErrorMiddleware(payload: Payload): Observable<Payload> {
     const errorsMiddleware = this.middleware.filter(
       (middleware: Middleware) => middleware.error
     );
@@ -453,21 +458,17 @@ export class JsonApi {
       req: req,
       jsonApi: jsonApi
     });
-    //payload$.pipe(switchMap -> applyRequest).pipe(switchMap -> applyResponse)
     return payload$.pipe(
-        switchMap((payload)=>this.applyRequestMiddleware(payload)),
-        map((payload: Payload) => {
-          return {...payload, ...{res: payload }}}),
-        switchMap((payload)=>this.applyResponseMiddleware(payload)),
-        catchError((err) => {Logger.error(err);
-               return this.applyErrorMiddleware(err);}));
-    // this.applyRequestMiddleware(payload$).pipe(
-    //   mergeMap((payload) => this.applyResponseMiddleware(of(payload))),
-    //   catchError((err) => {
-    //     Logger.error(err);
-    //     return this.applyErrorMiddleware(err);
-    //   })
-    // );
+      switchMap((payload: Payload) => this.applyRequestMiddleware(payload)),
+      map((payload: Payload) => {
+        return { ...payload, ...{ res: payload } };
+      }),
+      switchMap((payload) => this.applyResponseMiddleware(payload)),
+      catchError((err) => {
+        Logger.error(err);
+        return this.applyErrorMiddleware(err);
+      })
+    );
   }
 
   request(url, method = 'GET', params = {}, data = {}) {

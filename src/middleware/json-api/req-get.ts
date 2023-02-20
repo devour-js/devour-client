@@ -5,7 +5,6 @@ class GetMiddleware implements Middleware {
   name: 'GET';
 
   req(payload: Payload): Payload {
-    console.log('GET middleware');
     if (payload.req.method === 'GET') {
       payload.req.headers = {
         'Content-Type': 'application/vnd.api+json',
