@@ -1,5 +1,5 @@
 import { Payload } from './payload';
-import {ApiResponse} from "./api-response";
+import { ApiResponse } from './api-response';
 
 export interface Middleware {
   name: string;
