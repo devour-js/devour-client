@@ -44,7 +44,7 @@ import { ApiRequest } from './middleware/interfaces/api-request';
 import {
   catchError,
   combineLatest,
-  from,
+  isObservable,
   map,
   Observable,
   of,
@@ -413,8 +413,8 @@ export class JsonApi {
     const newPayloads: Observable<any>[] = [];
     requestMiddlewares.forEach((middleware: Middleware) => {
       const newPayload = middleware.req(payload);
-      if (newPayload instanceof Promise) {
-        newPayloads.push(from(newPayload));
+      if (isObservable(newPayload)) {
+        newPayloads.push(newPayload);
       } else {
         newPayloads.push(of(middleware.req(payload)));
       }

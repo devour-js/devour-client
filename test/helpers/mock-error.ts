@@ -1,10 +1,10 @@
+import { Payload } from '../../lib/middleware/interfaces/payload';
+
 export default function (jsonApi, res = {}, errors = null) {
   const mockResponse = {
     name: 'mock-error',
-    req: (payload) => {
-      payload.req.adapter = function () {
-        return Promise.reject(res);
-      };
+    req: (payload: Payload) => {
+      payload.req.adapter = () => Promise.reject(res);
       return payload;
     },
     error: () => {
