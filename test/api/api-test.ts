@@ -745,6 +745,55 @@ describe('JsonApi', () => {
         });
     });
 
+    it('should make basic create call with many request middlewares', (done) => {
+      const inspectorMiddleware = {
+        name: 'inspector-middleware',
+        req: (payload) => {
+          expect(payload.req.method).to.be.eql('POST');
+          expect(payload.req.url).to.be.eql('http://myapi.com/foos');
+          expect(payload.req.data).to.be.eql({ title: 'foo' });
+          expect(payload.req.params).to.be.eql({ include: 'something' });
+          return payload;
+        }
+      };
+
+      const secondMiddleware = {
+        name: 'post-middleware',
+        req: (payload) => {
+          payload.req.meta = { foo: 'bar' };
+          return payload;
+        }
+      };
+
+      const thirdMiddleware = {
+        name: 'validate-middleware',
+        req: (payload) => {
+          expect(payload.req.data).to.be.eql({ title: 'foo' });
+          expect(payload.req.meta).to.be.eql({ foo: 'bar' });
+          return {};
+        }
+      };
+
+      jsonApi.middleware = [
+        inspectorMiddleware,
+        secondMiddleware,
+        thirdMiddleware
+      ];
+
+      jsonApi.define('foo', {
+        title: ''
+      });
+
+      jsonApi
+        .create('foo', { title: 'foo' }, { include: 'something' })
+        .subscribe({
+          next: () => {
+            done();
+          },
+          error: (error) => done(error)
+        });
+    });
+
     it('should make basic update call', (done) => {
       const inspectorMiddleware = {
         name: 'inspector-middleware',

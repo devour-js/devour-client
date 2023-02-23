@@ -416,7 +416,7 @@ export class JsonApi {
       if (isObservable(newPayload)) {
         newPayloads.push(newPayload);
       } else {
-        newPayloads.push(of(middleware.req(payload)));
+        newPayloads.push(of(newPayload));
       }
     });
     return combineLatest(newPayloads).pipe(
@@ -452,16 +452,21 @@ export class JsonApi {
 
   runMiddleware(req: ApiRequest): Observable<any> {
     const jsonApi = this;
-    const payload$: Observable<Payload> = of({
+    const payload: Payload = {
       req: req,
       jsonApi: jsonApi
-    });
+    };
+    const payload$: Observable<Payload> = of(payload);
     return payload$.pipe(
-      switchMap((payload: Payload) => this.applyRequestMiddleware(payload)),
+      switchMap((payload: Payload) => {
+        return this.applyRequestMiddleware(payload);
+      }),
       map((payload: Payload) => {
         return { ...payload, ...{ res: payload } };
       }),
-      switchMap((payload) => this.applyResponseMiddleware(payload)),
+      switchMap((payload) => {
+        return this.applyResponseMiddleware(payload);
+      }),
       catchError((err) => {
         Logger.error(err);
         return this.applyErrorMiddleware(err);
