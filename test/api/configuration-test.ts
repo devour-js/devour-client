@@ -1,6 +1,6 @@
 /* global describe, it, beforeEach, afterEach */
 /* eslint-disable no-unused-expressions */
-import { JsonApi } from '../../src/jsonapi';
+import { ApiError, JsonApi } from '../../src';
 import mockError from '../helpers/mock-error';
 import { expect } from 'chai';
 
@@ -11,11 +11,11 @@ describe('Custom Error Builder', () => {
       apiUrl: 'http://myapi.com',
       errorBuilder: (error) => {
         const { title, detail, meta } = error;
-        return {
+        return new ApiError({
           customTitle: `Custom title: ${title}`,
           customDetail: `Custom detail: ${detail}`,
           meta
-        };
+        });
       }
     });
 

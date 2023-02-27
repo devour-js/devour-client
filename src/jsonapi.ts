@@ -52,6 +52,7 @@ import {
 } from 'rxjs';
 import { Middleware } from './middleware/interfaces/middleware';
 import { ApiResponse } from './middleware/interfaces/api-response';
+import { ApiError } from './middleware/interfaces/api-error';
 
 export class JsonApi {
   private _originalMiddleware: any;
@@ -439,11 +440,11 @@ export class JsonApi {
     return of(response);
   }
 
-  applyErrorMiddleware(payload: Payload): Observable<Payload> {
+  applyErrorMiddleware(payload: Payload): Observable<ApiError[]> {
     const errorsMiddleware = this.middleware.filter(
       (middleware: Middleware) => middleware.error
     );
-    let newPayload: Payload;
+    let newPayload: ApiError[];
     errorsMiddleware.forEach((middleware: Middleware) => {
       newPayload = middleware.error(payload);
     });
