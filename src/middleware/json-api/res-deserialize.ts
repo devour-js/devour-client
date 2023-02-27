@@ -47,6 +47,7 @@ export default {
       });
     }
 
-    return { data, errors, meta, links, document: res } as ApiResponse;
+    //return { data, errors, meta, links, document: res } as ApiResponse;
+    return new ApiResponse({ data, errors, meta, links, document: res });
   }
 };

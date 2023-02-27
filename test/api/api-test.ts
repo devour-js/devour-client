@@ -1,7 +1,7 @@
 /* global describe, context, it, beforeEach, afterEach */
 /* eslint-disable no-unused-expressions */
 
-import { JsonApi } from '../../src/jsonapi';
+import { JsonApi } from '../../src';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import * as pluralize from 'pluralize';
