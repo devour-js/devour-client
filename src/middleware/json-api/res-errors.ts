@@ -1,21 +1,21 @@
 import { Logger } from '../../logger';
 import { Middleware } from '../interfaces/middleware';
-import { ApiErrorResponse, PropertyError } from '../interfaces/api-error';
+import { ApiErrorResponse } from '../interfaces/api-error';
 
-function defaultErrorBuilder(error: PropertyError): PropertyError {
+function defaultErrorBuilder(error: any): object {
   const { title, detail, meta, code } = error;
-  return new PropertyError({ title, detail, meta, code });
+  return { title, detail, meta, code };
 }
 
-function axiosErrorBuilder(error): PropertyError {
+function axiosErrorBuilder(error): object {
   const { name, message, method, code, status } = error;
-  return new PropertyError({
+  return {
     title: name,
     detail: message,
     status: status,
     code: code,
     method: method
-  });
+  };
 }
 
 function getBuildErrors(options: { [key: string]: any }): Function {
@@ -23,10 +23,10 @@ function getBuildErrors(options: { [key: string]: any }): Function {
     serverErrors,
     httpStatus: number
   ): ApiErrorResponse {
-    const errors: PropertyError[] = [];
+    const errors: { [key: string]: object } = {};
     const undefinedErrorIndex = 'unidentified';
     const undefinedErrorTitle = 'Unidentified error';
-    const undefinedError = new PropertyError({ title: undefinedErrorTitle });
+    const undefinedError = { title: undefinedErrorTitle };
     if (!serverErrors) {
       Logger.error(undefinedErrorTitle);
       errors[undefinedErrorIndex] = defaultErrorBuilder(undefinedError);
@@ -37,9 +37,7 @@ function getBuildErrors(options: { [key: string]: any }): Function {
         errors[errorKey(index, error.source)] = errorBuilder(error);
       }
     } else if (serverErrors.error) {
-      errors[undefinedErrorIndex] = new PropertyError({
-        title: serverErrors.error
-      });
+      errors[undefinedErrorIndex] = { title: serverErrors.error };
     } else {
       errors[undefinedErrorIndex] = defaultErrorBuilder(undefinedError);
     }
@@ -74,8 +72,8 @@ export function getMiddleware(options: { [key: string]: any }): Middleware {
         return buildErrors({ error: response.statusText }, httpStatus);
       }
       if (res instanceof Error) {
-        const error: PropertyError = axiosErrorBuilder(res);
-        return new ApiErrorResponse([error], httpStatus);
+        const error = { axios: axiosErrorBuilder(res) };
+        return new ApiErrorResponse(error, httpStatus);
       }
       return null;
     }

@@ -1,8 +1,8 @@
-import { PropertyError } from './api-error';
+import { ApiErrorResponse } from './api-error';
 
 interface Response {
   data: any;
-  errors: PropertyError[];
+  errors: ApiErrorResponse;
   meta: any;
   links: any;
   document: any;
@@ -10,7 +10,7 @@ interface Response {
 
 export class ApiResponse implements Response {
   data: any;
-  errors: PropertyError[];
+  errors: ApiErrorResponse;
   meta: any;
   links: any;
   document: any;
