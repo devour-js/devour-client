@@ -3,7 +3,6 @@
 import { JsonApi } from '../../src';
 import mockError from '../helpers/mock-error';
 import { expect } from 'chai';
-import { PropertyError } from '../../lib';
 
 describe('Custom Error Builder', () => {
   let jsonApi = null;
@@ -12,11 +11,11 @@ describe('Custom Error Builder', () => {
       apiUrl: 'http://myapi.com',
       errorBuilder: (error) => {
         const { title, detail, meta } = error;
-        return new PropertyError({
+        return {
           customTitle: `Custom title: ${title}`,
           customDetail: `Custom detail: ${detail}`,
           meta
-        });
+        };
       }
     });
 
