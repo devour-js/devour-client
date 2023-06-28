@@ -95,6 +95,17 @@ Devour takes an object as the initializer. The following options are available:
 
 **trailingSlash**: An optional object to use trailing slashes on resource and/or collection urls (defaults to false), `new JsonApi({apiUrl: 'http://your-api-here.com', trailingSlash: {resource: false, collection: true})`
 
+### Errors
+
+Devour may throw an error when a model definition is not yet defined in Devour's model directory. To disable such errors, use the `disableErrorsForMissingResourceDefinitions` flag like so:
+
+```js
+const jsonApi = new JsonApi({
+  apiUrl: 'http://your-api-here.com',
+  disableErrorsForMissingResourceDefinitions: true
+})
+```
+
 ### Relationships
 
 Devour comes stock with an easy way of defining relationships which can be included when hitting your API.
