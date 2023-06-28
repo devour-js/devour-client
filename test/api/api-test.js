@@ -911,6 +911,14 @@ describe('JsonApi', () => {
     it.skip('should throw an error while attempting to access undefined model', function (done) {
       expect(function () { jsonApi.findAll('derp').then(done).catch(done) }).to.throwException(/API resource definition for model/)
     })
+
+    it('should not throw any errors accessing undefined models while the disableErrorsForMissingResourceDefinitions flag is enabled.', function () {
+      jsonApi.disableErrorsForMissingResourceDefinitions = true
+      expect(jsonApi.modelFor('derp')).to.be.an('object').and.to.eql({
+        attributes: {},
+        options: {}
+      })
+    })
   })
 
   describe('Complex API calls', () => {

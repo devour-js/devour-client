@@ -69,7 +69,8 @@ class JsonApi {
       resetBuilderOnCall: true,
       auth: {},
       bearer: null,
-      trailingSlash: { collection: false, resource: false }
+      trailingSlash: { collection: false, resource: false },
+      disableErrorsForMissingResourceDefinitions: false
     }
 
     const deprecatedConstructors = (args) => {
@@ -93,6 +94,7 @@ class JsonApi {
     this.auth = options.auth
     this.apiUrl = options.apiUrl
     this.bearer = options.bearer
+    this.disableErrorsForMissingResourceDefinitions = options.disableErrorsForMissingResourceDefinitions
     this.models = {}
     this.deserialize = deserialize
     this.serialize = serialize
@@ -417,9 +419,15 @@ class JsonApi {
 
   modelFor (modelName) {
     if (!this.models[modelName]) {
-      throw new Error(`API resource definition for model "${modelName}" not found. Available models: ${Object.keys(this.models)}`)
+      if (!this.disableErrorsForMissingResourceDefinitions) {
+        throw new Error(`API resource definition for model "${modelName}" not found. Available models: ${Object.keys(this.models)}`)
+      }
+      Logger.error(`API resource definition for model "${modelName}" not found. Available models: ${Object.keys(this.models)}`)
+      return {
+        attributes: {},
+        options: {}
+      }
     }
-
     return this.models[modelName]
   }
 
