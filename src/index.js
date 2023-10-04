@@ -404,6 +404,23 @@ class JsonApi {
     }
     return this.runMiddleware(req)
   }
+  
+  createRelationship(modelName, payload, params = {}){
+      let modelNames = modelName.split('.');
+
+      var req = {
+          method: 'POST',
+          url: this.urlFor({
+              model: modelNames[0],
+              id: payload[0].id
+          }) + '/relationships/' + this.collectionPathFor(modelNames[1]),
+          model: this.modelFor(modelNames[0]).attributes[modelNames[1]].type,
+          params: params,
+          data: payload[1]
+      }
+
+      return this.runMiddleware(req)
+  }
 
   update (modelName, payload, params = {}, meta = {}) {
     const req = {
