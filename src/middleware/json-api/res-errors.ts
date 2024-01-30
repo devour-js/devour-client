@@ -1,28 +1,47 @@
 import { Logger } from '../../logger';
+import { Middleware } from '../interfaces/middleware';
+import { ApiErrorResponse } from '../interfaces/api-error';
 
-function defaultErrorBuilder(error) {
-  const { title, detail } = error;
-  return { title, detail };
+function defaultErrorBuilder(error: any): object {
+  const { title, detail, meta, code } = error;
+  return { title, detail, meta, code };
 }
 
-function getBuildErrors(options: { [key: string]: any }) {
-  return function buildErrors(serverErrors) {
+function axiosErrorBuilder(error): object {
+  const { name, message, method, code, status } = error;
+  return {
+    title: name,
+    detail: message,
+    status: status,
+    code: code,
+    method: method
+  };
+}
+
+function getBuildErrors(options: { [key: string]: any }): Function {
+  return function buildErrors(
+    serverErrors,
+    httpStatus: number
+  ): ApiErrorResponse {
+    const errors: { [key: string]: object } = {};
+    const undefinedErrorIndex = 'unidentified';
+    const undefinedErrorTitle = 'Unidentified error';
+    const undefinedError = { title: undefinedErrorTitle };
     if (!serverErrors) {
-      Logger.error('Unidentified error');
-      return;
-    }
-    const errorBuilder =
-      (options && options.errorBuilder) || defaultErrorBuilder;
-    const errors: { [key: string]: any } = {};
-    if (serverErrors.errors) {
+      Logger.error(undefinedErrorTitle);
+      errors[undefinedErrorIndex] = defaultErrorBuilder(undefinedError);
+    } else if (serverErrors.errors) {
+      const errorBuilder =
+        (options && options.errorBuilder) || defaultErrorBuilder;
       for (const [index, error] of serverErrors.errors.entries()) {
         errors[errorKey(index, error.source)] = errorBuilder(error);
       }
+    } else if (serverErrors.error) {
+      errors[undefinedErrorIndex] = { title: serverErrors.error };
+    } else {
+      errors[undefinedErrorIndex] = defaultErrorBuilder(undefinedError);
     }
-    if (serverErrors.error) {
-      errors.data = { title: serverErrors.error };
-    }
-    return errors;
+    return new ApiErrorResponse(errors, httpStatus);
   };
 }
 
@@ -33,26 +52,28 @@ function errorKey(index, source) {
   return source.pointer.split('/').pop();
 }
 
-export function getMiddleware(options: { [key: string]: any }) {
+export function getMiddleware(options: { [key: string]: any }): Middleware {
   const buildErrors = getBuildErrors(options);
   return {
     name: 'errors',
-    error: function (payload) {
-      if (payload.response) {
-        const response = payload.response;
+    error: function (res: any) {
+      const httpStatus: number = res.response?.status;
+      if (res.response) {
+        const response = res.response;
         if (response.data) {
           if (typeof response.data === 'string') {
             const error = response.statusText
               ? `${response.statusText}: ${response.data}`
               : response.data;
-            return buildErrors({ error });
+            return buildErrors({ error: error }, httpStatus);
           }
-          return buildErrors(response.data);
+          return buildErrors(response.data, httpStatus);
         }
-        return buildErrors({ error: response.statusText });
+        return buildErrors({ error: response.statusText }, httpStatus);
       }
-      if (payload instanceof Error) {
-        return payload;
+      if (res instanceof Error) {
+        const error = { axios: axiosErrorBuilder(res) };
+        return new ApiErrorResponse(error, httpStatus);
       }
       return null;
     }

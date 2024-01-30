@@ -1,6 +1,6 @@
 /* global describe, it, beforeEach, afterEach */
 /* eslint-disable no-unused-expressions */
-import { JsonApi } from '../../src/jsonapi';
+import { JsonApi } from '../../src';
 import mockError from '../helpers/mock-error';
 import { expect } from 'chai';
 
@@ -68,12 +68,12 @@ describe('Custom Error Builder', () => {
   });
 
   it('should include custom errors on response objects', (done) => {
-    jsonApi
-      .findAll('product')
-      .then(() => {
-        done(new Error('Expected method to reject'));
-      })
-      .catch((error) => {
+    jsonApi.findAll('product').subscribe({
+      next: () => {
+        new Error('Expected method to reject');
+        done();
+      },
+      error: (error) => {
         expect(error).to.be.exist;
         expect(error).to.be.an('object');
         error = error['first-name'];
@@ -90,8 +90,8 @@ describe('Custom Error Builder', () => {
         expect(error.meta).to.be.a('object');
         expect(error.meta.created).to.equal('2019-07-15T13:23:21.177Z');
         expect(error.meta.author).to.equal('user@example.com');
-
         done();
-      });
+      }
+    });
   });
 });

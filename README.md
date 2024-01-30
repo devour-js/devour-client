@@ -4,13 +4,17 @@
 
 -------------------------------------------------
 
-The [JSON API specification](https://jsonapi.org/format/) has given us a sensible convention to build our API's against. It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering, sparse fields, and relationships.
+The [JSON API specification](https://jsonapi.org/format/) has given us a sensible convention to build our API's against.
+It's flexible, well thought out, and comes fully loaded with clear answers to questions like pagination, filtering,
+sparse fields, and relationships.
 
-While JSON API is amazing, it can be painful to work with if you don't have a good consumer library. It turns out that serializing and deserializing JSON API resources manually is quite painful. Enter Devour...
+While JSON API is amazing, it can be painful to work with if you don't have a good consumer library. It turns out that
+serializing and deserializing JSON API resources manually is quite painful. Enter Devour...
 
 ### Another Implementation?
 
-While there are quite a few [TypeScript client implementations](https://jsonapi.org/implementations/#client-libraries-typescript), none of them appeared to offer the exact feature set we needed with the simplicity we required.
+While there are quite a few [TypeScript client implementations](https://jsonapi.org/implementations/#client-libraries-typescript),
+none of them appeared to offer the exact feature set we needed with the simplicity we required.
 
 ### Installation
 
@@ -179,7 +183,9 @@ The payload for response middleware contains these additional fields:
 
 ### Your Second Middleware
 
-This request middleware may be handy for live queries as it permits the last pending request to be cancelled (via Axios [request cancellation feature](https://github.com/axios/axios#cancellation)).
+This request middleware may be handy for live queries as it permits the last pending request to be cancelled
+(via Axios [request cancellation feature](https://github.com/axios/axios#cancellation)).
+
 ```
 let cancellableRequest = {
     name: 'axios-cancellable-request',
@@ -202,7 +208,8 @@ jsonApi.replaceMiddleware('axios-request', cancellableRequest)
 
 ### Options
 
-When declaring a model you may pass in a few extra options. We will likely expand these options as we find new and interesting requirements.
+When declaring a model you may pass in a few extra options. We will likely expand these options as we find new and
+interesting requirements.
 
 ```js
 jsonApi.define('product', {
@@ -243,9 +250,11 @@ jsonApi.errorBuilder = (error) => {
 
 ### URL Builder
 
-JSON API Specs allows nested URLs to be used to define a resource. For example, `/authors/1/posts` may define posts from author with ID 1.
+JSON API Specs allows nested URLs to be used to define a resource. For example, `/authors/1/posts` may define posts
+from author with ID 1.
 
-The builder pattern allows arbitrary nested URL construction by chaining `.one(model, id)` and `.all(model)` and append an action, one of: `.get`, `.post`, `.patch` and `.destroy`
+The builder pattern allows arbitrary nested URL construction by chaining `.one(model, id)` and `.all(model)` and append
+an action, one of: `.get`, `.post`, `.patch` and `.destroy`
 
 For example:
 
@@ -258,7 +267,10 @@ jsonApi.one('author', 1).all('post').get({include: 'books'}) // GET http://api.y
 jsonApi.one('author', 1).all('post').post({title:'title'}, {include: 'books'}) // POST http://api.yoursite.com/authors/1/posts?include=books
 ```
 
-JSON API Specs also allow the _relationships_ between resources to be created, updated and deleted. For example, `/authors/1/relationships/posts` defines the relationships between an author and its post. You can use `.patch`, `.post` and `.delete` to edit relationships ([read more](http://jsonapi.org/format/#crud-updating-relationships)).
+JSON API Specs also allow the _relationships_ between resources to be created, updated and deleted.
+For example, `/authors/1/relationships/posts` defines the relationships between an author and its post.
+You can use `.patch`, `.post` and `.delete` to edit relationships
+([read more](http://jsonapi.org/format/#crud-updating-relationships)).
 
 For example:
 
@@ -271,7 +283,7 @@ jsonApi.create('author', { name: 'Joanna Blogs' }) // Create an author
 jsonApi.create('post', { title: 'How to Make Relationships' }) // Create a post
 
 // Create a relationship between the author and the post
-jsonApi.one('author', 1).relationships('articles').patch([{ id: 1 }]) 
+jsonApi.one('author', 1).relationships('articles').patch([{ id: 1 }])
 ```
 
 ### Polymorphic Relationships
@@ -287,7 +299,7 @@ jsonApi.define('order', {
 })
 
 let payables = [{id: 4, type: 'subtotal'}, {id: 5, type: 'tax'}]
-let { data, errors, meta, links } = jsonApi.all('order').post({ name: 'first', payables })
+jsonApi.all('order').post({ name: 'first', payables }).subscribe(({ data, errors, meta, links }) => { /* ... */ })
 /* => POST http://api.yoursite.com/orders
 {
   type: orders,
@@ -304,3 +316,7 @@ let { data, errors, meta, links } = jsonApi.all('order').post({ name: 'first', p
   }
 } */
 ```
+
+### Changes
+
+* 1.1.0: Promises are now Observables (`rxjs@7.4.0`)

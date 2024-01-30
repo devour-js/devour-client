@@ -3,7 +3,7 @@ import { isArray } from 'lodash';
 import { ApiResponse } from '../interfaces/api-response';
 
 function needsDeserialization(method) {
-  return ['GET', 'PATCH', 'POST'].indexOf(method) !== -1;
+  return ['GET', 'PATCH', 'POST', 'DELETE'].indexOf(method) !== -1;
 }
 
 function isCollection(responseData) {
@@ -47,6 +47,7 @@ export default {
       });
     }
 
-    return { data, errors, meta, links, document: res } as ApiResponse;
+    //return { data, errors, meta, links, document: res } as ApiResponse;
+    return new ApiResponse({ data, errors, meta, links, document: res });
   }
 };

@@ -1,4 +1,3 @@
-import { polyfill, Promise } from 'es6-promise';
 import { Logger, LogLevel } from './logger';
 import * as pluralize from 'pluralize';
 import * as serialize from './middleware/json-api/_serialize';
@@ -16,7 +15,7 @@ import {
   isString,
   isUndefined,
   last,
-  map,
+  map as mapArray,
   set
 } from 'lodash';
 
@@ -42,8 +41,18 @@ import deserializeResponseMiddleware from './middleware/json-api/res-deserialize
 import * as errorsMiddleware from './middleware/json-api/res-errors';
 import { Payload } from './middleware/interfaces/payload';
 import { ApiRequest } from './middleware/interfaces/api-request';
-
-polyfill();
+import {
+  catchError,
+  combineLatest,
+  isObservable,
+  map,
+  Observable,
+  of,
+  switchMap
+} from 'rxjs';
+import { Middleware } from './middleware/interfaces/middleware';
+import { ApiResponse } from './middleware/interfaces/api-response';
+import { ApiErrorResponse } from './middleware/interfaces/api-error';
 
 export class JsonApi {
   private _originalMiddleware: any;
@@ -150,12 +159,10 @@ export class JsonApi {
       Logger.disable();
     }
 
-    /*
-        Logger.debug('debug');
-        Logger.info('info');
-        Logger.warn('warn');
-        Logger.error('error');
-        */
+    // Logger.debug('debug');
+    // Logger.info('info');
+    // Logger.warn('warn');
+    // Logger.error('error');
 
     if (deprecatedConstructors(arguments)) {
       Logger.warn(
@@ -220,7 +227,7 @@ export class JsonApi {
   }
 
   buildPath() {
-    return map(this.builderStack, 'path').join('/');
+    return mapArray(this.builderStack, 'path').join('/');
   }
 
   buildUrl() {
@@ -400,57 +407,72 @@ export class JsonApi {
     this.middleware = this._originalMiddleware.slice(0);
   }
 
-  applyRequestMiddleware(promise) {
+  applyRequestMiddleware(payload: Payload): Observable<Payload> {
     const requestMiddlewares = this.middleware.filter(
       (middleware) => middleware.req
     );
-    requestMiddlewares.forEach((middleware) => {
-      promise = promise.then(middleware.req);
+    const newPayloads: Observable<any>[] = [];
+    requestMiddlewares.forEach((middleware: Middleware) => {
+      const newPayload = middleware.req(payload);
+      if (isObservable(newPayload)) {
+        newPayloads.push(newPayload);
+      } else {
+        newPayloads.push(of(newPayload));
+      }
     });
-    return promise;
+    return combineLatest(newPayloads).pipe(
+      map((newPayloads: Payload[]) => {
+        return newPayloads.reduce((acc, newPayload) => {
+          return { ...acc, ...newPayload };
+        });
+      })
+    );
   }
 
-  applyResponseMiddleware(promise) {
-    const responseMiddleware = this.middleware.filter(
+  applyResponseMiddleware(payload: Payload): Observable<ApiResponse> {
+    const responseMiddlewares = this.middleware.filter(
       (middleware) => middleware.res
     );
-    responseMiddleware.forEach((middleware) => {
-      promise = promise.then(middleware.res);
+    let response: ApiResponse;
+    responseMiddlewares.forEach((middleware: Middleware) => {
+      response = middleware.res(payload);
     });
-    return promise;
+    return of(response);
   }
 
-  applyErrorMiddleware(promise) {
+  applyErrorMiddleware(payload: Payload): Observable<ApiErrorResponse> {
     const errorsMiddleware = this.middleware.filter(
-      (middleware) => middleware.error
+      (middleware: Middleware) => middleware.error
     );
-    errorsMiddleware.forEach((middleware) => {
-      promise = promise.then(middleware.error);
+    let newPayload: ApiErrorResponse;
+    errorsMiddleware.forEach((middleware: Middleware) => {
+      newPayload = middleware.error(payload);
     });
-    return promise;
+    return of(newPayload);
   }
 
-  runMiddleware(req: ApiRequest) {
+  runMiddleware(req: ApiRequest): Observable<any> {
     const jsonApi = this;
     const payload: Payload = {
       req: req,
       jsonApi: jsonApi
     };
-    let requestPromise = Promise.resolve(payload);
-    requestPromise = this.applyRequestMiddleware(requestPromise);
-    return requestPromise
-      .then((res) => {
-        payload.res = res;
-        const responsePromise = Promise.resolve(payload);
-        return this.applyResponseMiddleware(responsePromise);
-      })
-      .catch((err) => {
+    const payload$: Observable<Payload> = of(payload);
+    return payload$.pipe(
+      switchMap((payload: Payload) => {
+        return this.applyRequestMiddleware(payload);
+      }),
+      map((payload: Payload) => {
+        return { ...payload, ...{ res: payload } };
+      }),
+      switchMap((payload) => {
+        return this.applyResponseMiddleware(payload);
+      }),
+      catchError((err) => {
         Logger.error(err);
-        const errorPromise = Promise.resolve(err);
-        return this.applyErrorMiddleware(errorPromise).then((err) => {
-          return Promise.reject(err);
-        });
-      });
+        return this.applyErrorMiddleware(err);
+      })
+    );
   }
 
   request(url, method = 'GET', params = {}, data = {}) {
@@ -470,7 +492,7 @@ export class JsonApi {
   }
 
   findAll(modelName, params = {}) {
-    const req = {
+    const req: ApiRequest = {
       method: 'GET',
       url: this.urlFor({ model: modelName }),
       model: modelName,

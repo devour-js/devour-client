@@ -33,7 +33,6 @@ class PostMiddleware implements Middleware {
         };
       }
     }
-
     return payload;
   }
 }
