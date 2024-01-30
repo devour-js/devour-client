@@ -1,6 +1,6 @@
 {
   "name": "devour-client-ts",
-  "version": "1.1.0-beta.6",
+  "version": "1.1.0",
   "description": "A lightweight, framework agnostic, flexible JSON API client",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
