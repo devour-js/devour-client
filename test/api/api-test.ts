@@ -1189,6 +1189,14 @@ describe('JsonApi', () => {
         jsonApi.findAll('derp').then(done).catch(done);
       }).to.throws(/API resource definition for model/);
     });
+
+    it('should not throw any errors accessing undefined models while the disableErrorsForMissingResourceDefinitions flag is enabled.', function () {
+      jsonApi.disableErrorsForMissingResourceDefinitions = true;
+      expect(jsonApi.modelFor('derp')).to.be.an('object').and.to.eql({
+        attributes: {},
+        options: {}
+      });
+    });
   });
 
   describe('Complex API calls', () => {

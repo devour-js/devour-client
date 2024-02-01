@@ -61,6 +61,7 @@ export class JsonApi {
   public auth: { [key: string]: string };
   private readonly apiUrl: string;
   public bearer: string;
+  public disableErrorsForMissingResourceDefinitions: boolean;
   private readonly logger: boolean;
   private readonly loglevel: LogLevel;
   private readonly models: { [key: string]: any };
@@ -108,7 +109,8 @@ export class JsonApi {
       resetBuilderOnCall: true,
       auth: {},
       bearer: null,
-      trailingSlash: { collection: false, resource: false }
+      trailingSlash: { collection: false, resource: false },
+      disableErrorsForMissingResourceDefinitions: false
     };
 
     const deprecatedConstructors = (args) => {
@@ -131,6 +133,8 @@ export class JsonApi {
     this.auth = options.auth;
     this.apiUrl = options.apiUrl;
     this.bearer = options.bearer;
+    this.disableErrorsForMissingResourceDefinitions =
+      options.disableErrorsForMissingResourceDefinitions;
     this.logger = options.logger;
     this.loglevel = options.loglevel;
     this.models = {};
@@ -528,11 +532,22 @@ export class JsonApi {
 
   modelFor(modelName) {
     if (!this.models[modelName]) {
-      throw new Error(
+      if (!this.disableErrorsForMissingResourceDefinitions) {
+        throw new Error(
+          `API resource definition for model "${modelName}" not found. Available models: ${Object.keys(
+            this.models
+          )}`
+        );
+      }
+      Logger.error(
         `API resource definition for model "${modelName}" not found. Available models: ${Object.keys(
           this.models
         )}`
       );
+      return {
+        attributes: {},
+        options: {}
+      };
     }
 
     return this.models[modelName];
