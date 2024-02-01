@@ -93,6 +93,237 @@ describe('deserialize', () => {
     expect(productWithTags.tags[1].name).to.eql('two');
   });
 
+  it('should deserialize many hasMany relations', () => {
+    jsonApi.define('product', {
+      title: '',
+      parentTag: {
+        jsonApi: 'hasOne',
+        type: 'tags'
+      },
+      parentTags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      },
+      childTags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      }
+    });
+    jsonApi.define('tag', {
+      name: ''
+    });
+    const mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          parentTag: {
+            data: { id: '10', type: 'tags' }
+          },
+          parentTags: {
+            data: [
+              { id: '10', type: 'tags' },
+              { id: '11', type: 'tags' },
+              { id: '9', type: 'tags' }
+            ]
+          },
+          childTags: {
+            data: [
+              { id: '9', type: 'tags' },
+              { id: '8', type: 'tags' },
+              { id: '11', type: 'tags' }
+            ]
+          }
+        }
+      },
+      included: [
+        { id: '8', type: 'tags', attributes: { name: 'zero' } },
+        { id: '9', type: 'tags', attributes: { name: 'zero zero' } },
+        { id: '10', type: 'tags', attributes: { name: 'one' } },
+        { id: '11', type: 'tags', attributes: { name: 'two' } }
+      ]
+    };
+    const productWithTags = deserialize.resource.call(
+      jsonApi,
+      mockResponse.data,
+      mockResponse.included
+    );
+    expect(productWithTags.id).to.eql('1');
+    expect(productWithTags.type).to.eql('products');
+    expect(productWithTags.title).to.eql('hello');
+    expect(productWithTags.parentTag.id).to.eql('10');
+    expect(productWithTags.parentTag.type).to.eql('tags');
+    expect(productWithTags.parentTag.name).to.eql('one');
+    expect(productWithTags.parentTags).to.be.an('array');
+    expect(productWithTags.parentTags[0].id).to.eql('10');
+    expect(productWithTags.parentTags[0].type).to.eql('tags');
+    expect(productWithTags.parentTags[0].name).to.eql('one');
+    expect(productWithTags.parentTags[1].id).to.eql('11');
+    expect(productWithTags.parentTags[1].type).to.eql('tags');
+    expect(productWithTags.parentTags[1].name).to.eql('two');
+    expect(productWithTags.parentTags[2].id).to.eql('9');
+    expect(productWithTags.parentTags[2].type).to.eql('tags');
+    expect(productWithTags.parentTags[2].name).to.eql('zero zero');
+    expect(productWithTags.childTags).to.be.an('array');
+    expect(productWithTags.childTags[0].id).to.eql('9');
+    expect(productWithTags.childTags[0].type).to.eql('tags');
+    expect(productWithTags.childTags[0].name).to.eql('zero zero');
+    expect(productWithTags.childTags[1].id).to.eql('8');
+    expect(productWithTags.childTags[1].type).to.eql('tags');
+    expect(productWithTags.childTags[1].name).to.eql('zero');
+    expect(productWithTags.childTags[2].id).to.eql('11');
+    expect(productWithTags.childTags[2].type).to.eql('tags');
+    expect(productWithTags.childTags[2].name).to.eql('two');
+  });
+
+  it('should deserialize hasMany relations', () => {
+    jsonApi.define('product', {
+      title: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      }
+    });
+    jsonApi.define('tag', {
+      name: ''
+    });
+    const mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { id: '10', type: 'tags' },
+              { id: '11', type: 'tags' }
+            ]
+          }
+        }
+      },
+      included: [
+        { id: '10', type: 'tags', attributes: { name: 'one' } },
+        { id: '11', type: 'tags', attributes: { name: 'two' } }
+      ]
+    };
+    const productWithTags = deserialize.resource.call(
+      jsonApi,
+      mockResponse.data,
+      mockResponse.included
+    );
+    expect(productWithTags.id).to.eql('1');
+    expect(productWithTags.type).to.eql('products');
+    expect(productWithTags.title).to.eql('hello');
+    expect(productWithTags.tags).to.be.an('array');
+    expect(productWithTags.tags[0].id).to.eql('10');
+    expect(productWithTags.tags[0].type).to.eql('tags');
+    expect(productWithTags.tags[0].name).to.eql('one');
+    expect(productWithTags.tags[1].id).to.eql('11');
+    expect(productWithTags.tags[1].type).to.eql('tags');
+    expect(productWithTags.tags[1].name).to.eql('two');
+  });
+
+  it('should deserialize deep hasMany relations', () => {
+    jsonApi.define('product', {
+      title: '',
+      parentTag: {
+        jsonApi: 'hasOne',
+        type: 'tags'
+      },
+      parentTags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      },
+      childTags: {
+        jsonApi: 'hasMany',
+        type: 'tags'
+      }
+    });
+    jsonApi.define('tag', {
+      name: ''
+    });
+    const mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          parentTag: {
+            data: { id: '10', type: 'tags' }
+          },
+          parentTags: {
+            data: [
+              { id: '10', type: 'tags' },
+              { id: '11', type: 'tags' },
+              { id: '9', type: 'tags' }
+            ]
+          },
+          childTags: {
+            data: [
+              { id: '9', type: 'tags' },
+              { id: '8', type: 'tags' },
+              { id: '11', type: 'tags' }
+            ]
+          }
+        }
+      },
+      included: [
+        { id: '8', type: 'tags', attributes: { name: 'zero' } },
+        { id: '9', type: 'tags', attributes: { name: 'zero zero' } },
+        {
+          id: '10',
+          type: 'tags',
+          attributes: { name: 'one' },
+          relationships: { parentTag: { data: { id: '11', type: 'tags' } } }
+        },
+        {
+          id: '11',
+          type: 'tags',
+          attributes: { name: 'two' },
+          relationships: { parentTag: { data: { id: '9', type: 'tags' } } }
+        }
+      ]
+    };
+    const productWithTags = deserialize.resource.call(
+      jsonApi,
+      mockResponse.data,
+      mockResponse.included
+    );
+    expect(productWithTags.id).to.eql('1');
+    expect(productWithTags.type).to.eql('products');
+    expect(productWithTags.title).to.eql('hello');
+    expect(productWithTags.parentTag.id).to.eql('10');
+    expect(productWithTags.parentTag.type).to.eql('tags');
+    expect(productWithTags.parentTag.name).to.eql('one');
+    expect(productWithTags.parentTags).to.be.an('array');
+    expect(productWithTags.parentTags[0].id).to.eql('10');
+    expect(productWithTags.parentTags[0].type).to.eql('tags');
+    expect(productWithTags.parentTags[0].name).to.eql('one');
+    expect(productWithTags.parentTags[1].id).to.eql('11');
+    expect(productWithTags.parentTags[1].type).to.eql('tags');
+    expect(productWithTags.parentTags[1].name).to.eql('two');
+    expect(productWithTags.parentTags[2].id).to.eql('9');
+    expect(productWithTags.parentTags[2].type).to.eql('tags');
+    expect(productWithTags.parentTags[2].name).to.eql('zero zero');
+    expect(productWithTags.childTags).to.be.an('array');
+    expect(productWithTags.childTags[0].id).to.eql('9');
+    expect(productWithTags.childTags[0].type).to.eql('tags');
+    expect(productWithTags.childTags[0].name).to.eql('zero zero');
+    expect(productWithTags.childTags[1].id).to.eql('8');
+    expect(productWithTags.childTags[1].type).to.eql('tags');
+    expect(productWithTags.childTags[1].name).to.eql('zero');
+    expect(productWithTags.childTags[2].id).to.eql('11');
+    expect(productWithTags.childTags[2].type).to.eql('tags');
+    expect(productWithTags.childTags[2].name).to.eql('two');
+  });
+
   it('should deserialize complex relations without going into an infinite loop', () => {
     jsonApi.define('course', {
       title: '',
