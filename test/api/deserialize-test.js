@@ -426,4 +426,81 @@ describe('deserialize', () => {
     expect(product.tags[1].id).to.eql('6')
     expect(product.tags[1].type).to.eql('tags')
   })
+
+  it('should not include relationship data on unresolved hasMany relationships if attachRelationshipDataOnUnresolvedIncludes flag is set to false', () => {
+    jsonApi = new JsonApi({
+      apiUrl: 'http://myapi.com',
+      attachRelationshipDataOnUnresolvedIncludes: false
+    })
+    jsonApi.define('product', {
+      title: '',
+      tags: {
+        jsonApi: 'hasMany',
+        type: 'tag'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+    const mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { id: '5', type: 'tags' },
+              { id: '6', type: 'tags' }
+            ]
+          }
+        }
+      }
+    }
+    const product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    expect(product.id).to.eql('1')
+    expect(product.type).to.eql('products')
+    expect(product.title).to.eql('hello')
+    expect(product.tags).to.be.an('array')
+    expect(product.tags).to.be.empty()
+  })
+
+  it('should not include relationship data on unresolved hasOne relationships if attachRelationshipDataOnUnresolvedIncludes flag is set to false', () => {
+    jsonApi = new JsonApi({
+      apiUrl: 'http://myapi.com',
+      attachRelationshipDataOnUnresolvedIncludes: false
+    })
+    jsonApi.define('product', {
+      title: '',
+      tag: {
+        jsonApi: 'hasOne',
+        type: 'tag'
+      }
+    })
+    jsonApi.define('tag', {
+      name: ''
+    })
+    const mockResponse = {
+      data: {
+        id: '1',
+        type: 'products',
+        attributes: {
+          title: 'hello'
+        },
+        relationships: {
+          tag: {
+            data: { id: '5', type: 'tag' }
+          }
+        }
+      }
+    }
+    const product = deserialize.resource.call(jsonApi, mockResponse.data, mockResponse.included)
+    expect(product.id).to.eql('1')
+    expect(product.type).to.eql('products')
+    expect(product.title).to.eql('hello')
+    expect(product.tag).to.not.be.an('array')
+    expect(product.tag).to.eql(null)
+  })
 })
