@@ -128,7 +128,7 @@ let { data, errors, meta, links } = jsonApi.findAll('post', {include: 'comments'
 // => data.comment will be populated with any comments included by your API
 ```
 
-By default, Devour will include relationship metadata (id, type, and other metadata) in each response. It may be handy to exclude this metadata from the response when the relationship is not resolved by the backend (not listed in the "includes" Json:api response). For this, make sure the `attachRelationshipDataOnUnresolvedIncludes` client flag is set to `false`, (default value is `true`).
+By default, Devour will include relationship metadata (id, type, and other metadata) in each response. It may be handy to exclude this metadata from the response when the relationship is not resolved by the backend (not listed in the "includes" JSON:API response). For this, make sure the `attachRelationshipDataOnUnresolvedIncludes` client flag is set to `false`, (default value is `true`).
 
 ### Flexibility
 
