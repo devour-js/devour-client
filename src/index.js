@@ -70,7 +70,8 @@ class JsonApi {
       auth: {},
       bearer: null,
       trailingSlash: { collection: false, resource: false },
-      disableErrorsForMissingResourceDefinitions: false
+      disableErrorsForMissingResourceDefinitions: false,
+      attachRelationshipDataOnUnresolvedIncludes: true
     }
 
     const deprecatedConstructors = (args) => {
@@ -95,6 +96,7 @@ class JsonApi {
     this.apiUrl = options.apiUrl
     this.bearer = options.bearer
     this.disableErrorsForMissingResourceDefinitions = options.disableErrorsForMissingResourceDefinitions
+    this.attachRelationshipDataOnUnresolvedIncludes = options.attachRelationshipDataOnUnresolvedIncludes
     this.models = {}
     this.deserialize = deserialize
     this.serialize = serialize
