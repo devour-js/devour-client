@@ -464,7 +464,7 @@ describe('deserialize', () => {
     expect(product.type).to.eql('products')
     expect(product.title).to.eql('hello')
     expect(product.tags).to.be.an('array')
-    expect(product.tags).to.be.empty()
+    expect(product.tags.length).to.be(0)
   })
 
   it('should not include relationship data on unresolved hasOne relationships if attachRelationshipDataOnUnresolvedIncludes flag is set to false', () => {
